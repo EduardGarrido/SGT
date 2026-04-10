@@ -1,20 +1,23 @@
-<?php
-$host     = getenv('DB_HOST') ?: 'localhost';
-$port     = getenv('DB_PORT') ?: '3306';
-$db       = getenv('DB_NAME') ?: 'SGT';
-$user     = getenv('DB_USER') ?: 'root';
-$password = getenv('DB_PASS') ?: '';
+<?php 
+require_once __DIR__ .'/../../vendor/autoload.php';
 
-try {
-    $pdo = new PDO(
-        "mysql:host=$host;port=$port;dbname=$db;charset=utf8",
-        $user,
-        $password
-    );
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Error de conexión: ' . $e->getMessage()]);
-    exit;
-}
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
+$dotenv->load();
+
+date_default_timezone_set("America/Mazatlan");
+
+class Conexion extends PDO { 
+   public function __construct() {
+      //Sobreescribo el método constructor de la clase PDO.
+      try {
+         $options = array(
+           PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'
+         );
+         parent::__construct('mysql'.':host='.$_ENV['DB_HOST'].';dbname='.$_ENV['DB_NAME'], $_ENV['DB_USER'], $_ENV['DB_PASS'], $options);
+      } catch(PDOException $e) {
+         echo 'Ha surgido un error y no se puede conectar a la base de datos. Detalle: ' . $e->getMessage();
+         exit;
+      }
+   } 
+} 
+?>
