@@ -34,7 +34,7 @@ CREATE TABLE `Caja` (
   `ID_Usuario` int(11) DEFAULT NULL,
   PRIMARY KEY (`ID_Caja`),
   KEY `ID_Usuario` (`ID_Usuario`),
-  CONSTRAINT `1` FOREIGN KEY (`ID_Usuario`) REFERENCES `Usuario` (`ID_Usuario`)
+  CONSTRAINT `fk_caja_usuario` FOREIGN KEY (`ID_Usuario`) REFERENCES `Usuario` (`ID_Usuario`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -86,8 +86,8 @@ CREATE TABLE `Detalle_Surtir` (
   PRIMARY KEY (`ID_Detalle_Surtir`),
   KEY `ID_Surtir` (`ID_Surtir`),
   KEY `ID_Producto` (`ID_Producto`),
-  CONSTRAINT `1` FOREIGN KEY (`ID_Surtir`) REFERENCES `Surtir` (`ID_Surtir`),
-  CONSTRAINT `2` FOREIGN KEY (`ID_Producto`) REFERENCES `Producto` (`ID_Producto`)
+  CONSTRAINT `fk_detalle_surtir_surtir` FOREIGN KEY (`ID_Surtir`) REFERENCES `Surtir` (`ID_Surtir`),
+  CONSTRAINT `fk_detalle_surtir_producto` FOREIGN KEY (`ID_Producto`) REFERENCES `Producto` (`ID_Producto`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -107,8 +107,8 @@ CREATE TABLE `Detalle_Venta` (
   PRIMARY KEY (`ID_Detalle_Venta`),
   KEY `ID_Venta` (`ID_Venta`),
   KEY `ID_Producto` (`ID_Producto`),
-  CONSTRAINT `1` FOREIGN KEY (`ID_Venta`) REFERENCES `Venta` (`ID_Venta`),
-  CONSTRAINT `2` FOREIGN KEY (`ID_Producto`) REFERENCES `Producto` (`ID_Producto`)
+  CONSTRAINT `fk_detalle_venta_venta` FOREIGN KEY (`ID_Venta`) REFERENCES `Venta` (`ID_Venta`),
+  CONSTRAINT `fk_detalle_venta_producto` FOREIGN KEY (`ID_Producto`) REFERENCES `Producto` (`ID_Producto`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -129,8 +129,8 @@ CREATE TABLE `Empleado` (
   PRIMARY KEY (`ID_Empleado`),
   KEY `ID_Contacto_Empleado` (`ID_Contacto_Empleado`),
   KEY `ID_Usuario` (`ID_Usuario`),
-  CONSTRAINT `1` FOREIGN KEY (`ID_Contacto_Empleado`) REFERENCES `Contacto_Empleado` (`ID_Contacto_Empleado`),
-  CONSTRAINT `2` FOREIGN KEY (`ID_Usuario`) REFERENCES `Usuario` (`ID_Usuario`)
+  CONSTRAINT `fk_empleado_contacto` FOREIGN KEY (`ID_Contacto_Empleado`) REFERENCES `Contacto_Empleado` (`ID_Contacto_Empleado`),
+  CONSTRAINT `fk_empleado_usuario` FOREIGN KEY (`ID_Usuario`) REFERENCES `Usuario` (`ID_Usuario`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -154,8 +154,8 @@ CREATE TABLE `Producto` (
   PRIMARY KEY (`ID_Producto`),
   KEY `ID_Categoria` (`ID_Categoria`),
   KEY `ID_Proveedor` (`ID_Proveedor`),
-  CONSTRAINT `1` FOREIGN KEY (`ID_Categoria`) REFERENCES `Categoria` (`ID_Categoria`),
-  CONSTRAINT `2` FOREIGN KEY (`ID_Proveedor`) REFERENCES `Proveedor` (`ID_Proveedor`)
+  CONSTRAINT `fk_producto_categoria` FOREIGN KEY (`ID_Categoria`) REFERENCES `Categoria` (`ID_Categoria`),
+  CONSTRAINT `fk_producto_proveedor` FOREIGN KEY (`ID_Proveedor`) REFERENCES `Proveedor` (`ID_Proveedor`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -189,7 +189,7 @@ CREATE TABLE `Surtir` (
   `ID_Proveedor` int(11) DEFAULT NULL,
   PRIMARY KEY (`ID_Surtir`),
   KEY `ID_Proveedor` (`ID_Proveedor`),
-  CONSTRAINT `1` FOREIGN KEY (`ID_Proveedor`) REFERENCES `Proveedor` (`ID_Proveedor`)
+  CONSTRAINT `fk_surtir_proveedor` FOREIGN KEY (`ID_Proveedor`) REFERENCES `Proveedor` (`ID_Proveedor`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -225,7 +225,7 @@ CREATE TABLE `Venta` (
   `ID_Caja` int(11) DEFAULT NULL,
   PRIMARY KEY (`ID_Venta`),
   KEY `ID_Caja` (`ID_Caja`),
-  CONSTRAINT `1` FOREIGN KEY (`ID_Caja`) REFERENCES `Caja` (`ID_Caja`)
+  CONSTRAINT `fk_venta_caja` FOREIGN KEY (`ID_Caja`) REFERENCES `Caja` (`ID_Caja`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
