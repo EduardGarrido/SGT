@@ -11,7 +11,9 @@ class Conexion extends PDO {
       //Sobreescribo el método constructor de la clase PDO.
       try {
          $options = array(
-           PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'
+           PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
+           PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, #Cuando haya un error retornar excep en vez de false
+           PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC #Obtener los datos de la db en array asociativo con nombres de las columnas
          );
          parent::__construct('mysql'.':host='.$_ENV['DB_HOST'].';dbname='.$_ENV['DB_NAME'], $_ENV['DB_USER'], $_ENV['DB_PASS'], $options);
       } catch(PDOException $e) {
