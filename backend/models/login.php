@@ -1,4 +1,5 @@
 <?php
+
 if($_ENV['APP_ENV'] === 'development') {
     error_reporting(-1);
     ini_set("display_errors", 1);
@@ -12,13 +13,13 @@ class Login{
     public static function validar($ID_Usuario, $Password){
     
         try{
-        $conection = new Conexion;
+        $connection = new Conexion;
         
-            $sql = $conection->prepare('SELECT Password, Estado FROM '. self::TABLE . ' WHERE ID_Usuario = :ID_Usuario');
+            $sql = $connection->prepare('SELECT Password, Estado FROM '. self::TABLE . ' WHERE ID_Usuario = :ID_Usuario');
             $sql->bindValue(':ID_Usuario', $ID_Usuario);
             $sql->execute();
             $row = $sql->fetch();
-            $conection = NULL;
+            $connection = NULL;
 
             if($row){
                 //password_verify($Password, $row['Password'])
