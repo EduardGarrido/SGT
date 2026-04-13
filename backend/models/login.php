@@ -32,7 +32,7 @@ class Login{
                     return 0;
                 }
             }else{
-                return 2;
+                return -1;
             }
         }catch(PDOException $e){
             throw new Exception("Hubo un error: " . $e->getMessage());
