@@ -22,7 +22,6 @@ function esAdmin(){
     return isset($_SESSION['Puesto']) && $_SESSION['Puesto'] === 'admin';
 }
 
-
 switch(true) {
 
     case $path === '/api/ping': // Ruta de prueba para verificar que PHP responde
@@ -33,11 +32,6 @@ switch(true) {
         if($_SERVER['REQUEST_METHOD'] !== 'POST'){
             http_response_code(405);
             echo json_encode(['error' => 'Método no permitido']);
-            break;
-        }
-        if(!esAutorizado()){ 
-            http_response_code(401);
-            echo json_encode(['error' => 'No autenticado']);
             break;
         }
         require_once __DIR__ . '/models/login.php';

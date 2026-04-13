@@ -18,7 +18,7 @@ class Login{
         
             $sql = $connection->prepare('SELECT u.Password, u.Estado, e.Puesto FROM '. self::TABLE . ' u 
             INNER JOIN Empleado e ON e.ID_Usuario = u.ID_Usuario
-            WHERE ID_Usuario = :ID_Usuario');
+            WHERE u.ID_Usuario = :ID_Usuario');
             $sql->bindValue(':ID_Usuario', $ID_Usuario);
             $sql->execute();
             $row = $sql->fetch();
