@@ -1,0 +1,23 @@
+import { defineConfig } from "electron-vite";
+import react from "@vitejs/plugin-react";
+
+export default defineConfig({
+    main: {
+        build: {
+            rollupOptions: {
+                input: './src/main/main.js'
+            }
+        }
+    },
+    preload: {
+        build: {
+            rollupOptions: {
+                input: './src/main/preload.js'
+            }
+        }
+    },
+    renderer: {
+        root: "src/renderer",
+        plugins: [react()]
+    }
+})
