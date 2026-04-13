@@ -9,8 +9,9 @@ require_once __DIR__ . "/../config/database.php";
 
 class Usuario {
     const TABLE = 'Usuario';
+    // ID_Usuario, Password, Estado
 
-    public function crearUsuario($Password, $Estado) {
+    public static function crearUsuario($Password, $Estado) {
 
         try {
             $connection = new Conexion;
@@ -27,18 +28,18 @@ class Usuario {
             if ($valid) {
                 return $ID_Usuario;
             } else {
-                return -1;
+                return -1; // error
             }
         } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
     }
 
-    public function readUsuario($ID_Usuario) {
+    public static function readUsuario($ID_Usuario) {
         try {
             $connection = new Conexion;
 
-            $sql = $connection->prepare('SELECT * FROM ' . self::TABLE . ' WHERE ID_Usuario = :ID_Usuario');
+            $sql = $connection->prepare('SELECT Estado FROM ' . self::TABLE . ' WHERE ID_Usuario = :ID_Usuario');
             $sql->bindValue(':ID_Usuario', $ID_Usuario, PDO::PARAM_INT);
             $sql->execute();
             $usuario = $sql->fetch();
@@ -54,7 +55,7 @@ class Usuario {
         }
     }
 
-    public function updateUsuario($ID_Usuario, $Password, $Estado) {
+    public static function updateUsuario($ID_Usuario, $Password, $Estado) {
         try {
             $connection = new Conexion;
 
@@ -82,7 +83,7 @@ class Usuario {
         }
     }
 
-    public function deleteUsuario($ID_Usuario) {
+    public static function deleteUsuario($ID_Usuario) {
         try {
             $connection = new Conexion;
 

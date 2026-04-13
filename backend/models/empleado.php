@@ -9,23 +9,28 @@ require_once __DIR__ . "/../config/database.php";
 
 class Empleado {
     const TABLE = 'Empleado';
+    // ID_Empleado, Nombre, Puesto, Estado, ID_Contacto_Empleado, ID_Usuario
 
-    public function crearUsuario($Password, $Estado) {
+    public static function crearEmpleado($Nombre, $Puesto, $Estado, $ID_Contacto_Empleado, $ID_Usuario) {
 
         try {
             $connection = new Conexion;
 
             $sql = $connection->prepare(
-                'INSERT INTO ' . self::TABLE . ' (Password, Estado) VALUES (:Password, :Estado)'
+                'INSERT INTO ' . self::TABLE . ' (Nombre, Puesto, Estado, ID_Contacto_Empleado, ID_Usuario) 
+                VALUES (:Nombre, :Puesto, :Estado, :ID_Contacto_Empleado, :ID_Usuario)'
                 );
-            $sql->bindValue(':Password', password_hash($Password, PASSWORD_DEFAULT));
+            $sql->bindValue(':Nombre', $Nombre, PDO::PARAM_STR);
+            $sql->bindValue(':Puesto', $Puesto, PDO::PARAM_STR);
             $sql->bindValue(':Estado', $Estado, PDO::PARAM_STR);
+            $sql->bindValue(':ID_Contacto_Empleado', $ID_Contacto_Empleado, PDO::PARAM_INT);
+            $sql->bindValue(':ID_Usuario', $ID_Usuario, PDO::PARAM_INT);
             $valid = $sql->execute();
-            $ID_Usuario = $connection->lastInsertId();
+            $ID_Empleado = $connection->lastInsertId();
             $connection = NULL;
 
             if ($valid) {
-                return $ID_Usuario;
+                return $ID_Empleado;
             } else {
                 return -1;
             }
@@ -34,36 +39,36 @@ class Empleado {
         }
     }
 
-    public function readUsuario($ID_Usuario) {
+    public static function readEmpleado($ID_Empleado) {
         try {
             $connection = new Conexion;
 
-            $sql = $connection->prepare('SELECT * FROM ' . self::TABLE . ' WHERE ID_Usuario = :ID_Usuario');
-            $sql->bindValue(':ID_Usuario', $ID_Usuario, PDO::PARAM_INT);
+            $sql = $connection->prepare('SELECT Nombre, Puesto, Estado FROM ' . self::TABLE . ' WHERE ID_Empleado = :ID_Empleado');
+            $sql->bindValue(':ID_Empleado', $ID_Empleado, PDO::PARAM_INT);
             $sql->execute();
-            $usuario = $sql->fetch(PDO::FETCH_ASSOC);
+            $empleado = $sql->fetch(PDO::FETCH_ASSOC);
             $connection = NULL;
 
-            if ($usuario) {
-                return $usuario;
-                // TODO
+            if ($empleado) {
+                return $empleado;
             } else {
-                return;
+                return false;
             }
             } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
     }
 
-    public function updateUsuario($ID_Usuario, $Password, $Estado) {
+    public static function updateEmpleado($ID_Empleado, $Nombre, $Puesto, $Estado) {
         try {
             $connection = new Conexion;
 
             $sql = $connection->prepare(
-                'UPDATE ' . self::TABLE . ' SET Password = :Password, Estado = :Estado WHERE ID_Usuario = :ID_Usuario'
+                'UPDATE ' . self::TABLE . ' SET Nombre = :Nombre, Puesto = :Puesto, Estado = :Estado WHERE ID_Empleado = :ID_Empleado'
                 );
-            $sql->bindValue(':ID_Usuario', $ID_Usuario, PDO::PARAM_INT);
-            $sql->bindValue(':Password', password_hash($Password, PASSWORD_DEFAULT));
+            $sql->bindValue(':ID_Empleado', $ID_Empleado, PDO::PARAM_INT);
+            $sql->bindValue(':Nombre', $Nombre, PDO::PARAM_STR);
+            $sql->bindValue(':Puesto', $Puesto, PDO::PARAM_STR);
             $sql->bindValue(':Estado', $Estado, PDO::PARAM_STR);
             $valid = $sql->execute();
             $row = $sql->rowCount();
@@ -71,7 +76,7 @@ class Empleado {
 
             if ($valid) {
                 if ($row > 0) {
-                    return 1; // actualizo usuario
+                    return 1; // actualizo empleado
                 } else {
                     return 0; // no actualizo
                 }
@@ -83,24 +88,24 @@ class Empleado {
         }
     }
 
-    public function deleteUsuario($ID_Usuario) {
+    public static function deleteEmpleado($ID_Empleado) {
         try {
             $connection = new Conexion;
 
-            $sql = $connection->prepare('DELETE FROM ' . self::TABLE . ' WHERE ID_Usuario = :ID_Usuario');
-            $sql->bindValue(':ID_Usuario', $ID_Usuario, PDO::PARAM_INT);
+            $sql = $connection->prepare('DELETE FROM ' . self::TABLE . ' WHERE ID_Empleado = :ID_Empleado');
+            $sql->bindValue(':ID_Empleado', $ID_Empleado, PDO::PARAM_INT);
             $valid = $sql->execute();
             $row = $sql->rowCount();
             $connection = NULL;
 
             if ($valid) {
                 if ($row > 0) {
-                    return 1; // usuario borrado
+                    return 1; // empleado borrado
                 } else {
-                    return 0; // no borro o usuario no encontrado
+                    return 0; // no borro o empleado no encontrado
                 }
             } else {
-                return 2; // error al ejecutar $sql
+                return -1; // error
             }
             $connection = NULL;
         } catch (PDOException $e) {
