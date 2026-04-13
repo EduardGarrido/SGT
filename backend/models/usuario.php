@@ -30,12 +30,14 @@ class Usuario {
             } else {
                 return -1; // error
             }
+
         } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
     }
 
     public static function readUsuario($ID_Usuario) {
+
         try {
             $connection = new Conexion;
 
@@ -50,12 +52,14 @@ class Usuario {
             } else {
                 return false;
             }
-            } catch (PDOException $e) {
+
+        } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
     }
 
     public static function updateUsuario($ID_Usuario, $Password, $Estado) {
+
         try {
             $connection = new Conexion;
 
@@ -78,12 +82,14 @@ class Usuario {
             } else {
                 return -1; // error
             }
+
         } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
     }
 
     public static function deleteUsuario($ID_Usuario) {
+
         try {
             $connection = new Conexion;
 
@@ -100,8 +106,9 @@ class Usuario {
                     return 0; // no borro o usuario no encontrado
                 }
             } else {
-                return 2; // error al ejecutar $sql
+                return -1; // error al ejecutar $sql
             }
+            
         } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }

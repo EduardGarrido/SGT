@@ -145,3 +145,6 @@ vite.config.ts.timestamp-*
 
 #Vendor
 /vendor
+
+#Temp
+models/producto.php

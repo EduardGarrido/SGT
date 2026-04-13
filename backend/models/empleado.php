@@ -34,12 +34,14 @@ class Empleado {
             } else {
                 return -1;
             }
+
         } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
     }
 
     public static function readEmpleado($ID_Empleado) {
+
         try {
             $connection = new Conexion;
 
@@ -54,12 +56,14 @@ class Empleado {
             } else {
                 return false;
             }
-            } catch (PDOException $e) {
+
+        } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
     }
 
     public static function updateEmpleado($ID_Empleado, $Nombre, $Puesto, $Estado) {
+
         try {
             $connection = new Conexion;
 
@@ -83,12 +87,14 @@ class Empleado {
             } else {
                 return -1; // error
             }
+
         } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
     }
 
     public static function deleteEmpleado($ID_Empleado) {
+
         try {
             $connection = new Conexion;
 
@@ -107,10 +113,11 @@ class Empleado {
             } else {
                 return -1; // error
             }
-            $connection = NULL;
+
         } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
     }
 }
+
 ?>
