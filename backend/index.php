@@ -31,7 +31,7 @@ switch(true) {
     case $path === '/api/login':
         if($_SERVER['REQUEST_METHOD'] !== 'POST'){
             http_response_code(405);
-            echo json_encode(['error' => 'Método no permitido']);
+            echo json_encode(['ok' => false, 'error' => 'Método no permitido']);
             break;
         }
         require_once __DIR__ . '/models/login.php';
@@ -44,25 +44,31 @@ switch(true) {
 
         if($res === 2){
             http_response_code(404);
-            echo json_encode(['mensaje' => 'Usuario no encontrado']);
+            echo json_encode(['ok' => false, 'mensaje' => 'Usuario no encontrado']);
         }elseif($res === 0){
             http_response_code(401);
-            echo json_encode(['mensaje' => 'Credenciales incorrectas']);
+            echo json_encode(['ok' => false, 'mensaje' => 'Credenciales incorrectas']);
         }else {
             $_SESSION['ID_Usuario'] = $ID_Usuario;
             $_SESSION['Puesto'] = $res['Puesto'];
             http_response_code(200);
-            echo json_encode(['mensaje' => 'Login exitoso', 'puesto' => $res['Puesto']]);
+            echo json_encode(['ok' => true, 'mensaje' => 'Login exitoso', 'puesto' => $res['Puesto']]);
         }// --Cierra switch de respuesta        
         break;// --Termina case login
 
 
     case $path === '/api/logout':
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['ok' => false, 'error' => 'Método no permitido']);
+            break;
+        }
         session_destroy();
-        echo json_encode(['mensaje' => 'Sesión cerrada']);
+        echo json_encode(['ok' => true, 'mensaje' => 'Sesión cerrada']);
+       
         break;// -- Termina case logout
     default:
         http_response_code(404);
-        echo json_encode(['error' => 'Ruta no encontrada']);
+        echo json_encode(['ok' => false, 'error' => 'Ruta no encontrada']);
         break;
 }// --Fin switch principal
