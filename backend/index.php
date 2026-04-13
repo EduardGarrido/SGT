@@ -65,6 +65,7 @@ switch(true) {
         }
         session_destroy();
         echo json_encode(['ok' => true, 'mensaje' => 'Sesión cerrada']);
+       
         break;// -- Termina case logout
     default:
         http_response_code(404);
