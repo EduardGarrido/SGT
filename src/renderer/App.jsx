@@ -1,37 +1,20 @@
 import { useState } from 'react'
-import { login } from './api/api'
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { Login, Dashboard} from './pages' 
 
 export default function App() {
-  const [id, setId] = useState('')
-  const [pw, setPw] = useState('')
-  const [respuesta, setRes] = useState(null)
-
-  // Handle login (on button click)
-  async function handleLogin() {
-    const data = await login(id, pw)
-    setRes(JSON.stringify(data, null, 2))
-  }
-
-  // Handle IPC ping from renderer to main
-  async function tryPing() {
-    const response = await window.electronAPI.ping()
-    console.log('Respuesta del main:', response)
-  }
+  const [puesto, setPuesto] = useState('') 
 
   return (
-    <div>
-      <h2>Login</h2>
-      <input placeholder="ID usuario" value={id} onChange={(e) => setId(e.target.value)} />
-      <input
-        placeholder="Contraseña"
-        value={pw}
-        onChange={(e) => setPw(e.target.value)}
-        type="password"
-      />
-      <button onClick={handleLogin}>Enviar</button>
-      {respuesta && <pre>{respuesta}</pre>} 
-      {/* Show only if value exists */}
-      <button onClick={tryPing}>Ping al main</button>
-    </div>
+    <HashRouter>
+      <Routes>
+        <Route path="/" element={<Login setPuesto={setPuesto} />} />
+        <Route path="/dashboard" element={<Dashboard puesto={puesto} />} />
+        {/* <Route path="/usuarios" element= {
+          puesto === 'admin' ? <Usuarios /> : <Navigate to="/dashboard" replace />
+        }/> */}
+        <Route path="*" element={<Navigate to="/login" replace/>} />
+      </Routes>
+    </HashRouter>
   )
 }

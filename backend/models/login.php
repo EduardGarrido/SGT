@@ -1,0 +1,40 @@
+<?php
+if($_ENV['APP_ENV'] === 'development') {
+    error_reporting(-1);
+    ini_set("display_errors", 1);
+}
+
+require_once __DIR__ . "/../config/database.php";
+
+class Login{
+    const TABLE = 'Usuario';
+
+    public static function validar($ID_Usuario, $Password){
+    
+        try{
+        $connection = new Conexion;
+        
+            $sql = $connection->prepare('SELECT Password, Estado FROM '. self::TABLE . ' WHERE ID_Usuario = :ID_Usuario');
+            $sql->bindValue(':ID_Usuario', $ID_Usuario);
+            $sql->execute();
+            $row = $sql->fetch();
+            $connection = NULL;
+
+            if($row){
+                //password_verify($Password, $row['Password'])
+                if(password_verify($Password, $row['Password']) && $row['Estado'] == 'autorizado'){
+                    return 1;
+                }else{
+                    return 0;
+                }
+            }else{
+                return 2;
+            }
+        }catch(PDOException $e){
+            throw new Exception("Hubo un error: " . $e->getMessage());
+        }
+    }//---- Fin Funcion Validar 
+}
+
+
+?>

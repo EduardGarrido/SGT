@@ -8,6 +8,14 @@ export async function login(id, pw) {
     body: JSON.stringify({ ID_Usuario: id, Password: pw }),
   })
 
-  // Return to show okay response or error message
+  return res.json()
+}
+
+// HTTP request to PHP backend for logout
+export async function logout() {
+  const res = await fetch(`${ROOT}/logout`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+  })
   return res.json()
 }

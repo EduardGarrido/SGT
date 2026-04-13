@@ -10,7 +10,8 @@ let phpProcess = null
 // Invoke PHP built-in server
 function spawnPHP() {
   const root = path.join(__dirname, '../../backend')
-  phpProcess = spawn('php', ['-S', 'localhost:8000', '-t', root])
+  const router = path.join(root, 'index.php')
+  phpProcess = spawn('php', ['-S', 'localhost:8000', '-t', root, router])
   phpProcess.stderr.on('data', (d) => console.log('[PHP]', d.toString()))
   phpProcess.on('close', (code) => console.log('[PHP] cerrado:', code))
   // code -> 0 closed, 1 error, 2 misuse, 127 command not found
