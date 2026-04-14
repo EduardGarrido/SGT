@@ -41,8 +41,8 @@ switch(true) {
         $Password = htmlspecialchars($data['Password']);
 
         $res = Login::validar($ID_Usuario, $Password);
-
-        if($res === 2){
+        
+        if($res === -1){
             http_response_code(404);
             echo json_encode(['ok' => false, 'mensaje' => 'Usuario no encontrado']);
         }elseif($res === 0){
