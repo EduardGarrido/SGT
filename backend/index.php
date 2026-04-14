@@ -41,8 +41,9 @@ switch(true) {
         $Password = htmlspecialchars($data['Password']);
 
         $res = Login::validar($ID_Usuario, $Password);
+        error_log('Resultado validar: ' . print_r($res, true));
 
-        if($res === 2){
+        if($res === -1){
             http_response_code(404);
             echo json_encode(['ok' => false, 'mensaje' => 'Usuario no encontrado']);
         }elseif($res === 0){
@@ -52,7 +53,7 @@ switch(true) {
             $_SESSION['ID_Usuario'] = $ID_Usuario;
             $_SESSION['Puesto'] = $res['Puesto'];
             http_response_code(200);
-            echo json_encode(['ok' => true, 'mensaje' => 'Login exitoso', 'puesto' => $res['Puesto']]);
+            echo json_encode(['ok' => true, 'mensaje' => 'Login exitoso', 'puesto' => $res['Puesto'], 'id' => $res['ID_Usuario']]);
         }// --Cierra switch de respuesta        
         break;// --Termina case login
 
@@ -65,6 +66,7 @@ switch(true) {
         }
         session_destroy();
         echo json_encode(['ok' => true, 'mensaje' => 'Sesión cerrada']);
+       
         break;// -- Termina case logout
     default:
         http_response_code(404);

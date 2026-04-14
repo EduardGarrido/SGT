@@ -1,19 +1,28 @@
 import { useState } from 'react'
+import { useAuth } from './context/AuthContext'
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { Login, Dashboard} from './pages' 
+import { Login, Dashboard, Users} from './pages' 
+
+function RutaAdmin({children}) {
+  const { esAdmin } = useAuth()
+
+  return (esAdmin ? children : <Navigate to="/dashboard" replace />)
+}
+
+function RutaProtegida({children}) {
+  const { usuario } = useAuth()
+
+  return (usuario ? children : <Navigate to="/" replace />)
+}
 
 export default function App() {
-  const [puesto, setPuesto] = useState('') 
-
   return (
     <HashRouter>
       <Routes>
-        <Route path="/" element={<Login setPuesto={setPuesto} />} />
-        <Route path="/dashboard" element={<Dashboard puesto={puesto} />} />
-        {/* <Route path="/usuarios" element= {
-          puesto === 'admin' ? <Usuarios /> : <Navigate to="/dashboard" replace />
-        }/> */}
-        <Route path="*" element={<Navigate to="/login" replace/>} />
+        <Route path="/"           element={<Login/>} />
+        <Route path="/dashboard"  element={<RutaProtegida><Dashboard /></RutaProtegida>} />
+        <Route path="/users"      element={<RutaAdmin><Users /></RutaAdmin>} />
+        <Route path="*"           element={<Navigate to="/" replace/>} />
       </Routes>
     </HashRouter>
   )

@@ -14,7 +14,9 @@ class Login{
         try{
         $connection = new Conexion;
         
-            $sql = $connection->prepare('SELECT Password, Estado FROM '. self::TABLE . ' WHERE ID_Usuario = :ID_Usuario');
+            $sql = $connection->prepare('SELECT u.ID_Usuario, u.Password, u.Estado, e.Puesto FROM '. self::TABLE . ' u 
+            INNER JOIN Empleado e ON e.ID_Usuario = u.ID_Usuario
+            WHERE u.ID_Usuario = :ID_Usuario');
             $sql->bindValue(':ID_Usuario', $ID_Usuario);
             $sql->execute();
             $row = $sql->fetch();
@@ -23,12 +25,12 @@ class Login{
             if($row){
                 //password_verify($Password, $row['Password'])
                 if(password_verify($Password, $row['Password']) && $row['Estado'] == 'autorizado'){
-                    return 1;
+                    return $row;
                 }else{
                     return 0;
                 }
             }else{
-                return 2;
+                return -1;
             }
         }catch(PDOException $e){
             throw new Exception("Hubo un error: " . $e->getMessage());

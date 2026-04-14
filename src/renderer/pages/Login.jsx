@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import { login } from '../api/api'
 
 export default function Login() {
@@ -8,6 +9,7 @@ export default function Login() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const { guardarSesion } = useAuth()
 
   // Handle login (on button click)
   async function handleLogin() {
@@ -22,13 +24,16 @@ export default function Login() {
     try {
       const data = await login(id, password)
 
+      console.log('Login response:', data) // Debug: log API response
+
       if (data.ok) {
+        guardarSesion(data) // Set user role in App state
         navigate('/dashboard') // Go to dashboard on success
       } else {
         setError(data.mensaje || 'Error al iniciar sesion')
       }
-    } catch (err) {
-      setError('No se pudo conectar con el servidor')
+    } catch {
+      setError('No se pudo conectar con el servidor') // Handle network or server errors
     } finally {
       setLoading(false) // Reset loading state after response or error
     }
