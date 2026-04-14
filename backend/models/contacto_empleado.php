@@ -34,12 +34,14 @@ class Contacto_Empleado {
             } else {
                 return -1; // error
             }
+
         } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
     }
 
     public static function readContacto($ID_Contacto_Empleado) {
+
         try {
             $connection = new Conexion;
 
@@ -54,12 +56,14 @@ class Contacto_Empleado {
             } else {
                 return false;
             }
-            } catch (PDOException $e) {
+
+        } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
     }
 
     public static function updateContacto($ID_Contacto_Empleado, $Telefono, $Correo, $Calle, $Colonia, $Codigo_Postal) {
+
         try {
             $connection = new Conexion;
 
@@ -87,12 +91,14 @@ class Contacto_Empleado {
             } else {
                 return -1; // error
             }
+
         } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
     }
 
     public static function deleteContacto($ID_Contacto_Empleado) {
+
         try {
             $connection = new Conexion;
 
@@ -111,10 +117,11 @@ class Contacto_Empleado {
             } else {
                 return -1; // error
             }
-            $connection = NULL;
+
         } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
     }
 }
+
 ?>
