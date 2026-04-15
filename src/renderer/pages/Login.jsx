@@ -14,7 +14,7 @@ export default function Login() {
 
   // Handle login (on button click)
   async function handleLogin() {
-    if (!id || !password) {
+    if (!id.trim() || !password) {
       setError('Completa ambos campos')
       return
     }
@@ -23,13 +23,13 @@ export default function Login() {
     setLoading(true)
 
     try {
-      const data = await login(id, password)
+      const data = await login(id.trim(), password)
 
       console.log('Login response:', data) // Debug: log API response
 
       if (data.ok) {
         guardarSesion(data) // Set user role in App state
-        navigate('/dashboard') // Go to dashboard on success
+        navigate('/dashboard', { replace: true}) // Go to dashboard on success
       } else {
         setError(data.mensaje || 'Error al iniciar sesion')
       }

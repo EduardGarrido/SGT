@@ -1,21 +1,31 @@
-const ROOT = 'http://localhost:8000/api' // Base URL for PHP backend
+const ROOT = import.meta.env.VITE_APP_URL ?? 'http://localhost:8000/api' // Base URL for PHP backend
 
-// HTTP request to PHP backend for login
-export async function login(id, pw) {
-  const res = await fetch(`${ROOT}/login`, {
-    method: 'POST',
+async function request(path, opttions = {}) {
+  const res = await fetch(`${ROOT}/${path}`, {
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ID_Usuario: id, Password: pw }),
+    credentials: 'include', // Include cookies for session management
+    ...opttions,
   })
+
+  if (!res.ok) {
+    const errorData = await res.json()
+    throw new Error(errorData.mensaje || 'Error en la solicitud')
+  }
 
   return res.json()
 }
 
+// HTTP request to PHP backend for login
+export async function login(id, pw) {
+  return request('login', {
+    method: 'POST',
+    body: JSON.stringify({ ID_Usuario: id, Password: pw }),
+  })
+}
+
 // HTTP request to PHP backend for logout
 export async function logout() {
-  const res = await fetch(`${ROOT}/logout`, {
+  return request('logout', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
   })
-  return res.json()
 }

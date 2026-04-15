@@ -1,31 +1,56 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState } from 'react'
+
+const SESSION_KEY = 'usuario'
+
+function leerSesion() {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
+  }
+}
 
 const AuthContext = createContext(null)
 
-export function AuthProvider({children}) {
-    const [usuario, setUsuario] = useState(null)
+export function AuthProvider({ children }) {
+  const [usuario, setUsuario] = useState(leerSesion())
 
-    function guardarSesion(data){
-        setUsuario({
-            id: data.id,
-            puesto: data.puesto
-        })
-    }
+  function guardarSesion(data) {
+    const u = { id: data.id, puesto: data.puesto }
 
-    function cerrarSesion(){
-        setUsuario(null)    
-    }
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(u))
+    
+    setUsuario(u)
+  }
 
-    const esAdmin = usuario?.puesto === 'admin'
+  function cerrarSesion() {
+    sessionStorage.removeItem(SESSION_KEY)
 
-    return (
-        <AuthContext.Provider value={{ usuario, esAdmin, guardarSesion, cerrarSesion }}>
-            {children}
-        </AuthContext.Provider>
-    )
+    setUsuario(null)
+  }
+
+  const esAdmin = usuario?.puesto === 'admin'
+
+  return (
+    <AuthContext.Provider
+      value={{
+        usuario,
+        esAdmin,
+        guardarSesion,
+        cerrarSesion,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  )
 }
 
 // custom hook — any component calls this to read auth state
 export function useAuth() {
-  return useContext(AuthContext)
+  const context = useContext(AuthContext)
+
+  if (!context) throw new Error('useAuth must be used within an AuthProvider')
+
+  return context
 }

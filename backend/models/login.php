@@ -24,16 +24,16 @@ class Login{
             $row = $sql->fetch();
             $connection = NULL;
 
-            if($row){
-                //password_verify($Password, $row['Password'])
-                if(password_verify($Password, $row['Password']) && $row['Estado'] == 'autorizado'){
-                    return $row;
-                }else{
-                    return 0;
-                }
-            }else{
+            if(!$row){
                 return -1;
             }
+                //password_verify($Password, $row['Password'])
+            if(password_verify($Password, $row['Password']) && $row['Estado'] == 'autorizado'){
+                return $row;
+            }  
+               
+            return 0;
+            
         }catch(PDOException $e){
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
