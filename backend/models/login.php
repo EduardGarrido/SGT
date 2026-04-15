@@ -1,4 +1,5 @@
 <?php
+
 if($_ENV['APP_ENV'] === 'development') {
     error_reporting(-1);
     ini_set("display_errors", 1);
@@ -9,12 +10,13 @@ require_once __DIR__ . "/../config/database.php";
 class Login{
     const TABLE = 'Usuario';
 
+
     public static function validar($ID_Usuario, $Password){
     
         try{
         $connection = new Conexion;
         
-            $sql = $connection->prepare('SELECT u.ID_Usuario, u.Password, u.Estado, e.Puesto FROM '. self::TABLE . ' u 
+            $sql = $connection->prepare('SELECT u.Password, u.Estado, e.Puesto FROM '. self::TABLE . ' u 
             INNER JOIN Empleado e ON e.ID_Usuario = u.ID_Usuario
             WHERE u.ID_Usuario = :ID_Usuario');
             $sql->bindValue(':ID_Usuario', $ID_Usuario);
