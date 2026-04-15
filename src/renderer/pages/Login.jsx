@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import { login } from '../api/api'
+import { ActionButton } from '../components'
 
 export default function Login() {
   const [id, setId] = useState('')
@@ -8,10 +10,11 @@ export default function Login() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const { guardarSesion } = useAuth()
 
   // Handle login (on button click)
   async function handleLogin() {
-    if (!id || !password) {
+    if (!id.trim() || !password) {
       setError('Completa ambos campos')
       return
     }
@@ -20,15 +23,18 @@ export default function Login() {
     setLoading(true)
 
     try {
-      const data = await login(id, password)
+      const data = await login(id.trim(), password)
+
+      console.log('Login response:', data) // Debug: log API response
 
       if (data.ok) {
-        navigate('/dashboard') // Go to dashboard on success
+        guardarSesion(data) // Set user role in App state
+        navigate('/dashboard', { replace: true}) // Go to dashboard on success
       } else {
         setError(data.mensaje || 'Error al iniciar sesion')
       }
-    } catch (err) {
-      setError('No se pudo conectar con el servidor')
+    } catch {
+      setError('No se pudo conectar con el servidor') // Handle network or server errors
     } finally {
       setLoading(false) // Reset loading state after response or error
     }
@@ -69,9 +75,7 @@ export default function Login() {
           />
         </div>
 
-        <button onClick={handleLogin} disabled={loading}>
-          {loading ? 'Verificando...' : "Iniciar sesion"}
-        </button>
+        <ActionButton onClick={handleLogin} label={loading ? 'Verificando...' : "Iniciar sesion"} disabled={loading} />
     </div>
   )
 }

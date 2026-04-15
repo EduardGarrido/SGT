@@ -1,13 +1,16 @@
-import { useNavigate } from 'react-router-dom'
-
+import { useAuth } from '../context/AuthContext'
+import { LogoutButton, NavigateButton }from '../components'
 
 export default function Dashboard() {
-    const navigate = useNavigate()
+    const { usuario, esAdmin } = useAuth()
 
     return (
         <div>
-            <h1>Dashboard :)</h1>
-            <button onClick={() => navigate('/')}>Back to login</button>
+            <h1>Bienvenido, {usuario?.id} - Puesto: {usuario?.puesto}</h1>
+            <LogoutButton label="Cerrar sesion" />
+
+            {esAdmin && <NavigateButton to="/users" label="Go to Users" />}
+            {!esAdmin && <NavigateButton to="/user-info" label="Ver mi informacion" />}
         </div>
     )
 }

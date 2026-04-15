@@ -34,6 +34,13 @@ class Login{
             }else{
                 return -1;
             }
+                //password_verify($Password, $row['Password'])
+            if(password_verify($Password, $row['Password']) && $row['Estado'] == 'autorizado'){
+                return $row;
+            }  
+               
+            return 0;
+            
         }catch(PDOException $e){
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
