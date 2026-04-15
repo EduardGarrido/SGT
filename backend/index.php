@@ -53,7 +53,7 @@ switch(true) {
             $_SESSION['ID_Usuario'] = $ID_Usuario;
             $_SESSION['Puesto'] = $res['Puesto'];
             http_response_code(200);
-            echo json_encode(['ok' => true, 'mensaje' => 'Login exitoso', 'puesto' => $res['Puesto'], 'id' => $res['ID_Usuario']]);
+            echo json_encode(['ok' => true, 'mensaje' => 'Login exitoso', 'puesto' => $res['Puesto'], 'id' => $ID_Usuario]);
         }// --Cierra switch de respuesta        
         break;// --Termina case login
 

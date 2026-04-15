@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { NavigateButton } from "../components"
 
 export default function Users() {
 
@@ -7,6 +7,6 @@ export default function Users() {
     <div>
         <h1>Usuarios (Admin only)</h1>
 
-        
+        <NavigateButton to="/dashboard" label="Go to dashboard" />
     </div>)
 }

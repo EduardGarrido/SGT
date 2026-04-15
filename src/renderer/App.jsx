@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useAuth } from './context/AuthContext'
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { Login, Dashboard, Users} from './pages' 
+import { Login, Dashboard, Users, UserInfo} from './pages' 
 
 function RutaAdmin({children}) {
   const { esAdmin } = useAuth()
@@ -22,6 +22,7 @@ export default function App() {
         <Route path="/"           element={<Login/>} />
         <Route path="/dashboard"  element={<RutaProtegida><Dashboard /></RutaProtegida>} />
         <Route path="/users"      element={<RutaAdmin><Users /></RutaAdmin>} />
+        <Route path="/user-info"  element={<RutaProtegida><UserInfo /></RutaProtegida>} />
         <Route path="*"           element={<Navigate to="/" replace/>} />
       </Routes>
     </HashRouter>

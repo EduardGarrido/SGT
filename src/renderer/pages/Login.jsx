@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { login } from '../api/api'
+import { ActionButton } from '../components'
 
 export default function Login() {
   const [id, setId] = useState('')
@@ -74,9 +75,7 @@ export default function Login() {
           />
         </div>
 
-        <button onClick={handleLogin} disabled={loading}>
-          {loading ? 'Verificando...' : "Iniciar sesion"}
-        </button>
+        <ActionButton onClick={handleLogin} label={loading ? 'Verificando...' : "Iniciar sesion"} disabled={loading} />
     </div>
   )
 }

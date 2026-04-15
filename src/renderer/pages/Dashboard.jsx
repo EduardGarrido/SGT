@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { logout } from '../api/api'
+import { ActionButton, NavigateButton }from '../components'
 
 export default function Dashboard() {
     const { usuario, esAdmin, cerrarSesion} = useAuth()
@@ -15,9 +16,10 @@ export default function Dashboard() {
     return (
         <div>
             <h1>Bienvenido, {usuario?.id} - Puesto: {usuario?.puesto}</h1>
-            <button onClick={handleLogout}>Logout</button>
+            <ActionButton onClick={handleLogout} label="Logout" />
 
-            {esAdmin && <button onClick={() => navigate('/users')}>Go to Users</button>}
+            {esAdmin && <NavigateButton to="/users" label="Go to Users" />}
+            {!esAdmin && <NavigateButton to="/user-info" label="Ver mi informacion" />}
         </div>
     )
 }
