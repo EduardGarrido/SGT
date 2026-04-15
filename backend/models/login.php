@@ -1,11 +1,11 @@
 <?php
+require_once __DIR__ . "/../config/database.php";
 
 if($_ENV['APP_ENV'] === 'development') {
     error_reporting(-1);
     ini_set("display_errors", 1);
 }
 
-require_once __DIR__ . "/../config/database.php";
 
 class Login{
     const TABLE = 'Usuario';
@@ -24,7 +24,14 @@ class Login{
             $row = $sql->fetch();
             $connection = NULL;
 
-            if(!$row){
+            if($row){
+                //password_verify($Password, $row['Password'])
+                if(password_verify($Password, $row['Password']) && $row['Estado'] == 'autorizado'){
+                    return $row;
+                }else{
+                    return 0;
+                }
+            }else{
                 return -1;
             }
                 //password_verify($Password, $row['Password'])
