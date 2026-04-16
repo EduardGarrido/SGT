@@ -1,5 +1,5 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
-const { spawn } = require('child_process')
+const { spawn, execSync} = require('child_process')
 const path = require('node:path')
 
 let phpProcess = null
@@ -77,6 +77,17 @@ win.webContents.openDevTools()
 app.whenReady().then(async () => {
   spawnPHP()
   await waitPHP()
+
+    // Correr seeder para crear admin por defecto
+    try {
+    const phpBin  = getPhpBinary()
+    const seeder  = path.join(getBackendPath(), 'seeder.php')
+
+    execSync(`"${phpBin}" "${seeder}"`)
+    
+  } catch (e) {
+    console.error('Error en el seeder:', e.message)
+  }
 
   ipcMain.handle('ping', () => 'pong')
 
