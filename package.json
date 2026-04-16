@@ -49,14 +49,6 @@
       {
         "from": "backend",
         "to": "backend"
-      },
-      {
-        "from": "vendor",
-        "to": "backend/vendor"
-      },
-      {
-        "from": ".env",
-        "to": "backend/.env"
       }
     ],
     "linux": {
