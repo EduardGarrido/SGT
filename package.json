@@ -2,13 +2,101 @@
   "name": "sgt",
   "version": "1.0.0",
   "description": "",
-  "main": "src/main/main.js",
+  "main": "out/main/distMain.js",
   "scripts": {
     "dev": "electron-vite dev",
     "build": "electron-vite build",
     "preview": "electron-vite preview",
     "lint": "eslint src/renderer --fix",
-    "format": "prettier --write src/renderer/**/*.{js,jsx,css}"
+    "format": "prettier --write src/renderer/**/*.{js,jsx,css}",
+    "dist": "npm run build && electron-builder",
+    "dist:linux": "npm run build && electron-builder --linux",
+    "dist:win": "npm run build && electron-builder --win",
+    "dist:mac": "npm run build && electron-builder --mac"
+  },
+  "build": {
+    "appId": "com.tuempresa.sgt",
+    "productName": "SGT",
+    "directories": {
+      "buildResources": "build",
+      "output": "release"
+    },
+    "files": [
+      "out/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "resources/php/linux",
+        "to": "php/linux",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "resources/php/win",
+        "to": "php/win",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "resources/php/mac",
+        "to": "php/mac",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "backend",
+        "to": "backend"
+      },
+      {
+        "from": "vendor",
+        "to": "backend/vendor"
+      },
+      {
+        "from": ".env",
+        "to": "backend/.env"
+      }
+    ],
+    "linux": {
+      "target": [
+        "dir",
+        "tar.gz"
+      ],
+      "category": "Utility",
+      "artifactName": "${productName}-${version}-linux.${ext}"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "${productName}-${version}-win.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": false
+    },
+    "mac": {
+      "target": "dmg",
+      "artifactName": "${productName}-${version}-mac.${ext}",
+      "category": "public.app-category.productivity",
+      "darkModeSupport": true
+    },
+    "dmg": {
+      "title": "${productName} ${version}"
+    }
   },
   "repository": {
     "type": "git",
@@ -28,6 +116,7 @@
     "autoprefixer": "^10.5.0",
     "daisyui": "^5.5.19",
     "electron": "^41.1.1",
+    "electron-builder": "^26.8.1",
     "electron-vite": "^5.0.0",
     "eslint": "^9.39.4",
     "eslint-config-prettier": "^10.1.8",

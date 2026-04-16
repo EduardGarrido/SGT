@@ -36,6 +36,11 @@ bower_components
 
 # Compiled binary addons (https://nodejs.org/api/addons.html)
 build/Release
+release/
+out/
+
+# PHP executables
+resources/php
 
 # Dependency directories
 node_modules/

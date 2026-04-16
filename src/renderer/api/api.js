@@ -1,4 +1,4 @@
-const ROOT = import.meta.env.VITE_APP_URL ?? 'http://localhost:8000/api' // Base URL for PHP backend
+const ROOT = (import.meta.env.VITE_API_URL ?? 'http://localhost:8000/api').replace(/\/$/, '') // Base URL for PHP backend
 
 async function request(path, opttions = {}) {
   const res = await fetch(`${ROOT}/${path}`, {
