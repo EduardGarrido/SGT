@@ -27,12 +27,12 @@ try {
         $sql->bindValue(':ID_Usuario', $ID_Usuario, PDO::PARAM_INT);
         $sql->execute();
 
-        echo "Usuario admin creado correctamente\n";
+        echo "Usuario admin creado correctamente\n\n";
     } else {
-        echo "El usuario admin ya existe\n";
+        echo "El usuario admin ya existe\n\n";
     }
 
     $connection = NULL;
 } catch(Exception $e) {
-    echo "Error: " . $e->getMessage() . "\n";
+    echo "Error: " . $e->getMessage() . "\n\n";
 }

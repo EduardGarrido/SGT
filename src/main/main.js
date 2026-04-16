@@ -1,5 +1,5 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
-const { spawn, execSync} = require('child_process')
+const { spawn, execSync } = require('child_process')
 const path = require('node:path')
 
 let phpProcess = null
@@ -9,9 +9,8 @@ let phpProcess = null
 function getPhpBinary() {
   if (!app.isPackaged) return 'php'
 
-  const platform = process.platform === 'win32'  ? 'win'
-                 : process.platform === 'darwin'  ? 'mac'
-                 : 'linux'
+  const platform =
+    process.platform === 'win32' ? 'win' : process.platform === 'darwin' ? 'mac' : 'linux'
 
   const binary = process.platform === 'win32' ? 'php.exe' : 'php'
 
@@ -25,9 +24,9 @@ function getBackendPath() {
 
 // ── Spawn PHP built-in server ─────────────────────────────────────────────────
 function spawnPHP() {
-  const phpBin  = getPhpBinary()
+  const phpBin = getPhpBinary()
   const backend = getBackendPath()
-  const router  = path.join(backend, 'index.php')
+  const router = path.join(backend, 'index.php')
 
   phpProcess = spawn(phpBin, ['-S', 'localhost:8000', '-t', backend, router], {
     windowsHide: true, // don't flash a terminal window on Windows
@@ -36,7 +35,6 @@ function spawnPHP() {
   phpProcess.stderr.on('data', (d) => console.log('[PHP]', d.toString()))
   phpProcess.on('close', (code) => console.log('[PHP] cerrado con código:', code))
   // code -> 0 closed normally, 1 error, 2 misuse, 127 command not found
-
 }
 
 // ── Wait for PHP to be ready ──────────────────────────────────────────────────
@@ -45,7 +43,9 @@ async function waitPHP(tries = 10) {
     try {
       const res = await fetch('http://localhost:8000/api/ping')
       if (res.ok) return true
-    } catch (_) { /* still starting */ }
+    } catch (_) {
+      /* still starting */
+    }
     await new Promise((r) => setTimeout(r, 500))
   }
   throw new Error('[PHP] no respondió después de varios intentos')
@@ -53,7 +53,6 @@ async function waitPHP(tries = 10) {
 
 // ── Create window ─────────────────────────────────────────────────────────────
 function createWindow() {
-
   const win = new BrowserWindow({
     width: 1200,
     height: 768,
@@ -69,8 +68,8 @@ function createWindow() {
   } else {
     win.loadFile(path.join(__dirname, '../renderer/index.html')) // production build
   }
-    // add this temporarily to createWindow() in main.js
-win.webContents.openDevTools()
+  // add this temporarily to createWindow() in main.js
+  win.webContents.openDevTools()
 }
 
 // ── App lifecycle ─────────────────────────────────────────────────────────────
@@ -78,15 +77,13 @@ app.whenReady().then(async () => {
   spawnPHP()
   await waitPHP()
 
-    // Correr seeder para crear admin por defecto
-    try {
-    const phpBin  = getPhpBinary()
-    const seeder  = path.join(getBackendPath(), 'config/seeder.php')
-    console.log('Seeder ejecutado correctamente');
+  // Correr seeder para crear admin por defecto
+  try {
+    const phpBin = getPhpBinary()
+    const seeder = path.join(getBackendPath(), 'config/seeder.php')
+    console.log('Seeder ejecutado correctamente\n')
 
-
-    execSync(`"${phpBin}" "${seeder}"`)
-    
+    execSync(`"${phpBin}" "${seeder}"`, { stdio: 'inherit' })
   } catch (e) {
     console.error('Error en el seeder:', e.message)
   }
