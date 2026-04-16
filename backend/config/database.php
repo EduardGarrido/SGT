@@ -1,5 +1,5 @@
 <?php 
-$backendPath = __DIR__ . '/..';
+$backendPath = dirname(__DIR__, 1);
 
 require_once $backendPath . '/vendor/autoload.php';
 

@@ -71,6 +71,7 @@ web_modules/
 .yarn-integrity
 
 # dotenv environment variable files
+*/.env
 .env
 .env.*
 !.env.example
@@ -149,4 +150,4 @@ vite.config.ts.timestamp-*
 .vite/
 
 #Vendor
-/vendor
+backend/vendor
