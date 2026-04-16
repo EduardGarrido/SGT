@@ -83,8 +83,7 @@ switch(true) {
         }
 
         $res = Login::validar($ID_Usuario, $Password);
-        error_log('Resultado validar: ' . print_r($res, true));
-
+        
         if($res === -1){
             http_response_code(404);
             echo json_encode(['ok' => false, 'mensaje' => 'Usuario no encontrado']);
