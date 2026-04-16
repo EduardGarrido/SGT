@@ -45,7 +45,7 @@ export default function Login() {
 
   return (
     <div class="flex flex-col h-screen font-sans bg-gray-200">
-      {error && <p>{error}</p>}
+      {error && <p className="bg-red-500">{error}</p>}
       <TopBar/>
       <div class="container h-dvh flex flex-1 justify-center items-center">
         <div class="w-full max-w-xl">

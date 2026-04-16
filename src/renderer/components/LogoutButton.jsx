@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { logout } from '../api/api'
 
-export default function LogoutButton({ label = 'Cerrar sesion'}) {
+export default function LogoutButton({ label = 'Cerrar sesion' , ...props}) {
     const { cerrarSesion } = useAuth()
     const [ loading, setLoading ] = useState(false)
 
@@ -19,7 +19,7 @@ export default function LogoutButton({ label = 'Cerrar sesion'}) {
     }
 
     return (
-        <button onClick={handleLogout} disabled={loading}>
+        <button {...props} onClick={handleLogout} disabled={loading}>
             {loading ? '...' : label}
         </button>
     )
