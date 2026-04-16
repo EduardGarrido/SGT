@@ -14,10 +14,10 @@ function TopBar() {
   return (
     <header className="w-full h-12 bg-gray-800 text-white px-5 flex items-center justify-between">
         <div className="flex-1 text-left">
-            <span class="font-bold">Estado de caja: TEST</span>
+            <span className="font-bold">Estado de caja: TEST</span>
         </div>
         <div className="flex-1 text-center">
-            <span class="font-extrabold text-3xl">Abarrotes "La bamba"</span>
+            <span className="font-extrabold text-3xl">Abarrotes "La bamba"</span>
         </div>
         <div className="flex-1 text-right font-bold">{dateTime}</div>
     </header>

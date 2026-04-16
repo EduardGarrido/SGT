@@ -8,11 +8,6 @@ async function request(path, opttions = {}) {
     ...opttions,
   })
 
-  if (!res.ok) {
-    const errorData = await res.json()
-    throw new Error(errorData.mensaje || 'Error en la solicitud')
-  }
-
   return res.json()
 }
 
