@@ -36,6 +36,11 @@ bower_components
 
 # Compiled binary addons (https://nodejs.org/api/addons.html)
 build/Release
+release/
+out/
+
+# PHP executables
+resources/php
 
 # Dependency directories
 node_modules/
@@ -66,6 +71,7 @@ web_modules/
 .yarn-integrity
 
 # dotenv environment variable files
+*/.env
 .env
 .env.*
 !.env.example
@@ -144,4 +150,4 @@ vite.config.ts.timestamp-*
 .vite/
 
 #Vendor
-/vendor
+backend/vendor

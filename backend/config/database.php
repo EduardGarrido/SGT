@@ -1,10 +1,20 @@
 <?php 
-require_once __DIR__ .'/../../vendor/autoload.php';
+$backendPath = dirname(__DIR__, 1);
 
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
+require_once $backendPath . '/vendor/autoload.php';
+
+$dotenv = Dotenv\Dotenv::createImmutable($backendPath);
 $dotenv->load();
 
-date_default_timezone_set("America/Mazatlan");
+date_default_timezone_set('America/Mazatlan');
+
+if (($_ENV['APP_ENV'] ?? 'production') === 'development') {
+    error_reporting(E_ALL);
+    ini_set('display_errors', '1');
+} else {
+    error_reporting(0);
+    ini_set('display_errors', '0');
+}
 
 class Conexion extends PDO { 
    public function __construct() {
@@ -22,4 +32,3 @@ class Conexion extends PDO {
       }
    } 
 } 
-?>

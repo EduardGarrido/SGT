@@ -7,10 +7,22 @@
 session_start();
 
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: ' . 'http://localhost:5173');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 header('Access-Control-Allow-Credentials: true');
+
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+$allowed = ['http://localhost:5173', 'http://localhost:8000'];
+
+// In production the renderer has no HTTP origin (file://)
+// so we allow the request through unconditionally
+if (in_array($origin, $allowed) || $origin === '') {
+    header('Access-Control-Allow-Origin: ' . ($origin ?: '*'));
+} else {
+    http_response_code(403);
+    exit;
+}
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
