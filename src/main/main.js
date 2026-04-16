@@ -1,57 +1,79 @@
-const { app, BrowserWindow, ipcMain } = require('electron') // We are importing 2 modules with CommonJS module syntax
-// BrowserWindow, which creates and manages app windows
-// app controls the application's event lifecycle
+const { app, BrowserWindow, ipcMain } = require('electron')
 const { spawn } = require('child_process')
-
 const path = require('node:path')
 
 let phpProcess = null
 
-// Invoke PHP built-in server
-function spawnPHP() {
-  const root = path.join(__dirname, '../../backend')
-  const router = path.join(root, 'index.php')
-  phpProcess = spawn('php', ['-S', 'localhost:8000', '-t', root, router])
-  phpProcess.stderr.on('data', (d) => console.log('[PHP]', d.toString()))
-  phpProcess.on('close', (code) => console.log('[PHP] cerrado:', code))
-  // code -> 0 closed, 1 error, 2 misuse, 127 command not found
+// Dev:  uses system PHP (php must be installed on the dev machine)
+// Prod: uses the binary bundled inside the app via extraResources
+function getPhpBinary() {
+  if (!app.isPackaged) return 'php'
+
+  const platform = process.platform === 'win32'  ? 'win'
+                 : process.platform === 'darwin'  ? 'mac'
+                 : 'linux'
+
+  const binary = process.platform === 'win32' ? 'php.exe' : 'php'
+
+  return path.join(process.resourcesPath, 'php', platform, binary)
 }
 
-// Connect to PHP backend with retries
-async function waitPHP(tries = 5) {
+function getBackendPath() {
+  if (!app.isPackaged) return path.join(__dirname, '../../backend')
+  return path.join(process.resourcesPath, 'backend')
+}
+
+// ── Spawn PHP built-in server ─────────────────────────────────────────────────
+function spawnPHP() {
+  const phpBin  = getPhpBinary()
+  const backend = getBackendPath()
+  const router  = path.join(backend, 'index.php')
+
+  phpProcess = spawn(phpBin, ['-S', 'localhost:8000', '-t', backend, router], {
+    windowsHide: true, // don't flash a terminal window on Windows
+  })
+
+  phpProcess.stderr.on('data', (d) => console.log('[PHP]', d.toString()))
+  phpProcess.on('close', (code) => console.log('[PHP] cerrado con código:', code))
+  // code -> 0 closed normally, 1 error, 2 misuse, 127 command not found
+
+}
+
+// ── Wait for PHP to be ready ──────────────────────────────────────────────────
+async function waitPHP(tries = 10) {
   for (let i = 0; i < tries; i++) {
     try {
       const res = await fetch('http://localhost:8000/api/ping')
-      // If ping route responds, PHP is ready
       if (res.ok) return true
-    } catch (_error){
-      // TODO
-    }
+    } catch (_) { /* still starting */ }
     await new Promise((r) => setTimeout(r, 500))
   }
-  throw new Error('PHP no respondió')
+  throw new Error('[PHP] no respondió después de varios intentos')
 }
 
-// Create window and load React app
-const createWindow = () => {
+// ── Create window ─────────────────────────────────────────────────────────────
+function createWindow() {
+
   const win = new BrowserWindow({
     width: 1200,
     height: 768,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, '../preload/preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
     },
   })
 
   if (process.env['ELECTRON_RENDERER_URL']) {
-    win.loadURL(process.env['ELECTRON_RENDERER_URL']) // localhost:5173 in dev
+    win.loadURL(process.env['ELECTRON_RENDERER_URL']) // Vite dev server
   } else {
-    win.loadFile(path.join(__dirname, '../dist/renderer/index.html'))
+    win.loadFile(path.join(__dirname, '../renderer/index.html')) // production build
   }
+    // add this temporarily to createWindow() in main.js
+win.webContents.openDevTools()
 }
 
-// App ready: start PHP, wait for it, then create window
+// ── App lifecycle ─────────────────────────────────────────────────────────────
 app.whenReady().then(async () => {
   spawnPHP()
   await waitPHP()
@@ -60,22 +82,15 @@ app.whenReady().then(async () => {
 
   createWindow()
 
-  // MacOS: recreate window
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow()
-    }
+    if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 })
 
-// Ensure PHP process is killed on app exit
 app.on('will-quit', () => {
   if (phpProcess) phpProcess.kill()
 })
 
-// Window closed, app closed (except MacOS)
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
+  if (process.platform !== 'darwin') app.quit()
 })

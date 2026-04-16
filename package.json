@@ -2,7 +2,7 @@
   "name": "sgt",
   "version": "1.0.0",
   "description": "",
-  "main": "out/main/distMain.js",
+  "main": "out/main/main.js",
   "scripts": {
     "dev": "electron-vite dev",
     "build": "electron-vite build",
