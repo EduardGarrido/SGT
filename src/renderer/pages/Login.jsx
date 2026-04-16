@@ -25,8 +25,6 @@ export default function Login() {
     try {
       const data = await login(id.trim(), password)
 
-      console.log('Login response:', data) // Debug: log API response
-
       if (data.ok) {
         guardarSesion(data) // Set user role in App state
         navigate('/dashboard', { replace: true}) // Go to dashboard on success

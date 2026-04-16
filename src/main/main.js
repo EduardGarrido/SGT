@@ -68,8 +68,6 @@ function createWindow() {
   } else {
     win.loadFile(path.join(__dirname, '../renderer/index.html')) // production build
   }
-  // add this temporarily to createWindow() in main.js
-  win.webContents.openDevTools()
 }
 
 // ── App lifecycle ─────────────────────────────────────────────────────────────
