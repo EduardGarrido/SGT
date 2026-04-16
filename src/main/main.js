@@ -81,7 +81,9 @@ app.whenReady().then(async () => {
     // Correr seeder para crear admin por defecto
     try {
     const phpBin  = getPhpBinary()
-    const seeder  = path.join(getBackendPath(), 'seeder.php')
+    const seeder  = path.join(getBackendPath(), 'config/seeder.php')
+    console.log('Seeder ejecutado correctamente');
+
 
     execSync(`"${phpBin}" "${seeder}"`)
     
