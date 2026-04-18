@@ -12,6 +12,8 @@ header('Access-Control-Allow-Headers: Content-Type');
 header('Access-Control-Allow-Credentials: true');
 
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+
+// Añadir direcciones para realizar requests
 $allowed = ['http://localhost:5173', 'http://localhost:8000'];
 
 // In production the renderer has no HTTP origin (file://)

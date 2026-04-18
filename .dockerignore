@@ -1,0 +1,16 @@
+node_modules/
+out/
+release/
+resources/
+src/
+assets/
+*.md
+.git/
+.gitignore
+package.json
+package-lock.json
+electron.vite.config.js
+tailwind.config.js
+eslint.config.js
+jsconfig.json
+.prettierrc

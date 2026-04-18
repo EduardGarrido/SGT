@@ -1,5 +1,4 @@
-// const ROOT = (import.meta.env.VITE_API_URL ?? 'http://localhost:8000/api').replace(/\/$/, '') // Base URL for PHP backend
-const ROOT = import.meta.env.VITE_API_URL ?? 'http://148.210.173.78:8000/api'
+const ROOT = (import.meta.env.VITE_API_URL ?? 'http://localhost:8000/api').replace(/\/$/, '')
 
 async function request(path, opttions = {}) {
   const res = await fetch(`${ROOT}/${path}`, {
@@ -7,11 +6,6 @@ async function request(path, opttions = {}) {
     credentials: 'include', // Include cookies for session management
     ...opttions,
   })
-
-  if (!res.ok) {
-    const errorData = await res.json()
-    throw new Error(errorData.mensaje || 'Error en la solicitud')
-  }
 
   return res.json()
 }

@@ -1,11 +1,6 @@
 <?php
 require_once __DIR__ . "/../config/database.php";
 
-if (($_ENV['APP_ENV'] ?? 'production') === 'development') {
-    error_reporting(-1);
-    ini_set("display_errors", 1);
-}
-
 
 class Login{
     const TABLE = 'Usuario';

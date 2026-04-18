@@ -39,8 +39,9 @@ build/Release
 release/
 out/
 
-# PHP executables
+# Bundled binaries (PHP + MySQL) — download separately, do not commit
 resources/php
+resources/mysql
 
 # Dependency directories
 node_modules/
@@ -151,3 +152,6 @@ vite.config.ts.timestamp-*
 
 #Vendor
 backend/vendor
+
+# AI agent 
+CLAUDE.md
