@@ -27,15 +27,16 @@ function getPhpBinary() {
 
 function getMysqldBinary() {
   const platform = getPlatform()
-  const binary = platform === 'win' ? 'mysqld.exe' : 'mysqld'
+  const binary = platform === 'win' ? 'mariadbd.exe' : 'mariadbd'
   return path.join(process.resourcesPath, 'mysql', platform, 'bin', binary)
 }
 
 function getMysqlClientBinary() {
   const platform = getPlatform()
-  const binary = platform === 'win' ? 'mysql.exe' : 'mysql'
+  const binary = platform === 'win' ? 'mariadb.exe' : 'mariadb'
   return path.join(process.resourcesPath, 'mysql', platform, 'bin', binary)
 }
+
 
 function getMysqlBaseDir() {
   return path.join(process.resourcesPath, 'mysql', getPlatform())
@@ -74,10 +75,11 @@ function initMySQLDataDir() {
   console.log('[MySQL] Primera ejecución: inicializando directorio de datos...')
   fs.mkdirSync(dataDir, { recursive: true })
 
-  execFileSync(getMysqldBinary(), [
+  const installScript = path.join(getMysqlBaseDir(), 'scripts', 'mariadb-install-db')
+  execFileSync(installScript, [
     `--datadir=${dataDir}`,
     `--basedir=${getMysqlBaseDir()}`,
-    '--initialize-insecure', // root user with no password; we add our user right after
+    '--auth-root-authentication-method=normal',
   ], { stdio: 'pipe', env: getMysqlEnv() })
 
   return true
@@ -91,6 +93,7 @@ function spawnMySQL() {
     `--basedir=${getMysqlBaseDir()}`,
     `--port=${LOCAL_DB_PORT}`,
     '--bind-address=127.0.0.1',
+    `--socket=${path.join(dataDir, 'mysql.sock')}`,
     '--console',
   ], { windowsHide: true, env: getMysqlEnv() })
 
@@ -116,10 +119,16 @@ function setupDatabase() {
   console.log('[MySQL] Configurando base de datos...')
   const clientArgs = ['-u', 'root', `--port=${LOCAL_DB_PORT}`, '--host=127.0.0.1']
 
+  execFileSync(getMysqlClientBinary(), clientArgs, {
+    input: `CREATE DATABASE IF NOT EXISTS \`${LOCAL_DB_NAME}\`;`,
+    stdio: ['pipe', 'pipe', 'pipe'],
+    env: getMysqlEnv(),
+  })
+
   const schemaSQL = fs.readFileSync(
     path.join(getBackendPath(), 'config', 'database.sql'), 'utf8'
   )
-  execFileSync(getMysqlClientBinary(), clientArgs, {
+  execFileSync(getMysqlClientBinary(), [...clientArgs, LOCAL_DB_NAME], {
     input: schemaSQL,
     stdio: ['pipe', 'pipe', 'pipe'],
     env: getMysqlEnv(),
@@ -127,7 +136,9 @@ function setupDatabase() {
 
   const userSQL = [
     `CREATE USER IF NOT EXISTS '${LOCAL_DB_USER}'@'127.0.0.1' IDENTIFIED BY '${LOCAL_DB_PASS}';`,
+    `CREATE USER IF NOT EXISTS '${LOCAL_DB_USER}'@'localhost' IDENTIFIED BY '${LOCAL_DB_PASS}';`,
     `GRANT ALL PRIVILEGES ON ${LOCAL_DB_NAME}.* TO '${LOCAL_DB_USER}'@'127.0.0.1';`,
+    `GRANT ALL PRIVILEGES ON ${LOCAL_DB_NAME}.* TO '${LOCAL_DB_USER}'@'localhost';`,
     `FLUSH PRIVILEGES;`,
   ].join('\n')
   execFileSync(getMysqlClientBinary(), clientArgs, {
@@ -146,7 +157,7 @@ function spawnPHP() {
   const backend = getBackendPath()
   const router = path.join(backend, 'index.php')
 
-  phpProcess = spawn(phpBin, ['-S', 'localhost:8000', '-t', backend, router], {
+  phpProcess = spawn(phpBin, ['-S', 'localhost:8001', '-t', backend, router], {
     windowsHide: true,
   })
 
