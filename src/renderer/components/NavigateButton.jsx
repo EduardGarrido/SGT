@@ -1,6 +1,8 @@
 import { useNavigate } from 'react-router-dom'
+import { twMerge } from 'tailwind-merge'
+import clsx from 'clsx'
 
-export default function NavigateButton({ to, label}) {
+export default function NavigateButton({ to, children, className, ...props}) {
     const navigate = useNavigate()
 
     const handleNavigation = () => {
@@ -12,8 +14,8 @@ export default function NavigateButton({ to, label}) {
     }
 
     return (
-        <button onClick={handleNavigation}>
-            {label || 'Click aqui'}
+        <button className={twMerge(clsx("w-50 rounded-lg text-white", className))} onClick={handleNavigation} {...props}>
+            {children ?? 'Click aqui'}
         </button>
     )
 }

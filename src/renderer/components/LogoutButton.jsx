@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { logout } from '../api/api'
+import { twMerge } from 'tailwind-merge'
+import clsx from 'clsx'
 
-export default function LogoutButton({ label = 'Cerrar sesion' , ...props}) {
+export default function LogoutButton({ children , className, ...props}) {
     const { cerrarSesion } = useAuth()
     const [ loading, setLoading ] = useState(false)
 
@@ -19,8 +21,8 @@ export default function LogoutButton({ label = 'Cerrar sesion' , ...props}) {
     }
 
     return (
-        <button {...props} onClick={handleLogout} disabled={loading}>
-            {loading ? '...' : label}
+        <button className={twMerge(clsx("w-50 rounded-lg text-white font-normal", className))} onClick={handleLogout} disabled={loading} {...props}>
+            {children ?? "Cerrar sesion"}
         </button>
     )
 }

@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { twMerge } from 'tailwind-merge'
+import clsx from 'clsx'
 
-export default function ActionButton({ onClick, label, ...props }) {
+export default function ActionButton({ onClick, className ,children , ...props }) {
   const [loading, setLoading] = useState(false)
 
   const handleClick = async (e) => {
@@ -20,11 +22,12 @@ export default function ActionButton({ onClick, label, ...props }) {
 
   return (
     <button 
+    className={twMerge(clsx("w-100 rounded-lg text-white", className))}
       onClick={handleClick} // 4. Fix: Use the internal wrapper
       disabled={loading}    // 5. Best Practice: Disable while loading
       {...props}
     >
-      {loading ? 'Cargando...' : label}
+      {loading ? 'Cargando...' : (children ?? 'Accion')}
     </button>
   )
 }

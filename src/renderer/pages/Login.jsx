@@ -5,37 +5,46 @@ import { login } from '../api/api'
 import { ActionButton } from '../components'
 import TopBar from '../components/TopBar'
 
+//Icons
+import { ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/react/20/solid'
+
+// Styles
+const ALERT_STYLE = {
+  error:   { bg: 'bg-red-50',   border: 'border-red-300',   text: 'text-red-700',   input: 'border-red-400',   Icon: ExclamationCircleIcon },
+  success: { bg: 'bg-green-50', border: 'border-green-300', text: 'text-green-700', input: 'border-green-400', Icon: CheckCircleIcon },
+}
+
 export default function Login() {
   const [id, setId] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
+  const [status, setStatus] = useState(null) // { type: 'error' | 'success', message: string }
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const { guardarSesion } = useAuth()
 
-  // Handle login (on button click)
   async function handleLogin() {
     if (!id.trim() || !password) {
-      setError('Completa ambos campos')
+      setStatus({ type: 'error', message: 'Completa ambos campos' })
       return
     }
 
-    setError('')
+    setStatus(null)
     setLoading(true)
 
     try {
       const data = await login(id.trim(), password)
 
       if (data.ok) {
-        guardarSesion(data) // Set user role in App state
-        navigate('/dashboard', { replace: true}) // Go to dashboard on success
+        guardarSesion(data)
+        setStatus({ type: 'success', message: data.mensaje })
+        setTimeout(() => navigate('/dashboard', { replace: true }), 8000)
       } else {
-        setError(data.mensaje || 'Error al iniciar sesion')
+        setStatus({ type: 'error', message: data.mensaje || 'Error al iniciar sesión' })
       }
     } catch {
-      setError('No se pudo conectar con el servidor') // Handle network or server errors
+      setStatus({ type: 'error', message: 'No se pudo conectar con el servidor'})
     } finally {
-      setLoading(false) // Reset loading state after response or error
+      setLoading(false)
     }
   }
 
@@ -43,44 +52,57 @@ export default function Login() {
     if (e.key === 'Enter') handleLogin()
   }
 
+  const style = status ? ALERT_STYLE[status.type] : null
+
+  const inputClass = `rounded-lg w-full px-2 py-1 border-2 text-gray-700 bg-gray-100 shadow-sm sm:text-sm ${
+    style ? style.input : 'border-gray-400'
+  }`
+
   return (
     <div className="flex flex-col w-screen h-screen font-sans bg-gray-200">
-      {error && (
-  <p className="text-red-600 text-sm text-center mt-1 mb-2">{error}</p>
-)}
       <TopBar/>
-      <div className="container h-dvh w-full flex flex-1 justify-center items-center">
+      <div className="h-dvh w-full flex flex-1 justify-center items-center">
         <div className="w-full max-w-xl">
           <div className="leading-loose">
-            <div className="w-full p-5 m-5 bg-gray-50 rounded-lg shadow-xl">
+            <div className="w-full p-24 bg-gray-50 rounded-lg shadow-xl">
               <p className="py-1 text-gray-800 text-center text-2xl font-bold">Inicio de sesión</p>
-              <div className="justify-self-center-safe m-2">
+
+              {status && (
+                <div className={`flex items-center gap-2 mt-2 mb-1 px-3 py-2 rounded-lg border text-sm ${style.bg} ${style.border} ${style.text}`}>
+                  <style.Icon className="w-5 shrink-0" />
+                  {status.message}
+                </div>
+              )}
+
+              <div className="w-full justify-self-center-safe">
                 <label className="block text-medium font-semibold text-gray-800" htmlFor="id-usuario">ID del usuario</label>
                 <input
-                className="rounded-lg w-100 mt-0.5 px-2 py-1 border-2 border-gray-400 text-gray-700 bg-gray-100 shadow-sm sm:text-sm"
+                className={inputClass}
                 id="id-usuario"
                 type="text"
                 value={id}
-                onChange={(e) => setId(e.target.value)}
+                onChange={(e) => { setStatus(null); setId(e.target.value) }}
                 onKeyDown={handleEnter}
                 placeholder="ID de usuario"
                 autoComplete="on"
                 />
               </div>
-            <div className="justify-self-center-safe m-2">
+            <div className="w-full justify-self-center-safe">
               <label className="block text-medium font-semibold text-gray-800" htmlFor="password">Contraseña</label>
-                <input 
-                className="rounded-lg w-100 mt-0.5 px-2 py-1 border-2 border-gray-400 text-gray-700 bg-gray-100 shadow-sm sm:text-sm"
-                type="password" 
+                <input
+                className={inputClass}
+                type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => { setStatus(null); setPassword(e.target.value) }}
                 onKeyDown={handleEnter}
                 placeholder="Contraseña"
                 autoComplete="off"
                 />
               </div>
-            <div className="mt-6 mb-2 place-self-center w-100 tracking-wider bg-gray-800 hover:bg-gray-900 rounded-lg text-center">
-              <ActionButton className="w-100 rounded-lg text-white font-normal" onClick={handleLogin} label={loading ? 'Verificando...' : "Iniciar sesion"} disabled={loading} />
+            <div className="mt-6 w-full place-self-center tracking-wider bg-gray-800 hover:bg-gray-900 rounded-lg text-center">
+              <ActionButton className="font-normal" onClick={handleLogin} disabled={loading}>
+                Iniciar Sesion
+              </ActionButton>
             </div>
           </div>
         </div>
