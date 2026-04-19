@@ -79,34 +79,22 @@ function initMySQLDataDir() {
   const baseDir = getMysqlBaseDir()
 
   if (platform === 'win') {
-<<<<<<< HEAD
-=======
     // On Windows, use mariadbd.exe --initialize-insecure
     // This creates a fresh data directory with an empty root password
     // No --basedir flag needed — the binary infers it from its own location
->>>>>>> e37fe8939f7f1b45d2d6707483bd605fb388bfd3
     const mariadbd = path.join(baseDir, 'bin', 'mariadbd.exe')
     execFileSync(mariadbd, [
       '--initialize-insecure',
       `--datadir=${dataDir}`,
-<<<<<<< HEAD
-    ], { stdio: 'inherit', env: getMysqlEnv() })
-  } else {
-=======
     ], { stdio: 'pipe', env: getMysqlEnv() })
   } else {
     // On Linux/macOS, mariadb-install-db is a shell script that accepts these flags
->>>>>>> e37fe8939f7f1b45d2d6707483bd605fb388bfd3
     const installScript = path.join(baseDir, 'scripts', 'mariadb-install-db')
     execFileSync(installScript, [
       `--datadir=${dataDir}`,
       `--basedir=${baseDir}`,
       '--auth-root-authentication-method=normal',
-<<<<<<< HEAD
-    ], { stdio: 'inherit', env: getMysqlEnv() })
-=======
     ], { stdio: 'pipe', env: getMysqlEnv() })
->>>>>>> e37fe8939f7f1b45d2d6707483bd605fb388bfd3
   }
 
   return true
