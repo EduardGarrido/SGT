@@ -75,7 +75,11 @@ function initMySQLDataDir() {
   console.log('[MySQL] Primera ejecución: inicializando directorio de datos...')
   fs.mkdirSync(dataDir, { recursive: true })
 
-  const installScript = path.join(getMysqlBaseDir(), 'scripts', 'mariadb-install-db')
+  const platform = getPlatform()
+  const installScript = platform === 'win'
+    ? path.join(getMysqlBaseDir(), 'bin', 'mariadb-install-db.exe')
+    : path.join(getMysqlBaseDir(), 'scripts', 'mariadb-install-db')
+
   execFileSync(installScript, [
     `--datadir=${dataDir}`,
     `--basedir=${getMysqlBaseDir()}`,
