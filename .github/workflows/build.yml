@@ -35,7 +35,7 @@ jobs:
           node-version: 18
           cache: npm
 
-      - run: npm install
+      - run: rm -f package-lock.json && npm install
 
       # ── PHP ──────────────────────────────────────────────────────────────────
 
