@@ -9,10 +9,10 @@
     "preview": "electron-vite preview",
     "lint": "eslint src/renderer --fix",
     "format": "prettier --write src/renderer/**/*.{js,jsx,css}",
-    "dist": "npm run build && electron-builder",
-    "dist:linux": "npm run build && electron-builder --linux",
-    "dist:win": "npm run build && electron-builder --win",
-    "dist:mac": "npm run build && electron-builder --mac"
+    "dist": "npm run build && electron-builder --publish never",
+    "dist:linux": "npm run build && electron-builder --linux --publish never",
+    "dist:win": "npm run build && electron-builder --win --publish never",
+    "dist:mac": "npm run build && electron-builder --mac --publish never"
   },
   "build": {
     "appId": "com.tuempresa.sgt",
