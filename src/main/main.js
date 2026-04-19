@@ -78,23 +78,32 @@ function initMySQLDataDir() {
   const platform = getPlatform()
   const baseDir = getMysqlBaseDir()
 
-if (platform === 'win') {
-  const mariadbd = path.join(baseDir, 'bin', 'mariadbd.exe')
-  try {
-    const output = execFileSync(mariadbd, [
-      '--initialize-insecure',
+  if (platform === 'win') {
+    const mariadbd = path.join(baseDir, 'bin', 'mariadbd.exe')
+    const shareDir = path.join(baseDir, 'share')
+
+    const sqlFiles = [
+      'mariadb_system_tables.sql',
+      'mariadb_system_tables_data.sql',
+      'mariadb_performance_tables.sql',
+      'mariadb_sys_schema.sql',
+    ]
+
+    let sql = 'CREATE DATABASE IF NOT EXISTS mysql;\nUSE mysql;\n'
+    for (const file of sqlFiles) {
+      sql += fs.readFileSync(path.join(shareDir, file), 'utf8') + '\n'
+    }
+
+    execFileSync(mariadbd, [
+      '--bootstrap',
       `--datadir=${dataDir}`,
-    ], { env: getMysqlEnv(), encoding: 'utf8', stdio: 'pipe' })
-    console.log('[MySQL init stdout]', output)
-  } catch (err) {
-    console.error('[MySQL init] exit code:', err.status)
-    console.error('[MySQL init] stdout:', err.stdout?.toString())
-    console.error('[MySQL init] stderr:', err.stderr?.toString())
-    throw err
-  }
-}
-  else {
-    // On Linux/macOS, mariadb-install-db is a shell script that accepts these flags
+      `--basedir=${baseDir}`,
+    ], {
+      input: sql,
+      env: getMysqlEnv(),
+      stdio: ['pipe', 'pipe', 'pipe'],
+    })
+  } else {
     const installScript = path.join(baseDir, 'scripts', 'mariadb-install-db')
     execFileSync(installScript, [
       `--datadir=${dataDir}`,
