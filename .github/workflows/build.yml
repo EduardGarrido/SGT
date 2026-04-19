@@ -96,6 +96,9 @@ jobs:
 
       # ── Build ─────────────────────────────────────────────────────────────────
 
+      - name: Install Composer dependencies
+        run: composer install --no-dev --optimize-autoloader --working-dir=backend
+
       - name: Build
         run: npm run ${{ matrix.dist_cmd }}
 
