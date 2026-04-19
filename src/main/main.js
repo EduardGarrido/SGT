@@ -157,7 +157,7 @@ function spawnPHP() {
   const backend = getBackendPath()
   const router = path.join(backend, 'index.php')
 
-  phpProcess = spawn(phpBin, ['-S', 'localhost:8001', '-t', backend, router], {
+  phpProcess = spawn(phpBin, ['-S', 'localhost:8000', '-t', backend, router], {
     windowsHide: true,
   })
 

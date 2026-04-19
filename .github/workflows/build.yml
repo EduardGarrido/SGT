@@ -8,7 +8,6 @@ on:
 
 env:
   MARIADB_VERSION: '12.2.2'
-  PHP_VERSION: '8.5'
 
 jobs:
   build:
@@ -44,24 +43,29 @@ jobs:
         if: matrix.platform == 'linux'
         run: |
           mkdir -p resources/php/linux
-          curl -L "https://github.com/crazywhalecc/static-php-cli/releases/download/2.4.0/php-${{ env.PHP_VERSION }}-linux-x86_64.tar.gz" \
-            | tar xz -C resources/php/linux
+          gh release download binaries --repo ${{ github.repository }} --pattern "php-linux.tar.gz" --output php-linux.tar.gz
+          tar xz -C resources/php/linux < php-linux.tar.gz
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download PHP (Windows)
         if: matrix.platform == 'win'
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force resources/php/win | Out-Null
-          $url = "https://windows.php.net/downloads/releases/php-${{ env.PHP_VERSION }}-nts-Win32-vs16-x64.zip"
-          Invoke-WebRequest $url -OutFile php.zip
-          Expand-Archive php.zip resources/php/win -Force
+          gh release download binaries --repo ${{ github.repository }} --pattern "php-win.zip" --output php-win.zip
+          Expand-Archive php-win.zip resources/php/win -Force
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download PHP (macOS)
         if: matrix.platform == 'mac'
         run: |
           mkdir -p resources/php/mac
-          curl -L "https://github.com/crazywhalecc/static-php-cli/releases/download/2.4.0/php-${{ env.PHP_VERSION }}-macos-aarch64.tar.gz" \
-            | tar xz -C resources/php/mac
+          gh release download binaries --repo ${{ github.repository }} --pattern "php-mac.tar.gz" --output php-mac.tar.gz
+          tar xz -C resources/php/mac < php-mac.tar.gz
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # ── MariaDB ───────────────────────────────────────────────────────────────
 
@@ -69,24 +73,26 @@ jobs:
         if: matrix.platform == 'linux'
         run: |
           mkdir -p resources/mysql/linux
-          curl -L "https://downloads.mariadb.org/interstitial/mariadb-${{ env.MARIADB_VERSION }}/bintar-linux-systemd-x86_64/mariadb-${{ env.MARIADB_VERSION }}-linux-systemd-x86_64.tar.gz" \
-            | tar xz --strip-components=1 -C resources/mysql/linux
+          gh release download binaries --repo ${{ github.repository }} --pattern "mysql-linux.tar.gz" --output mysql-linux.tar.gz
+          tar xz -C resources/mysql/linux < mysql-linux.tar.gz
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download MariaDB (Windows)
         if: matrix.platform == 'win'
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force resources/mysql/win | Out-Null
-          $url = "https://downloads.mariadb.org/interstitial/mariadb-${{ env.MARIADB_VERSION }}/winx64-packages/mariadb-${{ env.MARIADB_VERSION }}-winx64.zip"
-          Invoke-WebRequest $url -OutFile mariadb.zip
-          Expand-Archive mariadb.zip . -Force
-          Move-Item "mariadb-${{ env.MARIADB_VERSION }}-winx64/*" resources/mysql/win/
+          gh release download binaries --repo ${{ github.repository }} --pattern "mysql-win.zip" --output mysql-win.zip
+          Expand-Archive mysql-win.zip resources/mysql/win -Force
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download MariaDB (macOS)
         if: matrix.platform == 'mac'
         run: |
           mkdir -p resources/mysql/mac
-          curl -L "https://downloads.mariadb.org/interstitial/mariadb-${{ env.MARIADB_VERSION }}/bintar-osx14-arm64/mariadb-${{ env.MARIADB_VERSION }}-osx14-arm64.tar.gz" \
+          curl -L "https://mirror.mariadb.org/mariadb-${{ env.MARIADB_VERSION }}/bintar-osx14-arm64/mariadb-${{ env.MARIADB_VERSION }}-osx14-arm64.tar.gz" \
             | tar xz --strip-components=1 -C resources/mysql/mac
 
       # ── Build ─────────────────────────────────────────────────────────────────
