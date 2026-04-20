@@ -30,6 +30,11 @@ export default function Dashboard() {
                         <NavigateButton className="font-normal" to="/users">Ver usuarios</NavigateButton>
                     </div>
                 }
+                {esAdmin && 
+                    <div className="mt-12 mb-2 right-10 place-self-center w-50 text-white font-light tracking-wider bg-gray-800 hover:bg-gray-900 rounded-lg text-center">
+                        <NavigateButton className="font-normal" to="/inventory">Gestión de inventario</NavigateButton>
+                    </div>
+                }
             </div>
             <div className="rounded-lg h-full mx-5 p-5 w-1/4 bg-gray-50 shadow-md">
                 <h1 className="text-2xl font-semibold text-gray-900 text-center">Último corte</h1>
