@@ -12,7 +12,7 @@ function TopBar() {
   }, []);
 
   return (
-    <header className="w-full h-12 bg-gray-800 text-white px-5 flex items-center justify-between">
+    <header className="w-full max-h-12 min-h-12 bg-gray-800 text-white px-5 flex items-center justify-between">
         <div className="flex-1 text-left">
             <span className="font-bold">Estado de caja: TEST</span>
         </div>

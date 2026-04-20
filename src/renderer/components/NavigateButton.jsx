@@ -14,7 +14,7 @@ export default function NavigateButton({ to, children, className, ...props}) {
     }
 
     return (
-        <button className={twMerge(clsx("w-50 rounded-lg text-white", className))} onClick={handleNavigation} {...props}>
+        <button className={twMerge(clsx("w-full h-full rounded-lg text-white", className))} onClick={handleNavigation} {...props}>
             {children ?? 'Click aqui'}
         </button>
     )

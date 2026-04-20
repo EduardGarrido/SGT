@@ -21,7 +21,7 @@ export default function LogoutButton({ children , className, ...props}) {
     }
 
     return (
-        <button className={twMerge(clsx("w-50 rounded-lg text-white font-normal", className))} onClick={handleLogout} disabled={loading} {...props}>
+        <button className={twMerge(clsx("w-full rounded-lg text-white font-normal", className))} onClick={handleLogout} disabled={loading} {...props}>
             {children ?? "Cerrar sesion"}
         </button>
     )
