@@ -24,3 +24,7 @@ export async function logout() {
     method: 'POST',
   })
 }
+
+export async function getUsers() {
+  return request('getUsers')
+}

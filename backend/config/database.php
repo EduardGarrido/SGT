@@ -1,7 +1,7 @@
 <?php 
 $backendPath = dirname(__DIR__, 1);
 
-require_once $backendPath . '/../vendor/autoload.php';
+require_once $backendPath . '/vendor/autoload.php';
 
 // safeLoad() skips missing files — Docker injects vars via env_file instead of a file
 Dotenv\Dotenv::createImmutable(dirname(__DIR__, 2))->safeLoad();
