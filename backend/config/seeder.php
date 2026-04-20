@@ -9,7 +9,7 @@ try {
 
     if(!$check->fetch()){
         $sql = $connection->prepare('INSERT INTO Usuario (Password, Estado) VALUES (:Password, :Estado)');
-        $sql->bindValue(':Password', password_hash('passadministrador', PASSWORD_DEFAULT));
+        $sql->bindValue(':Password', password_hash('passadmin', PASSWORD_DEFAULT));
         $sql->bindValue(':Estado', 'autorizado');
         $sql->execute();
         $ID_Usuario = $connection->lastInsertId();
