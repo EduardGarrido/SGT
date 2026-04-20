@@ -1,9 +1,9 @@
 <?php
 /*
-    * Punto de entrada para la API
-    * Autorizacion mediante sesiones de PHP
-    * El estado se resetea al cerrar el navegador
-*/
+ * Punto de entrada para la API
+ * Autorizacion mediante sesiones de PHP
+ * El estado se resetea al cerrar el navegador
+ */
 session_start();
 
 header('Content-Type: application/json');
@@ -33,15 +33,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-function esAutorizado(): bool {
+function esAutorizado(): bool
+{
     return isset($_SESSION['ID_Usuario']);
 }
 
-function esAdmin(): bool {
+function esAdmin(): bool
+{
     return isset($_SESSION['Puesto']) && $_SESSION['Puesto'] === 'admin';
 }
 
-function requerirAutorizacion(): void {
+function requerirAutorizacion(): void
+{
     if (!esAutorizado()) {
         http_response_code(401);
         echo json_encode(['ok' => false, 'mensaje' => 'No autorizado']);
@@ -49,7 +52,8 @@ function requerirAutorizacion(): void {
     }
 }
 
-function requerirAdmin(): void {
+function requerirAdmin(): void
+{
     requerirAutorizacion();
     if (!esAdmin()) {
         http_response_code(403);
@@ -60,7 +64,7 @@ function requerirAdmin(): void {
 
 
 // Rutas
-switch(true) {
+switch (true) {
 
     case $path === '/api/ping': // Ruta de prueba para verificar que PHP responde
         echo json_encode(['ok' => true, 'mensaje' => 'PHP respondiendo']);
@@ -82,7 +86,7 @@ switch(true) {
         requerirAdmin();
         echo json_encode(['ok' => true, 'mensaje' => 'Admin autorizado']);
 
-        
+
     default:
         http_response_code(404);
         echo json_encode(['ok' => false, 'error' => 'Ruta no encontrada']);
