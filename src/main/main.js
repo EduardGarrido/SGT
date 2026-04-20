@@ -284,13 +284,14 @@ app.whenReady().then(async () => {
       APP_ENV: 'production',
     })
 
-    if (!isDatabaseReady()) {
-  setupDatabase()
-}
-    spawnMySQL()
-    await waitMySQL()
+    const isFirstRun = initMySQLDataDir()
 
-    if (isFirstRun) setupDatabase()
+    spawnMySQL()
+    await waitMySQL() 
+
+    if (!isDatabaseReady()) {
+      setupDatabase()
+    }
 
     spawnPHP()
     await waitPHP()
