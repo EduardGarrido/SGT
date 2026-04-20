@@ -31,6 +31,25 @@ class Usuario {
         }
     }
 
+    public static function readAllUsuario(){
+        try{
+            $connection = new Conexion;
+
+            $sql = $connection->prepare('SELECT * FROM '. self::TABLE);
+            $sql->execute();
+            $usuarios = $sql->fetchAll();
+            $connection = NULL;
+
+            if($usuarios){
+                return $usuarios;
+            }else{
+                return false;
+            }
+        }catch (PDOException $e) {
+            throw new Exception("Hubo un error: " . $e->getMessage());
+        }
+    }
+
     public static function readUsuario($ID_Usuario) {
 
         try {
