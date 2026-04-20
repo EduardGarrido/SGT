@@ -22,7 +22,7 @@ export default function ActionButton({ onClick, className ,children , ...props }
 
   return (
     <button 
-    className={twMerge(clsx("w-100 rounded-lg text-white", className))}
+    className={twMerge(clsx("w-full h-full rounded-lg text-white", className))}
       onClick={handleClick} // 4. Fix: Use the internal wrapper
       disabled={loading}    // 5. Best Practice: Disable while loading
       {...props}

@@ -62,7 +62,7 @@ export default function Login() {
       <div className="h-dvh w-full flex flex-1 justify-center items-center">
         <div className="w-full max-w-xl">
           <div className="leading-loose">
-            <div className="w-full p-24 bg-gray-50 rounded-lg shadow-xl">
+            <div className="w-full p-16 bg-gray-50 rounded-lg shadow-2xl">
               <p className="py-1 text-gray-800 text-center text-2xl font-bold">Inicio de sesión</p>
 
               {status && (
@@ -99,7 +99,7 @@ export default function Login() {
               </div>
             <div className="mt-6 w-full place-self-center tracking-wider bg-gray-800 hover:bg-gray-900 rounded-lg text-center">
               <ActionButton className="font-normal" onClick={handleLogin} disabled={loading}>
-                Iniciar Sesion
+                Iniciar Sesión
               </ActionButton>
             </div>
           </div>
