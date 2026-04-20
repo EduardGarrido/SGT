@@ -25,6 +25,11 @@ if (in_array($origin, $allowed) || $origin === '') {
     exit;
 }
 
+// Never cache GET requests
+header('Cache-Control: no-store, no-cache, must-revalidate');
+header('Pragma: no-cache');
+
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -76,16 +81,17 @@ switch (true) {
         break;
 
 
-    case $path === '/api/users':
+    case $path === '/api/getUsers':
         requerirAdmin();
-        echo json_encode(['ok' => true, 'mensaje' => 'Admin autorizado']);
+        // Change as echo gets handled on usuarioRoute.php
+        // echo json_encode(['ok' => true, 'mensaje' => 'Admin autorizado']);
         require_once __DIR__ . '/routes/usuarioRoute.php';
         break;
 
     case $path === '/api/products':
         requerirAdmin();
         echo json_encode(['ok' => true, 'mensaje' => 'Admin autorizado']);
-
+        break;
 
     default:
         http_response_code(404);
