@@ -1,0 +1,111 @@
+name: Build
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+env:
+  MARIADB_VERSION: '12.2.2'
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+            dist_cmd: dist:linux
+          - os: windows-latest
+            platform: win
+            dist_cmd: dist:win
+          # macOS skipped: MariaDB no longer ships pre-built macOS binary tarballs
+          # - os: macos-latest
+          #   platform: mac
+          #   dist_cmd: dist:mac
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - run: npm install
+
+      # ── PHP ──────────────────────────────────────────────────────────────────
+
+      - name: Download PHP (Linux)
+        if: matrix.platform == 'linux'
+        run: |
+          mkdir -p resources/php/linux
+          gh release download binaries --repo ${{ github.repository }} --pattern "php-linux.tar.gz" --output php-linux.tar.gz
+          tar xz -C resources/php/linux < php-linux.tar.gz
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download PHP (Windows)
+        if: matrix.platform == 'win'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force resources/php/win | Out-Null
+          gh release download binaries --repo ${{ github.repository }} --pattern "php-win.zip" --output php-win.zip
+          Expand-Archive php-win.zip resources/php/win -Force
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download PHP (macOS)
+        if: matrix.platform == 'mac'
+        run: |
+          mkdir -p resources/php/mac
+          gh release download binaries --repo ${{ github.repository }} --pattern "php-mac.tar.gz" --output php-mac.tar.gz
+          tar xz -C resources/php/mac < php-mac.tar.gz
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── MariaDB ───────────────────────────────────────────────────────────────
+
+      - name: Download MariaDB (Linux)
+        if: matrix.platform == 'linux'
+        run: |
+          mkdir -p resources/mysql/linux
+          gh release download binaries --repo ${{ github.repository }} --pattern "mysql-linux.tar.gz" --output mysql-linux.tar.gz
+          tar xz -C resources/mysql/linux < mysql-linux.tar.gz
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download MariaDB (Windows)
+        if: matrix.platform == 'win'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force resources/mysql/win | Out-Null
+          gh release download binaries --repo ${{ github.repository }} --pattern "mysql-win.zip" --output mysql-win.zip
+          Expand-Archive mysql-win.zip resources/mysql/win -Force
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download MariaDB (macOS)
+        if: matrix.platform == 'mac'
+        run: |
+          mkdir -p resources/mysql/mac
+          curl -L "https://mirror.mariadb.org/mariadb-${{ env.MARIADB_VERSION }}/bintar-osx14-arm64/mariadb-${{ env.MARIADB_VERSION }}-osx14-arm64.tar.gz" \
+            | tar xz --strip-components=1 -C resources/mysql/mac
+
+      # ── Build ─────────────────────────────────────────────────────────────────
+
+      - name: Install Composer dependencies
+        run: composer install --no-dev --optimize-autoloader --working-dir=backend
+
+      - name: Build
+        run: npm run ${{ matrix.dist_cmd }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sgt-${{ matrix.platform }}
+          path: release/
+          retention-days: 14

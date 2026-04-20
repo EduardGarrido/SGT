@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { login } from '../api/api'
 import { ActionButton } from '../components'
@@ -19,8 +18,8 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [status, setStatus] = useState(null) // { type: 'error' | 'success', message: string }
   const [loading, setLoading] = useState(false)
-  const navigate = useNavigate()
   const { guardarSesion } = useAuth()
+
 
   async function handleLogin() {
     if (!id.trim() || !password) {
@@ -35,9 +34,8 @@ export default function Login() {
       const data = await login(id.trim(), password)
 
       if (data.ok) {
-        guardarSesion(data)
         setStatus({ type: 'success', message: data.mensaje })
-        setTimeout(() => navigate('/dashboard', { replace: true }), 8000)
+        setTimeout(() => guardarSesion(data), 200)
       } else {
         setStatus({ type: 'error', message: data.mensaje || 'Error al iniciar sesión' })
       }

@@ -11,7 +11,7 @@ let mysqlProcess = null
 const LOCAL_DB_PORT = '3307'
 const LOCAL_DB_NAME = 'sgtdb'
 const LOCAL_DB_USER = 'sgt_root'
-const LOCAL_DB_PASS = 'sgt_local'
+const LOCAL_DB_PASS = 'pass.2$asdf7'
 
 // Helpers
 function getPlatform() {
@@ -75,17 +75,53 @@ function initMySQLDataDir() {
   console.log('[MySQL] Primera ejecución: inicializando directorio de datos...')
   fs.mkdirSync(dataDir, { recursive: true })
 
-  const installScript = path.join(getMysqlBaseDir(), 'scripts', 'mariadb-install-db')
-  execFileSync(installScript, [
-    `--datadir=${dataDir}`,
-    `--basedir=${getMysqlBaseDir()}`,
-    '--auth-root-authentication-method=normal',
-  ], { stdio: 'pipe', env: getMysqlEnv() })
+  const platform = getPlatform()
+  const baseDir = getMysqlBaseDir()
+
+  if (platform === 'win') {
+    const mariadbd = path.join(baseDir, 'bin', 'mariadbd.exe')
+    const shareDir = path.join(baseDir, 'share')
+
+    const sqlFiles = [
+      'mariadb_system_tables.sql',
+      'mariadb_system_tables_data.sql',
+      'mariadb_performance_tables.sql',
+      'mariadb_sys_schema.sql',
+    ]
+
+    let sql = 'CREATE DATABASE IF NOT EXISTS mysql;\nUSE mysql;\n'
+    for (const file of sqlFiles) {
+      sql += fs.readFileSync(path.join(shareDir, file), 'utf8') + '\n'
+    }
+
+    execFileSync(mariadbd, [
+      '--bootstrap',
+      `--datadir=${dataDir}`,
+      `--basedir=${baseDir}`,
+    ], {
+      input: sql,
+      env: getMysqlEnv(),
+      stdio: ['pipe', 'pipe', 'pipe'],
+    })
+  } else {
+    const installScript = path.join(baseDir, 'scripts', 'mariadb-install-db')
+    execFileSync(installScript, [
+      `--datadir=${dataDir}`,
+      `--basedir=${baseDir}`,
+      '--auth-root-authentication-method=normal',
+    ], { stdio: 'pipe', env: getMysqlEnv() })
+  }
 
   return true
 }
 
 function spawnMySQL() {
+console.log('====== spawnMySQL() CALLED ======')
+  console.log('[MySQL] binary:', getMysqldBinary())
+  console.log('[MySQL] dataDir:', getDataDir())
+  console.log('[MySQL] basedir:', getMysqlBaseDir())
+  console.log('[MySQL] port:', LOCAL_DB_PORT)
+
   const dataDir = getDataDir()
 
   mysqlProcess = spawn(getMysqldBinary(), [
@@ -97,8 +133,30 @@ function spawnMySQL() {
     '--console',
   ], { windowsHide: true, env: getMysqlEnv() })
 
-  mysqlProcess.stderr.on('data', (d) => console.log('[MySQL]', d.toString().trim()))
-  mysqlProcess.on('close', (code) => console.log('[MySQL] cerrado con código:', code))
+// Catch failures to spawn the process itself (binary missing, permissions, etc.)
+  mysqlProcess.on('error', (err) => {
+    console.error('[MySQL] ERROR AL LANZAR PROCESO:', err)
+  })
+
+  // ← Blind spot #1: you weren't capturing stdout, only stderr
+  // MariaDB writes startup info to stdout before errors go to stderr
+  mysqlProcess.stdout.on('data', (d) =>
+    console.log('[MySQL stdout]', d.toString().trim())
+  )
+
+  mysqlProcess.stderr.on('data', (d) =>
+    console.log('[MySQL stderr]', d.toString().trim())
+  )
+
+  // ← Blind spot #2: 'close' without an exit code tells you nothing
+  // Show the actual exit code AND signal so you know why it died
+  mysqlProcess.on('close', (code, signal) => {
+    console.log(`[MySQL] cerrado código=${code} signal=${signal}`)
+  })
+
+  mysqlProcess.on('exit', (code, signal) => {
+    console.log(`[MySQL] exit código=${code} signal=${signal}`)
+  })
 }
 
 async function waitMySQL(tries = 30) {
@@ -135,12 +193,12 @@ function setupDatabase() {
   })
 
   const userSQL = [
-    `CREATE USER IF NOT EXISTS '${LOCAL_DB_USER}'@'127.0.0.1' IDENTIFIED BY '${LOCAL_DB_PASS}';`,
-    `CREATE USER IF NOT EXISTS '${LOCAL_DB_USER}'@'localhost' IDENTIFIED BY '${LOCAL_DB_PASS}';`,
-    `GRANT ALL PRIVILEGES ON ${LOCAL_DB_NAME}.* TO '${LOCAL_DB_USER}'@'127.0.0.1';`,
-    `GRANT ALL PRIVILEGES ON ${LOCAL_DB_NAME}.* TO '${LOCAL_DB_USER}'@'localhost';`,
-    `FLUSH PRIVILEGES;`,
-  ].join('\n')
+  `CREATE OR REPLACE USER '${LOCAL_DB_USER}'@'127.0.0.1' IDENTIFIED BY '${LOCAL_DB_PASS}';`,
+  `CREATE OR REPLACE USER '${LOCAL_DB_USER}'@'localhost' IDENTIFIED BY '${LOCAL_DB_PASS}';`,
+  `GRANT ALL PRIVILEGES ON ${LOCAL_DB_NAME}.* TO '${LOCAL_DB_USER}'@'127.0.0.1';`,
+  `GRANT ALL PRIVILEGES ON ${LOCAL_DB_NAME}.* TO '${LOCAL_DB_USER}'@'localhost';`,
+  `FLUSH PRIVILEGES;`,
+].join('\n')
   execFileSync(getMysqlClientBinary(), clientArgs, {
     input: userSQL,
     stdio: ['pipe', 'pipe', 'pipe'],
@@ -199,6 +257,20 @@ function createWindow() {
   }
 }
 
+function isDatabaseReady() {
+  try {
+    execFileSync(getMysqlClientBinary(),
+      ['-u', LOCAL_DB_USER, `-p${LOCAL_DB_PASS}`,
+       `--port=${LOCAL_DB_PORT}`, '--host=127.0.0.1',
+       LOCAL_DB_NAME, '-e', 'SELECT 1'],
+      { stdio: 'pipe', env: getMysqlEnv() }
+    )
+    return true
+  } catch {
+    return false
+  }
+}
+
 // App lifecycle
 
 app.whenReady().then(async () => {
@@ -213,10 +285,13 @@ app.whenReady().then(async () => {
     })
 
     const isFirstRun = initMySQLDataDir()
-    spawnMySQL()
-    await waitMySQL()
 
-    if (isFirstRun) setupDatabase()
+    spawnMySQL()
+    await waitMySQL() 
+
+    if (!isDatabaseReady()) {
+      setupDatabase()
+    }
 
     spawnPHP()
     await waitPHP()
