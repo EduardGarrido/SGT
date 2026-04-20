@@ -8,10 +8,10 @@ let phpProcess = null
 let mysqlProcess = null
 
 // Local MySQL credentials — only used in the packaged app (127.0.0.1 only, never exposed)
-const LOCAL_DB_PORT = '3307'
+const LOCAL_DB_PORT = '3306'
 const LOCAL_DB_NAME = 'sgtdb'
 const LOCAL_DB_USER = 'sgt_root'
-const LOCAL_DB_PASS = 'sgt_local'
+const LOCAL_DB_PASS = 'pass.2$asdf7'
 
 // Helpers
 function getPlatform() {
@@ -193,12 +193,12 @@ function setupDatabase() {
   })
 
   const userSQL = [
-    `CREATE USER IF NOT EXISTS '${LOCAL_DB_USER}'@'127.0.0.1' IDENTIFIED BY '${LOCAL_DB_PASS}';`,
-    `CREATE USER IF NOT EXISTS '${LOCAL_DB_USER}'@'localhost' IDENTIFIED BY '${LOCAL_DB_PASS}';`,
-    `GRANT ALL PRIVILEGES ON ${LOCAL_DB_NAME}.* TO '${LOCAL_DB_USER}'@'127.0.0.1';`,
-    `GRANT ALL PRIVILEGES ON ${LOCAL_DB_NAME}.* TO '${LOCAL_DB_USER}'@'localhost';`,
-    `FLUSH PRIVILEGES;`,
-  ].join('\n')
+  `CREATE OR REPLACE USER '${LOCAL_DB_USER}'@'127.0.0.1' IDENTIFIED BY '${LOCAL_DB_PASS}';`,
+  `CREATE OR REPLACE USER '${LOCAL_DB_USER}'@'localhost' IDENTIFIED BY '${LOCAL_DB_PASS}';`,
+  `GRANT ALL PRIVILEGES ON ${LOCAL_DB_NAME}.* TO '${LOCAL_DB_USER}'@'127.0.0.1';`,
+  `GRANT ALL PRIVILEGES ON ${LOCAL_DB_NAME}.* TO '${LOCAL_DB_USER}'@'localhost';`,
+  `FLUSH PRIVILEGES;`,
+].join('\n')
   execFileSync(getMysqlClientBinary(), clientArgs, {
     input: userSQL,
     stdio: ['pipe', 'pipe', 'pipe'],
@@ -257,6 +257,20 @@ function createWindow() {
   }
 }
 
+function isDatabaseReady() {
+  try {
+    execFileSync(getMysqlClientBinary(),
+      ['-u', LOCAL_DB_USER, `-p${LOCAL_DB_PASS}`,
+       `--port=${LOCAL_DB_PORT}`, '--host=127.0.0.1',
+       LOCAL_DB_NAME, '-e', 'SELECT 1'],
+      { stdio: 'pipe', env: getMysqlEnv() }
+    )
+    return true
+  } catch {
+    return false
+  }
+}
+
 // App lifecycle
 
 app.whenReady().then(async () => {
@@ -270,7 +284,9 @@ app.whenReady().then(async () => {
       APP_ENV: 'production',
     })
 
-    const isFirstRun = initMySQLDataDir()
+    if (!isDatabaseReady()) {
+  setupDatabase()
+}
     spawnMySQL()
     await waitMySQL()
 
