@@ -8,7 +8,7 @@ let phpProcess = null
 let mysqlProcess = null
 
 // Local MySQL credentials — only used in the packaged app (127.0.0.1 only, never exposed)
-const LOCAL_DB_PORT = '3306'
+const LOCAL_DB_PORT = '3307'
 const LOCAL_DB_NAME = 'sgtdb'
 const LOCAL_DB_USER = 'sgt_root'
 const LOCAL_DB_PASS = 'pass.2$asdf7'
