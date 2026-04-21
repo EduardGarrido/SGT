@@ -29,12 +29,15 @@ export default function Users() {
                         ) : (
                             <ul className="space-y-2">
                                 {users.map(u => (
-                                    <li key={u.ID_Usuario} className={`${u.Estado === 'autorizado' ? 'bg-green-500' : 'bg-gray-500'}`}>
+                                    <li key={u.ID_Usuario} className="flex flex-row gap-2 border py-4 px-4 rounded-2xl bg-gray-100 hover:bg-gray-200">
                                         {/* O activo ?? */}
-                                        <span>{u.ID_Usuario}</span>
-                                        <span>
-                                            {u.Estado}
-                                        </span>
+                                        <span className="text-lg font-semibold text-gray-800">Usuario ID:
+                                            <span className="font-light px-1">{u.ID_Usuario}</span>
+                                             </span>
+                                        <span className="text-lg font-semibold text-gray-800">
+                                            Estado: 
+                                            <span className="font-light px-1">{u.Estado}</span>
+                                        </span >
                                     </li>
                                 ))}
                             </ul>
