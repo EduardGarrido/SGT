@@ -1,15 +1,22 @@
 <?php
 /*
-    * Punto de entrada para la API
-    * Autorizacion mediante sesiones de PHP
-    * El estado se resetea al cerrar el navegador
-*/
+ * Punto de entrada para la API
+ * Autorizacion mediante sesiones de PHP
+ * El estado se resetea al cerrar el navegador
+ */
 session_start();
 
+
+//Headers 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 header('Access-Control-Allow-Credentials: true');
+// Never cache GET requests
+header('Cache-Control: no-store, no-cache, must-revalidate');
+header('Pragma: no-cache');
+
+
 
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 
@@ -25,12 +32,6 @@ if (in_array($origin, $allowed) || $origin === '') {
     exit;
 }
 
-// Never cache GET requests
-header('Cache-Control: no-store, no-cache, must-revalidate');
-header('Pragma: no-cache');
-
-
-
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit;
@@ -38,15 +39,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-function esAutorizado(): bool {
+function esAutorizado(): bool
+{
     return isset($_SESSION['ID_Usuario']);
 }
 
-function esAdmin(): bool {
+function esAdmin(): bool
+{
     return isset($_SESSION['Puesto']) && $_SESSION['Puesto'] === 'admin';
 }
 
-function requerirAutorizacion(): void {
+function requerirAutorizacion(): void
+{
     if (!esAutorizado()) {
         http_response_code(401);
         echo json_encode(['ok' => false, 'mensaje' => 'No autorizado']);
@@ -54,7 +58,8 @@ function requerirAutorizacion(): void {
     }
 }
 
-function requerirAdmin(): void {
+function requerirAdmin(): void
+{
     requerirAutorizacion();
     if (!esAdmin()) {
         http_response_code(403);
@@ -65,7 +70,7 @@ function requerirAdmin(): void {
 
 
 // Rutas
-switch(true) {
+switch (true) {
 
     case $path === '/api/ping': // Ruta de prueba para verificar que PHP responde
         echo json_encode(['ok' => true, 'mensaje' => 'PHP respondiendo']);
@@ -77,18 +82,26 @@ switch(true) {
         break;
 
 
+    case $path === '/api/getUserInfo':
+        requerirAutorizacion();
+        require_once __DIR__ . '/routes/usuarioRoute.php';
+        break;
+
     case $path === '/api/getUsers':
         requerirAdmin();
-        // Change as echo gets handled on usuarioRoute.php
-        // echo json_encode(['ok' => true, 'mensaje' => 'Admin autorizado']);
+        require_once __DIR__ . '/routes/usuarioRoute.php';
+        break;
+
+    case $path === '/api/createUser':
+        requerirAdmin();
         require_once __DIR__ . '/routes/usuarioRoute.php';
         break;
 
     case $path === '/api/products':
         requerirAdmin();
         echo json_encode(['ok' => true, 'mensaje' => 'Admin autorizado']);
-    break;
-        
+        break;
+
     default:
         http_response_code(404);
         echo json_encode(['ok' => false, 'error' => 'Ruta no encontrada']);
