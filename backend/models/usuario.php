@@ -45,7 +45,8 @@ class Usuario
         try {
             $connection = new Conexion;
 
-            $sql = $connection->prepare('SELECT ID_Usuario, Estado FROM ' . self::TABLE);
+            $sql = $connection->prepare('SELECT u.ID_Usuario, e.Nombre  FROM ' . self::TABLE . ' u 
+            INNER JOIN Empleado e ON e.ID_Usuario = u.ID_Usuario');
             $sql->execute();
             $usuarios = $sql->fetchAll();
             $connection = NULL;
@@ -61,6 +62,30 @@ class Usuario
         }
     }//-- Fin funcion leer todos los usuarios
 
+    //Funcion para leer toda la información de un usuario 
+    public static function readInfoUsuario($ID_Usuario)
+    {
+        try {
+            $connection = new Conexion;
+
+            $sql = $connection->prepare('SELECT e.Nombre, e.Puesto, c.Telefono, c.Correo,
+            c.Calle, c.Colonia, c.Codigo_Postal FROM Empleado e 
+            INNER JOIN Contacto_Empleado c ON c.ID_Contacto_Empleado = e.ID_Contacto_Empleado
+            WHERE e.ID_Usuario = :ID_Usuario');
+            $sql->bindValue(':ID_Usuario', $ID_Usuario, PDO::PARAM_INT);
+            $sql->execute();
+            $usuario = $sql->fetch();
+            $connection = NULL;
+
+            if ($usuario) {
+                return $usuario;
+            } else {
+                return 0;
+            }
+        } catch (PDOException $e) {
+            throw new Exception("Hubo un error: " . $e->getMessage());
+        }
+    }//-- Fin funcion info de usuario
 
     // Funcion leer un usuario especifico
     public static function readUsuario($ID_Usuario)

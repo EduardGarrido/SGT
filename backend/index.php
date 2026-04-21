@@ -6,10 +6,17 @@
  */
 session_start();
 
+
+//Headers 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 header('Access-Control-Allow-Credentials: true');
+// Never cache GET requests
+header('Cache-Control: no-store, no-cache, must-revalidate');
+header('Pragma: no-cache');
+
+
 
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 
@@ -24,12 +31,6 @@ if (in_array($origin, $allowed) || $origin === '') {
     http_response_code(403);
     exit;
 }
-
-// Never cache GET requests
-header('Cache-Control: no-store, no-cache, must-revalidate');
-header('Pragma: no-cache');
-
-
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -81,10 +82,18 @@ switch (true) {
         break;
 
 
+    case $path === '/api/getUserInfo':
+        requerirAutorizacion();
+        require_once __DIR__ . '/routes/usuarioRoute.php';
+        break;
+
     case $path === '/api/getUsers':
         requerirAdmin();
-        // Change as echo gets handled on usuarioRoute.php
-        // echo json_encode(['ok' => true, 'mensaje' => 'Admin autorizado']);
+        require_once __DIR__ . '/routes/usuarioRoute.php';
+        break;
+
+    case $path === '/api/createUser':
+        requerirAdmin();
         require_once __DIR__ . '/routes/usuarioRoute.php';
         break;
 
