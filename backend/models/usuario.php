@@ -1,19 +1,26 @@
 <?php
+//Clase con CRUD y funciones necesarias para tabla usuarios 
 
 require_once __DIR__ . "/../config/database.php";
 
-class Usuario {
+class Usuario
+{
     const TABLE = 'Usuario';
     // ID_Usuario, Password, Estado
+    // 1 = correcto
+    // 0 = no hay registro o no se encontró 
+    // -1 = hubo un error en la ejecución
 
-    public static function crearUsuario($Password, $Estado) {
+    //Funcion para crear un usuario
+    public static function crearUsuario($Password, $Estado)
+    {
 
         try {
             $connection = new Conexion;
 
             $sql = $connection->prepare(
                 'INSERT INTO ' . self::TABLE . ' (Password, Estado) VALUES (:Password, :Estado)'
-                );
+            );
             $sql->bindValue(':Password', password_hash($Password, PASSWORD_DEFAULT));
             $sql->bindValue(':Estado', $Estado, PDO::PARAM_STR);
             $valid = $sql->execute();
@@ -23,34 +30,66 @@ class Usuario {
             if ($valid) {
                 return $ID_Usuario;
             } else {
-                return -1; // error
+                return -1;
             }
 
         } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
-    }
+    }//-- Fin funcion crear usuario
 
-    public static function readAllUsuario(){
-        try{
+
+    //Funcion para leer todos los usuarios y retorna el array 
+    public static function readAllUsuario()
+    {
+        try {
             $connection = new Conexion;
 
-            $sql = $connection->prepare('SELECT * FROM '. self::TABLE);
+            $sql = $connection->prepare('SELECT u.ID_Usuario, e.Nombre  FROM ' . self::TABLE . ' u 
+            INNER JOIN Empleado e ON e.ID_Usuario = u.ID_Usuario');
             $sql->execute();
             $usuarios = $sql->fetchAll();
             $connection = NULL;
 
-            if($usuarios){
+            if ($usuarios) {
                 return $usuarios;
-            }else{
-                return false;
+            } else {
+                return 0;
             }
-        }catch (PDOException $e) {
+
+        } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
-    }
+    }//-- Fin funcion leer todos los usuarios
 
-    public static function readUsuario($ID_Usuario) {
+    //Funcion para leer toda la información de un usuario 
+    public static function readInfoUsuario($ID_Usuario)
+    {
+        try {
+            $connection = new Conexion;
+
+            $sql = $connection->prepare('SELECT e.Nombre, e.Puesto, c.Telefono, c.Correo,
+            c.Calle, c.Colonia, c.Codigo_Postal FROM Empleado e 
+            INNER JOIN Contacto_Empleado c ON c.ID_Contacto_Empleado = e.ID_Contacto_Empleado
+            WHERE e.ID_Usuario = :ID_Usuario');
+            $sql->bindValue(':ID_Usuario', $ID_Usuario, PDO::PARAM_INT);
+            $sql->execute();
+            $usuario = $sql->fetch();
+            $connection = NULL;
+
+            if ($usuario) {
+                return $usuario;
+            } else {
+                return 0;
+            }
+        } catch (PDOException $e) {
+            throw new Exception("Hubo un error: " . $e->getMessage());
+        }
+    }//-- Fin funcion info de usuario
+
+    // Funcion leer un usuario especifico
+    public static function readUsuario($ID_Usuario)
+    {
 
         try {
             $connection = new Conexion;
@@ -64,22 +103,24 @@ class Usuario {
             if ($usuario) {
                 return $usuario;
             } else {
-                return false;
+                return 0;
             }
 
         } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
-    }
+    }//-- Fin funcion leer un usuario
 
-    public static function updateUsuario($ID_Usuario, $Password, $Estado) {
+    //Funcion actualizar un usuario
+    public static function updateUsuario($ID_Usuario, $Password, $Estado)
+    {
 
         try {
             $connection = new Conexion;
 
             $sql = $connection->prepare(
                 'UPDATE ' . self::TABLE . ' SET Password = :Password, Estado = :Estado WHERE ID_Usuario = :ID_Usuario'
-                );
+            );
             $sql->bindValue(':ID_Usuario', $ID_Usuario, PDO::PARAM_INT);
             $sql->bindValue(':Password', password_hash($Password, PASSWORD_DEFAULT));
             $sql->bindValue(':Estado', $Estado, PDO::PARAM_STR);
@@ -100,9 +141,11 @@ class Usuario {
         } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
-    }
+    }//-- Fin funcion actualizar usuario
 
-    public static function deleteUsuario($ID_Usuario) {
+    // Funcion eliminar usuario
+    public static function deleteUsuario($ID_Usuario)
+    {
 
         try {
             $connection = new Conexion;
@@ -122,9 +165,9 @@ class Usuario {
             } else {
                 return -1; // error al ejecutar $sql
             }
-            
+
         } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
-    }
+    }//-- Fin funcion eliminar usuario
 }
