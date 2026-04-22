@@ -2,40 +2,35 @@
 
 require_once __DIR__ . "/../config/database.php";
 
-class Contacto_Empleado {
+class Contacto_Empleado
+{
     const TABLE = 'Contacto_Empleado';
     // ID_Contacto_Empleado, Telefono, Correo, Calle, Colonia, Codigo_Postal
 
-    public static function crearContacto($Telefono, $Correo, $Calle, $Colonia, $Codigo_Postal) {
+    public static function crearContacto($connection, $Telefono, $Correo, $Calle, $Colonia, $Codigo_Postal)
+    {
 
         try {
-            $connection = new Conexion;
-
             $sql = $connection->prepare(
                 'INSERT INTO ' . self::TABLE . ' (Telefono, Correo, Calle, Colonia, Codigo_Postal) 
                 VALUES (:Telefono, :Correo, :Calle, :Colonia, :Codigo_Postal)'
-                );
+            );
             $sql->bindValue(':Telefono', $Telefono, PDO::PARAM_STR);
             $sql->bindValue(':Correo', $Correo, PDO::PARAM_STR);
             $sql->bindValue(':Calle', $Calle, PDO::PARAM_STR);
             $sql->bindValue(':Colonia', $Colonia, PDO::PARAM_STR);
             $sql->bindValue(':Codigo_Postal', $Codigo_Postal, PDO::PARAM_STR);
-            $valid = $sql->execute();
-            $ID_Contacto_Empleado = $connection->lastInsertId();
-            $connection = NULL;
+            $sql->execute();
+            return $connection->lastInsertId();
 
-            if ($valid) {
-                return $ID_Contacto_Empleado;
-            } else {
-                return -1; // error
-            }
 
         } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
     }
 
-    public static function readContacto($ID_Contacto_Empleado) {
+    public static function readContacto($ID_Contacto_Empleado)
+    {
 
         try {
             $connection = new Conexion;
@@ -57,7 +52,8 @@ class Contacto_Empleado {
         }
     }
 
-    public static function updateContacto($ID_Contacto_Empleado, $Telefono, $Correo, $Calle, $Colonia, $Codigo_Postal) {
+    public static function updateContacto($ID_Contacto_Empleado, $Telefono, $Correo, $Calle, $Colonia, $Codigo_Postal)
+    {
 
         try {
             $connection = new Conexion;
@@ -66,7 +62,7 @@ class Contacto_Empleado {
                 'UPDATE ' . self::TABLE . ' SET Telefono = :Telefono, Correo = :Correo, 
                 Calle = :Calle, Colonia = :Colonia, Codigo_Postal = :Codigo_Postal 
                 WHERE ID_Contacto_Empleado = :ID_Contacto_Empleado'
-                );
+            );
             $sql->bindValue(':ID_Contacto_Empleado', $ID_Contacto_Empleado, PDO::PARAM_INT);
             $sql->bindValue(':Telefono', $Telefono, PDO::PARAM_STR);
             $sql->bindValue(':Correo', $Correo, PDO::PARAM_STR);
@@ -92,7 +88,8 @@ class Contacto_Empleado {
         }
     }
 
-    public static function deleteContacto($ID_Contacto_Empleado) {
+    public static function deleteContacto($ID_Contacto_Empleado)
+    {
 
         try {
             $connection = new Conexion;
