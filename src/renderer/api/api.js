@@ -1,16 +1,25 @@
 const ROOT = (import.meta.env.VITE_API_URL ?? 'http://localhost:8000/api').replace(/\/$/, '')
 
-async function request(path, opttions = {}) {
-  const res = await fetch(`${ROOT}/${path}`, {
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include', // Include cookies for session management
-    ...opttions,
-  })
+async function request(path, options = {}) {
+  try {
+    const res = await fetch(`${ROOT}/${path}`, {
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      ...options,
+    })
 
-  return res.json()
+    const data = await res.json()
+
+    if (!res.ok) {
+      return { ok: false, mensaje: data.mensaje ?? data.error ?? `Error ${res.status}` }
+    }
+
+    return data
+  } catch {
+    return { ok: false, mensaje: 'No se pudo conectar con el servidor' }
+  }
 }
 
-// HTTP request to PHP backend for login
 export async function login(id, pw) {
   return request('login', {
     method: 'POST',
@@ -18,7 +27,6 @@ export async function login(id, pw) {
   })
 }
 
-// HTTP request to PHP backend for logout
 export async function logout() {
   return request('logout', {
     method: 'POST',
@@ -27,4 +35,9 @@ export async function logout() {
 
 export async function getUsers() {
   return request('getUsers')
+}
+
+export async function getUserInfo(id) {
+  const path = id ? `getUserInfo?id=${id}` : 'getUserInfo'
+  return request(path)
 }
