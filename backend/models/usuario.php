@@ -12,26 +12,18 @@ class Usuario
     // -1 = hubo un error en la ejecución
 
     //Funcion para crear un usuario
-    public static function crearUsuario($Password, $Estado)
+    public static function crearUsuario($connection, $Password, $Estado)
     {
 
         try {
-            $connection = new Conexion;
-
             $sql = $connection->prepare(
                 'INSERT INTO ' . self::TABLE . ' (Password, Estado) VALUES (:Password, :Estado)'
             );
             $sql->bindValue(':Password', password_hash($Password, PASSWORD_DEFAULT));
             $sql->bindValue(':Estado', $Estado, PDO::PARAM_STR);
-            $valid = $sql->execute();
-            $ID_Usuario = $connection->lastInsertId();
-            $connection = NULL;
+            $sql->execute();
+            return $connection->lastInsertId();
 
-            if ($valid) {
-                return $ID_Usuario;
-            } else {
-                return -1;
-            }
 
         } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
@@ -45,8 +37,10 @@ class Usuario
         try {
             $connection = new Conexion;
 
-            $sql = $connection->prepare('SELECT u.ID_Usuario, e.Nombre  FROM ' . self::TABLE . ' u 
-            INNER JOIN Empleado e ON e.ID_Usuario = u.ID_Usuario');
+            $sql = $connection->prepare(
+                'SELECT u.ID_Usuario, e.Nombre  FROM ' . self::TABLE . ' u 
+                INNER JOIN Empleado e ON e.ID_Usuario = u.ID_Usuario'
+            );
             $sql->execute();
             $usuarios = $sql->fetchAll();
             $connection = NULL;
@@ -68,10 +62,12 @@ class Usuario
         try {
             $connection = new Conexion;
 
-            $sql = $connection->prepare('SELECT e.Nombre, e.Puesto, c.Telefono, c.Correo,
-            c.Calle, c.Colonia, c.Codigo_Postal FROM Empleado e 
-            INNER JOIN Contacto_Empleado c ON c.ID_Contacto_Empleado = e.ID_Contacto_Empleado
-            WHERE e.ID_Usuario = :ID_Usuario');
+            $sql = $connection->prepare(
+                'SELECT e.Nombre, e.Puesto, e.Estado, c.Telefono, c.Correo,
+                c.Calle, c.Colonia, c.Codigo_Postal FROM Empleado e 
+                INNER JOIN Contacto_Empleado c ON c.ID_Contacto_Empleado = e.ID_Contacto_Empleado
+                WHERE e.ID_Usuario = :ID_Usuario'
+            );
             $sql->bindValue(':ID_Usuario', $ID_Usuario, PDO::PARAM_INT);
             $sql->execute();
             $usuario = $sql->fetch();
@@ -94,7 +90,9 @@ class Usuario
         try {
             $connection = new Conexion;
 
-            $sql = $connection->prepare('SELECT Estado FROM ' . self::TABLE . ' WHERE ID_Usuario = :ID_Usuario');
+            $sql = $connection->prepare(
+                'SELECT Estado FROM ' . self::TABLE . ' WHERE ID_Usuario = :ID_Usuario'
+            );
             $sql->bindValue(':ID_Usuario', $ID_Usuario, PDO::PARAM_INT);
             $sql->execute();
             $usuario = $sql->fetch();
@@ -111,7 +109,7 @@ class Usuario
         }
     }//-- Fin funcion leer un usuario
 
-    //Funcion actualizar un usuario
+    //Funcion actualizar un usuario 
     public static function updateUsuario($ID_Usuario, $Password, $Estado)
     {
 
@@ -150,7 +148,9 @@ class Usuario
         try {
             $connection = new Conexion;
 
-            $sql = $connection->prepare('DELETE FROM ' . self::TABLE . ' WHERE ID_Usuario = :ID_Usuario');
+            $sql = $connection->prepare(
+                'DELETE FROM ' . self::TABLE . ' WHERE ID_Usuario = :ID_Usuario'
+            );
             $sql->bindValue(':ID_Usuario', $ID_Usuario, PDO::PARAM_INT);
             $valid = $sql->execute();
             $row = $sql->rowCount();
@@ -158,12 +158,12 @@ class Usuario
 
             if ($valid) {
                 if ($row > 0) {
-                    return 1; // usuario borrado
+                    return 1;
                 } else {
-                    return 0; // no borro o usuario no encontrado
+                    return 0;
                 }
             } else {
-                return -1; // error al ejecutar $sql
+                return -1;
             }
 
         } catch (PDOException $e) {
