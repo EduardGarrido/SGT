@@ -37,7 +37,6 @@ function getMysqlClientBinary() {
   return path.join(process.resourcesPath, 'mysql', platform, 'bin', binary)
 }
 
-
 function getMysqlBaseDir() {
   return path.join(process.resourcesPath, 'mysql', getPlatform())
 }
@@ -67,10 +66,9 @@ function getDataDir() {
 
 // ── MySQL ─────────────────────────────────────────────────────────────────────
 
-// Returns true on first run (data dir did not exist yet)
 function initMySQLDataDir() {
   const dataDir = getDataDir()
-  if (fs.existsSync(path.join(dataDir, 'mysql'))) return false
+  if (fs.existsSync(path.join(dataDir, 'mysql'))) return
 
   console.log('[MySQL] Primera ejecución: inicializando directorio de datos...')
   fs.mkdirSync(dataDir, { recursive: true })
@@ -111,17 +109,9 @@ function initMySQLDataDir() {
       '--auth-root-authentication-method=normal',
     ], { stdio: 'pipe', env: getMysqlEnv() })
   }
-
-  return true
 }
 
 function spawnMySQL() {
-console.log('====== spawnMySQL() CALLED ======')
-  console.log('[MySQL] binary:', getMysqldBinary())
-  console.log('[MySQL] dataDir:', getDataDir())
-  console.log('[MySQL] basedir:', getMysqlBaseDir())
-  console.log('[MySQL] port:', LOCAL_DB_PORT)
-
   const dataDir = getDataDir()
 
   mysqlProcess = spawn(getMysqldBinary(), [
@@ -133,41 +123,21 @@ console.log('====== spawnMySQL() CALLED ======')
     '--console',
   ], { windowsHide: true, env: getMysqlEnv() })
 
-// Catch failures to spawn the process itself (binary missing, permissions, etc.)
-  mysqlProcess.on('error', (err) => {
-    console.error('[MySQL] ERROR AL LANZAR PROCESO:', err)
-  })
-
-  // ← Blind spot #1: you weren't capturing stdout, only stderr
-  // MariaDB writes startup info to stdout before errors go to stderr
-  mysqlProcess.stdout.on('data', (d) =>
-    console.log('[MySQL stdout]', d.toString().trim())
-  )
-
-  mysqlProcess.stderr.on('data', (d) =>
-    console.log('[MySQL stderr]', d.toString().trim())
-  )
-
-  // ← Blind spot #2: 'close' without an exit code tells you nothing
-  // Show the actual exit code AND signal so you know why it died
-  mysqlProcess.on('close', (code, signal) => {
-    console.log(`[MySQL] cerrado código=${code} signal=${signal}`)
-  })
-
-  mysqlProcess.on('exit', (code, signal) => {
-    console.log(`[MySQL] exit código=${code} signal=${signal}`)
-  })
+  mysqlProcess.on('error', (err) => console.error('[MySQL] ERROR AL LANZAR PROCESO:', err))
+  mysqlProcess.stdout.on('data', (d) => console.log('[MySQL stdout]', d.toString().trim()))
+  mysqlProcess.stderr.on('data', (d) => console.log('[MySQL stderr]', d.toString().trim()))
+  mysqlProcess.on('close', (code, signal) => console.log(`[MySQL] cerrado código=${code} signal=${signal}`))
 }
 
 async function waitMySQL(tries = 30) {
   const args = ['-u', 'root', `--port=${LOCAL_DB_PORT}`, '--host=127.0.0.1', '-e', 'SELECT 1']
   for (let i = 0; i < tries; i++) {
-    await new Promise((r) => setTimeout(r, 500))
     try {
       execFileSync(getMysqlClientBinary(), args, { stdio: 'pipe', env: getMysqlEnv() })
       console.log('[MySQL] listo.')
       return
     } catch (_) { /* todavía arrancando */ }
+    await new Promise((r) => setTimeout(r, 500))
   }
   throw new Error('[MySQL] no respondió después de varios intentos')
 }
@@ -193,12 +163,12 @@ function setupDatabase() {
   })
 
   const userSQL = [
-  `CREATE OR REPLACE USER '${LOCAL_DB_USER}'@'127.0.0.1' IDENTIFIED BY '${LOCAL_DB_PASS}';`,
-  `CREATE OR REPLACE USER '${LOCAL_DB_USER}'@'localhost' IDENTIFIED BY '${LOCAL_DB_PASS}';`,
-  `GRANT ALL PRIVILEGES ON ${LOCAL_DB_NAME}.* TO '${LOCAL_DB_USER}'@'127.0.0.1';`,
-  `GRANT ALL PRIVILEGES ON ${LOCAL_DB_NAME}.* TO '${LOCAL_DB_USER}'@'localhost';`,
-  `FLUSH PRIVILEGES;`,
-].join('\n')
+    `CREATE OR REPLACE USER '${LOCAL_DB_USER}'@'127.0.0.1' IDENTIFIED BY '${LOCAL_DB_PASS}';`,
+    `CREATE OR REPLACE USER '${LOCAL_DB_USER}'@'localhost' IDENTIFIED BY '${LOCAL_DB_PASS}';`,
+    `GRANT ALL PRIVILEGES ON ${LOCAL_DB_NAME}.* TO '${LOCAL_DB_USER}'@'127.0.0.1';`,
+    `GRANT ALL PRIVILEGES ON ${LOCAL_DB_NAME}.* TO '${LOCAL_DB_USER}'@'localhost';`,
+    `FLUSH PRIVILEGES;`,
+  ].join('\n')
   execFileSync(getMysqlClientBinary(), clientArgs, {
     input: userSQL,
     stdio: ['pipe', 'pipe', 'pipe'],
@@ -235,6 +205,18 @@ async function waitPHP(tries = 10) {
     await new Promise((r) => setTimeout(r, 500))
   }
   throw new Error('[PHP] no respondió después de varios intentos')
+}
+
+function runSeeders() {
+  const phpBin = getPhpBinary()
+  const configDir = path.join(getBackendPath(), 'config')
+  for (const file of ['seeder.php', 'seederuser.php']) {
+    try {
+      execFileSync(phpBin, [path.join(configDir, file)], { stdio: 'inherit' })
+    } catch (e) {
+      console.error(`[Seeder] Error en ${file}:`, e.message)
+    }
+  }
 }
 
 // ── Create window ─────────────────────────────────────────────────────────────
@@ -284,35 +266,20 @@ app.whenReady().then(async () => {
       APP_ENV: 'production',
     })
 
-    const isFirstRun = initMySQLDataDir()
+    initMySQLDataDir()
 
     spawnMySQL()
-    await waitMySQL() 
+    await waitMySQL()
 
     if (!isDatabaseReady()) {
       setupDatabase()
     }
-
-    spawnPHP()
-    await waitPHP()
-
-    try {
-      const seeder = path.join(getBackendPath(), 'config', 'seeder.php')
-      execFileSync(getPhpBinary(), [seeder], { stdio: 'inherit' })
-    } catch (e) {
-      console.error('[Seeder] Error:', e.message)
-    }
-  } else {
-    spawnPHP()
-    await waitPHP()
-
-    try {
-      const seeder = path.join(getBackendPath(), 'config', 'seeder.php')
-      execFileSync('php', [seeder], { stdio: 'inherit' })
-    } catch (e) {
-      console.error('[Seeder] Error:', e.message)
-    }
   }
+
+  spawnPHP()
+  await waitPHP()
+
+  runSeeders()
 
   ipcMain.handle('ping', () => 'pong')
 
