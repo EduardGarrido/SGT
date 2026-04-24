@@ -42,6 +42,10 @@ export async function getUserInfo(id) {
   return request(path)
 }
 
+export async function checkEmail(correo) {
+  return request(`checkEmail?correo=${encodeURIComponent(correo)}`)
+}
+
 export async function createUser(data) {
   return request('createUser', {
     method: 'POST',

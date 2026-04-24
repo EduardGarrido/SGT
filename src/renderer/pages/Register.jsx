@@ -2,7 +2,7 @@ import { useState } from 'react'
 import DOMPurify from 'dompurify'
 import { NavigateButton, ActionButton } from '../components'
 import TopBar from '../components/TopBar'
-import { createUser } from '../api/api'
+import { createUser, checkEmail } from '../api/api'
 import { ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/react/20/solid'
 
 const RESPONSE_STYLE = {
@@ -26,6 +26,7 @@ const EMPTY_USER = {
   nombre: '',
   password: '',
   confirmar: '',
+  puesto: '',
   telefono: '',
   correo: '',
   calle: '',
@@ -53,15 +54,60 @@ export default function Register() {
     const cleanNombre = sanitize(newUser.nombre)
     const cleanPassword = newUser.password.trim()
     const cleanConfirmar = newUser.confirmar.trim()
+    const cleanTelefono = sanitize(newUser.telefono)
+    const cleanCorreo = sanitize(newUser.correo)
 
-    if (!cleanNombre || !cleanPassword || !cleanConfirmar) {
-      setResponse({ type: 'error', message: 'Nombre y contraseña son obligatorios' })
+    if (!cleanNombre || !cleanPassword || !cleanConfirmar || !newUser.puesto) {
+      setResponse({
+        type: 'error',
+        message: 'Nombre, contraseña y puesto son obligatorios',
+        field: 'required',
+      })
       return
     }
 
     if (cleanPassword !== cleanConfirmar) {
-      setResponse({ type: 'error', message: 'Las contraseñas no coinciden' })
+      setResponse({ type: 'error', message: 'Las contraseñas no coinciden', field: 'confirmar' })
       return
+    }
+
+    if (cleanTelefono) {
+      if (!/^\d+$/.test(cleanTelefono)) {
+        setResponse({
+          type: 'error',
+          message: 'El teléfono solo debe contener números',
+          field: 'telefono',
+        })
+        return
+      }
+      if (cleanTelefono.length !== 10 && cleanTelefono.length !== 12) {
+        setResponse({
+          type: 'error',
+          message: 'El teléfono debe tener 10 o 12 dígitos',
+          field: 'telefono',
+        })
+        return
+      }
+    }
+
+    if (cleanCorreo) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(cleanCorreo)) {
+        setResponse({
+          type: 'error',
+          message: 'El formato del correo no es válido',
+          field: 'correo',
+        })
+        return
+      }
+
+      setLoading(true)
+      const emailCheck = await checkEmail(cleanCorreo)
+      if (!emailCheck.ok) {
+        setResponse({ type: 'error', message: emailCheck.mensaje, field: 'correo' })
+        setLoading(false)
+        return
+      }
     }
 
     setResponse(null)
@@ -71,9 +117,9 @@ export default function Register() {
       const data = await createUser({
         Nombre: cleanNombre,
         Password: cleanPassword,
-        Estado: 'autorizado',
-        Telefono: sanitize(newUser.telefono),
-        Correo: sanitize(newUser.correo),
+        Puesto: newUser.puesto,
+        Telefono: cleanTelefono,
+        Correo: cleanCorreo,
         Calle: sanitize(newUser.calle),
         Colonia: sanitize(newUser.colonia),
         Codigo_Postal: sanitize(newUser.codigo_postal),
@@ -98,28 +144,75 @@ export default function Register() {
 
   const style = response ? RESPONSE_STYLE[response.type] : null
 
-  const inputClass = `rounded-lg w-full px-2 py-1 border-2 text-gray-700 bg-gray-100 shadow-sm sm:text-sm ${
-    style ? style.input : 'border-gray-400'
-  }`
+  const baseInputClass =
+    'rounded-lg w-full px-2 py-1 border-2 text-gray-700 bg-gray-100 shadow-sm sm:text-sm'
+
+  const inputClass = (field, required) => {
+    const hasError = response?.type === 'error' && style?.input
+    const isHighlighted =
+      hasError && (response.field === field || (response.field === 'required' && required))
+    return `${baseInputClass} ${isHighlighted ? style.input : 'border-gray-400'}`
+  }
 
   const fields = [
-    { label: 'Nombre completo *', field: 'nombre', type: 'text', placeholder: 'Nombre completo' },
-    { label: 'Contraseña *', field: 'password', type: 'password', placeholder: 'Contraseña' },
+    {
+      label: 'Nombre completo *',
+      field: 'nombre',
+      type: 'text',
+      placeholder: 'Nombre completo',
+      required: true,
+    },
+    {
+      label: 'Puesto *',
+      field: 'puesto',
+      type: 'select',
+      options: [
+        { value: 'admin', label: 'Administrador' },
+        { value: 'empleado', label: 'Empleado' },
+      ],
+      required: true,
+    },
+    {
+      label: 'Teléfono (sin espacios)',
+      field: 'telefono',
+      type: 'tel',
+      placeholder: '1234567890',
+      required: false,
+    },
+    {
+      label: 'Correo',
+      field: 'correo',
+      type: 'email',
+      placeholder: 'correo@ejemplo.mx',
+      required: false,
+    },
+    { label: 'Calle', field: 'calle', type: 'text', placeholder: 'Calle', required: false },
+    { label: 'Colonia', field: 'colonia', type: 'text', placeholder: 'Colonia', required: false },
+    {
+      label: 'Código Postal',
+      field: 'codigo_postal',
+      type: 'text',
+      placeholder: 'Código Postal',
+      required: false,
+    },
+    {
+      label: 'Contraseña *',
+      field: 'password',
+      type: 'password',
+      placeholder: 'Contraseña',
+      required: true,
+    },
     {
       label: 'Confirmar contraseña *',
       field: 'confirmar',
       type: 'password',
       placeholder: 'Repite la contraseña',
+      required: true,
     },
-    { label: 'Teléfono', field: 'telefono', type: 'tel', placeholder: 'Teléfono' },
-    { label: 'Correo', field: 'correo', type: 'email', placeholder: 'Correo electrónico' },
-    { label: 'Calle', field: 'calle', type: 'text', placeholder: 'Calle' },
-    { label: 'Colonia', field: 'colonia', type: 'text', placeholder: 'Colonia' },
-    { label: 'Código Postal', field: 'codigo_postal', type: 'text', placeholder: 'Código Postal' },
   ]
 
   return (
-    <div className="flex flex-col h-screen font-sans bg-gray-200">
+    <div className="flex flex-col min-h-screen font-sans bg-gray-200">
       <TopBar />
       <div className="flex w-full h-full my-5">
         <div className="w-full h-full bg-gray-50 mx-5 rounded-lg p-5 shadow-md">
@@ -149,7 +242,7 @@ export default function Register() {
                 )}
                 {/* Inputs */}
                 <div className="grid grid-cols-1 gap-4 lg:w-160 w-80">
-                  {fields.map(({ label, field, type, placeholder }) => (
+                  {fields.map(({ label, field, type, placeholder, options, required }) => (
                     <div key={field}>
                       <label
                         className="block text-sm font-semibold text-gray-800 mb-1"
@@ -157,32 +250,50 @@ export default function Register() {
                       >
                         {label}
                       </label>
-                      <input
-                        className={inputClass}
-                        id={field}
-                        type={type}
-                        value={newUser[field]}
-                        onChange={handleChange(field)}
-                        onKeyDown={handleEnter}
-                        placeholder={placeholder}
-                        autoComplete={type === 'password' ? 'new-password' : 'on'}
-                      />
+                      {type === 'select' ? (
+                        <select
+                          className={inputClass(field, required)}
+                          id={field}
+                          value={newUser[field]}
+                          onChange={handleChange(field)}
+                        >
+                          <option value="">Seleccionar puesto...</option>
+                          {options.map(({ value, label: optLabel }) => (
+                            <option key={value} value={value}>
+                              {optLabel}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          className={inputClass(field, required)}
+                          id={field}
+                          type={type}
+                          value={newUser[field]}
+                          onChange={handleChange(field)}
+                          onKeyDown={handleEnter}
+                          placeholder={placeholder}
+                          autoComplete={type === 'password' ? 'new-password' : 'off'}
+                        />
+                      )}
                     </div>
                   ))}
-                </div>
-                <div className="mt-6 lg:w-160 w-80 tracking-wider bg-gray-800 hover:bg-gray-900 rounded-lg text-center">
-                  <ActionButton
-                    className="font-normal w-full rounded-lg"
-                    onClick={handleSubmit}
-                    disabled={loading}
-                  >
-                    Registrar usuario
-                  </ActionButton>
-                </div>
-                <div className="mt-6 mb-2 lg:w-160 w-80 lace-self-center text-white font-light tracking-wider bg-gray-800 hover:bg-gray-900 rounded-lg text-center">
-                  <NavigateButton className="font-normal w-full rounded-lg" to="/users">
-                    Volver a Usuarios
-                  </NavigateButton>
+                  <div className="w-full flex flex-col pt-4 pb-8 gap-4">
+                    <div className="lg:w-160 w-80 tracking-wider bg-gray-800 hover:bg-gray-900 rounded-lg text-center">
+                      <ActionButton
+                        className="font-normal w-full rounded-lg"
+                        onClick={handleSubmit}
+                        disabled={loading}
+                      >
+                        Registrar usuario
+                      </ActionButton>
+                    </div>
+                    <div className="lg:w-160 w-80 lace-self-center text-white font-light tracking-wider bg-gray-800 hover:bg-gray-900 rounded-lg text-center">
+                      <NavigateButton className="font-normal w-full rounded-lg" to="/users">
+                        Volver a Usuarios
+                      </NavigateButton>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

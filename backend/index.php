@@ -97,6 +97,11 @@ switch (true) {
         require_once __DIR__ . '/routes/usuarioRoute.php';
         break;
 
+    case $path === '/api/checkEmail':
+        requerirAdmin();
+        require_once __DIR__ . '/routes/checkEmailRoute.php';
+        break;
+
     case $path === '/api/products':
         requerirAdmin();
         echo json_encode(['ok' => true, 'mensaje' => 'Admin autorizado']);
