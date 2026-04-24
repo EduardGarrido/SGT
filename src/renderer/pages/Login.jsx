@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import DOMPurify from 'dompurify'
 import { useAuth } from '../context/AuthContext'
 import { login } from '../api/api'
 import { ActionButton } from '../components'
@@ -9,8 +10,20 @@ import { ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/react/20/soli
 
 // Styles
 const ALERT_STYLE = {
-  error:   { bg: 'bg-red-50',   border: 'border-red-300',   text: 'text-red-700',   input: 'border-red-400',   Icon: ExclamationCircleIcon },
-  success: { bg: 'bg-green-50', border: 'border-green-300', text: 'text-green-700', input: 'border-green-400', Icon: CheckCircleIcon },
+  error: {
+    bg: 'bg-red-50',
+    border: 'border-red-300',
+    text: 'text-red-700',
+    input: 'border-red-400',
+    Icon: ExclamationCircleIcon,
+  },
+  success: {
+    bg: 'bg-green-50',
+    border: 'border-green-300',
+    text: 'text-green-700',
+    input: 'border-green-400',
+    Icon: CheckCircleIcon,
+  },
 }
 
 export default function Login() {
@@ -20,9 +33,14 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const { guardarSesion } = useAuth()
 
-
   async function handleLogin() {
-    if (!id.trim() || !password) {
+    const cleanId = DOMPurify.sanitize(id.trim(), { ALLOWED_TAGS: [], ALLOWED_ATTR: [] })
+    const cleanPassword = DOMPurify.sanitize(password.trim(), {
+      ALLOWED_TAGS: [],
+      ALLOWED_ATTR: [],
+    })
+
+    if (!cleanId || !cleanPassword) {
       setStatus({ type: 'error', message: 'Completa ambos campos' })
       return
     }
@@ -31,7 +49,7 @@ export default function Login() {
     setLoading(true)
 
     try {
-      const data = await login(id.trim(), password)
+      const data = await login(cleanId, cleanPassword)
 
       if (data.ok) {
         setStatus({ type: 'success', message: data.mensaje })
@@ -40,7 +58,7 @@ export default function Login() {
         setStatus({ type: 'error', message: data.mensaje || 'Error al iniciar sesión' })
       }
     } catch {
-      setStatus({ type: 'error', message: 'No se pudo conectar con el servidor'})
+      setStatus({ type: 'error', message: 'No se pudo conectar con el servidor' })
     } finally {
       setLoading(false)
     }
@@ -58,7 +76,7 @@ export default function Login() {
 
   return (
     <div className="flex flex-col w-screen h-screen font-sans bg-gray-200">
-      <TopBar/>
+      <TopBar />
       <div className="h-dvh w-full flex flex-1 justify-center items-center">
         <div className="w-full max-w-xl">
           <div className="leading-loose">
@@ -66,46 +84,61 @@ export default function Login() {
               <p className="py-1 text-gray-800 text-center text-2xl font-bold">Inicio de sesión</p>
 
               {status && (
-                <div className={`flex items-center gap-2 mt-2 mb-1 px-3 py-2 rounded-lg border text-sm ${style.bg} ${style.border} ${style.text}`}>
+                <div
+                  className={`flex items-center gap-2 mt-2 mb-1 px-3 py-2 rounded-lg border text-sm ${style.bg} ${style.border} ${style.text}`}
+                >
                   <style.Icon className="w-5 shrink-0" />
                   {status.message}
                 </div>
               )}
 
               <div className="w-full justify-self-center-safe">
-                <label className="block text-medium font-semibold text-gray-800" htmlFor="id-usuario">ID del usuario</label>
+                <label
+                  className="block text-medium font-semibold text-gray-800"
+                  htmlFor="id-usuario"
+                >
+                  ID del usuario
+                </label>
                 <input
-                className={inputClass}
-                id="id-usuario"
-                type="text"
-                value={id}
-                onChange={(e) => { setStatus(null); setId(e.target.value) }}
-                onKeyDown={handleEnter}
-                placeholder="ID de usuario"
-                autoComplete="on"
+                  className={inputClass}
+                  id="id-usuario"
+                  type="text"
+                  value={id}
+                  onChange={(e) => {
+                    setStatus(null)
+                    setId(e.target.value)
+                  }}
+                  onKeyDown={handleEnter}
+                  placeholder="ID de usuario"
+                  autoComplete="on"
                 />
               </div>
-            <div className="w-full justify-self-center-safe">
-              <label className="block text-medium font-semibold text-gray-800" htmlFor="password">Contraseña</label>
+              <div className="w-full justify-self-center-safe">
+                <label className="block text-medium font-semibold text-gray-800" htmlFor="password">
+                  Contraseña
+                </label>
                 <input
-                className={inputClass}
-                type="password"
-                value={password}
-                onChange={(e) => { setStatus(null); setPassword(e.target.value) }}
-                onKeyDown={handleEnter}
-                placeholder="Contraseña"
-                autoComplete="off"
+                  className={inputClass}
+                  type="password"
+                  value={password}
+                  onChange={(e) => {
+                    setStatus(null)
+                    setPassword(e.target.value)
+                  }}
+                  onKeyDown={handleEnter}
+                  placeholder="Contraseña"
+                  autoComplete="off"
                 />
               </div>
-            <div className="mt-6 w-full place-self-center tracking-wider bg-gray-800 hover:bg-gray-900 rounded-lg text-center">
-              <ActionButton className="font-normal" onClick={handleLogin} disabled={loading}>
-                Iniciar Sesión
-              </ActionButton>
+              <div className="mt-6 w-full place-self-center tracking-wider bg-gray-800 hover:bg-gray-900 rounded-lg text-center">
+                <ActionButton className="font-normal" onClick={handleLogin} disabled={loading}>
+                  Iniciar Sesión
+                </ActionButton>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
     </div>
   )
 }

@@ -41,3 +41,10 @@ export async function getUserInfo(id) {
   const path = id ? `getUserInfo?id=${id}` : 'getUserInfo'
   return request(path)
 }
+
+export async function createUser(data) {
+  return request('createUser', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+}
