@@ -22,7 +22,16 @@ const RESPONSE_STYLE = {
   },
 }
 
-const EMPTY_USER = { nombre: '', telefono: '', correo: '', password: '', confirmar: '' }
+const EMPTY_USER = {
+  nombre: '',
+  password: '',
+  confirmar: '',
+  telefono: '',
+  correo: '',
+  calle: '',
+  colonia: '',
+  codigo_postal: '',
+}
 
 export default function Register() {
   const [newUser, setNewUser] = useState(EMPTY_USER)
@@ -42,13 +51,11 @@ export default function Register() {
 
   async function handleSubmit() {
     const cleanNombre = sanitize(newUser.nombre)
-    const cleanTelefono = sanitize(newUser.telefono)
-    const cleanCorreo = sanitize(newUser.correo)
     const cleanPassword = newUser.password.trim()
     const cleanConfirmar = newUser.confirmar.trim()
 
-    if (!cleanNombre || !cleanTelefono || !cleanCorreo || !cleanPassword || !cleanConfirmar) {
-      setResponse({ type: 'error', message: 'Completa todos los campos' })
+    if (!cleanNombre || !cleanPassword || !cleanConfirmar) {
+      setResponse({ type: 'error', message: 'Nombre y contraseña son obligatorios' })
       return
     }
 
@@ -62,10 +69,14 @@ export default function Register() {
 
     try {
       const data = await createUser({
-        nombre: cleanNombre,
-        telefono: cleanTelefono,
-        correo: cleanCorreo,
-        password: cleanPassword,
+        Nombre: cleanNombre,
+        Password: cleanPassword,
+        Estado: 'autorizado',
+        Telefono: sanitize(newUser.telefono),
+        Correo: sanitize(newUser.correo),
+        Calle: sanitize(newUser.calle),
+        Colonia: sanitize(newUser.colonia),
+        Codigo_Postal: sanitize(newUser.codigo_postal),
       })
 
       if (data.ok) {
@@ -92,16 +103,19 @@ export default function Register() {
   }`
 
   const fields = [
-    { label: 'Nombre completo', field: 'nombre', type: 'text', placeholder: 'Nombre completo' },
-    { label: 'Teléfono', field: 'telefono', type: 'tel', placeholder: 'Teléfono' },
-    { label: 'Correo', field: 'correo', type: 'email', placeholder: 'Correo electrónico' },
-    { label: 'Contraseña', field: 'password', type: 'password', placeholder: 'Contraseña' },
+    { label: 'Nombre completo *', field: 'nombre', type: 'text', placeholder: 'Nombre completo' },
+    { label: 'Contraseña *', field: 'password', type: 'password', placeholder: 'Contraseña' },
     {
-      label: 'Confirmar contraseña',
+      label: 'Confirmar contraseña *',
       field: 'confirmar',
       type: 'password',
       placeholder: 'Repite la contraseña',
     },
+    { label: 'Teléfono', field: 'telefono', type: 'tel', placeholder: 'Teléfono' },
+    { label: 'Correo', field: 'correo', type: 'email', placeholder: 'Correo electrónico' },
+    { label: 'Calle', field: 'calle', type: 'text', placeholder: 'Calle' },
+    { label: 'Colonia', field: 'colonia', type: 'text', placeholder: 'Colonia' },
+    { label: 'Código Postal', field: 'codigo_postal', type: 'text', placeholder: 'Código Postal' },
   ]
 
   return (
@@ -118,57 +132,58 @@ export default function Register() {
               <hr className="rounded-full border-2 border-gray-400 w-full my-5" />
             </div>
             {/* Body */}
-            <div className="flex flex-col w-full h-full justify-begin items-center">
-              <div className="flex items-center mb-4">
+            <div className="flex flex-col w-full h-full justify-begin items-center gap-4">
+              <div className="flex items-center w-full">
                 <hr className="grow border-gray-300" />
                 <span className="mx-3 text-gray-600 text-sm">Información del nuevo usuario</span>
                 <hr className="grow border-gray-300" />
               </div>
-
-              {response && (
-                <div
-                  className={`flex items-center gap-2 mb-4 px-3 py-2 rounded-lg border text-sm ${style.bg} ${style.border} ${style.text}`}
-                >
-                  <style.Icon className="w-5 shrink-0" />
-                  {response.message}
-                </div>
-              )}
-              {/* Inputs */}
-              <div className="grid grid-cols-1 gap-4 lg:w-160 w-80">
-                {fields.map(({ label, field, type, placeholder }) => (
-                  <div key={field}>
-                    <label
-                      className="block text-sm font-semibold text-gray-800 mb-1"
-                      htmlFor={field}
-                    >
-                      {label}
-                    </label>
-                    <input
-                      className={inputClass}
-                      id={field}
-                      type={type}
-                      value={newUser[field]}
-                      onChange={handleChange(field)}
-                      onKeyDown={handleEnter}
-                      placeholder={placeholder}
-                      autoComplete={type === 'password' ? 'new-password' : 'on'}
-                    />
+              <div className="flex flex-col w-full h-full justify-begin items-center">
+                {response && (
+                  <div
+                    className={`flex items-center gap-2 mb-4 px-3 py-2 rounded-lg border text-sm ${style.bg} ${style.border} ${style.text}`}
+                  >
+                    <style.Icon className="w-5 shrink-0" />
+                    {response.message}
                   </div>
-                ))}
-              </div>
-              <div className="mt-6 lg:w-160 w-80 tracking-wider bg-gray-800 hover:bg-gray-900 rounded-lg text-center">
-                <ActionButton
-                  className="font-normal w-full rounded-lg"
-                  onClick={handleSubmit}
-                  disabled={loading}
-                >
-                  Registrar usuario
-                </ActionButton>
-              </div>
-              <div className="mt-6 mb-2 lg:w-160 w-80 lace-self-center text-white font-light tracking-wider bg-gray-800 hover:bg-gray-900 rounded-lg text-center">
-                <NavigateButton className="font-normal w-full rounded-lg" to="/users">
-                  Volver a Usuarios
-                </NavigateButton>
+                )}
+                {/* Inputs */}
+                <div className="grid grid-cols-1 gap-4 lg:w-160 w-80">
+                  {fields.map(({ label, field, type, placeholder }) => (
+                    <div key={field}>
+                      <label
+                        className="block text-sm font-semibold text-gray-800 mb-1"
+                        htmlFor={field}
+                      >
+                        {label}
+                      </label>
+                      <input
+                        className={inputClass}
+                        id={field}
+                        type={type}
+                        value={newUser[field]}
+                        onChange={handleChange(field)}
+                        onKeyDown={handleEnter}
+                        placeholder={placeholder}
+                        autoComplete={type === 'password' ? 'new-password' : 'on'}
+                      />
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-6 lg:w-160 w-80 tracking-wider bg-gray-800 hover:bg-gray-900 rounded-lg text-center">
+                  <ActionButton
+                    className="font-normal w-full rounded-lg"
+                    onClick={handleSubmit}
+                    disabled={loading}
+                  >
+                    Registrar usuario
+                  </ActionButton>
+                </div>
+                <div className="mt-6 mb-2 lg:w-160 w-80 lace-self-center text-white font-light tracking-wider bg-gray-800 hover:bg-gray-900 rounded-lg text-center">
+                  <NavigateButton className="font-normal w-full rounded-lg" to="/users">
+                    Volver a Usuarios
+                  </NavigateButton>
+                </div>
               </div>
             </div>
           </div>
