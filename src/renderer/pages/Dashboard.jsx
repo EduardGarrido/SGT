@@ -4,6 +4,13 @@ import { LogoutButton, NavigateButton } from '../components'
 import TopBar from '../components/TopBar'
 import { getUserInfo } from '../api/api'
 
+const NAVIGATION_BUTTONS = [
+  { label: 'Ir a venta', to: '/sales' },
+  { label: 'Ver usuarios', to: '/users', adminOnly: true },
+  { label: 'Caja', to: '/caja' },
+  { label: 'Gestión de inventario', to: '/inventory', adminOnly: true },
+]
+
 export default function Dashboard() {
   const { usuario, esAdmin } = useAuth()
   const [userInfo, setUserInfo] = useState(null)
@@ -52,31 +59,24 @@ export default function Dashboard() {
             Cerrar sesión
           </LogoutButton>
         </div>
-        <div className="rounded-lg h-full p-5 w-1/2 bg-gray-50 self-center-safe shadow-md">
-          <h1 className="text-2xl font-semibold text-gray-900 text-center">
-            Bienvenido, {usuario?.id} - Puesto: {usuario?.puesto}
-          </h1>
-          <hr className="rounded-full border-2 w-full border-gray-400 my-5" />
-          <div className="mt-6 mb-2 w-50 text-white font-light tracking-wider bg-gray-800 hover:bg-gray-900 rounded-lg text-center">
-            <NavigateButton className="font-normal" to="/sales">
-              Ir a venta
-            </NavigateButton>
+        <div className="flex flex-col rounded-lg h-full p-5 w-1/2 bg-gray-50 self-center-safe shadow-md">
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900 text-center">
+              Bienvenido, {usuario?.id} - Puesto: {usuario?.puesto}
+            </h1>
+            <hr className="rounded-full border-2 w-full border-gray-400 my-5" />
           </div>
-          {esAdmin && (
-            <div className="mt-6 mb-2 right-10 place-self-center w-50 text-white font-light tracking-wider bg-gray-800 hover:bg-gray-900 rounded-lg text-center">
-              <NavigateButton className="font-normal" to="/users">
-                Ver usuarios
-              </NavigateButton>
+          <div className="flex flex-col">
+            <div className="grid grid-cols-2 gap-6">
+              {NAVIGATION_BUTTONS.filter((btn) => !btn.adminOnly || esAdmin).map((btn) => (
+                <NavigateButton key={btn.to} to={btn.to} className="py-8 font-semibold text-xl">
+                  {btn.label}
+                </NavigateButton>
+              ))}
             </div>
-          )}
-          {esAdmin && (
-            <div className="mt-6 mb-2 right-10 place-self-center w-50 text-white font-light tracking-wider bg-gray-800 hover:bg-gray-900 rounded-lg text-center">
-              <NavigateButton className="font-normal" to="/inventory">
-                Gestión de inventario
-              </NavigateButton>
-            </div>
-          )}
+          </div>
         </div>
+
         <div className="rounded-lg h-full mx-5 p-5 w-1/4 bg-gray-50 shadow-md">
           <h1 className="text-2xl font-semibold text-gray-900 text-center">Último corte</h1>
           <hr className="rounded-full border-2 w-full border-gray-400 my-5" />
