@@ -118,7 +118,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/EduardGarrido/SGT/issues"
   },
@@ -143,6 +143,7 @@
     "@tailwindcss/vite": "^4.2.2",
     "clsx": "^2.1.1",
     "daisyui": "^5.5.19",
+    "dompurify": "^3.4.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-router-dom": "^7.14.0",
