@@ -13,7 +13,11 @@ export default defineConfig({
     preload: {
         build: {
             rollupOptions: {
-                input: './src/main/preload.js'
+                input: './src/main/preload.js',
+                output: {
+                    format: 'cjs',
+                    entryFileNames: '[name].js'
+                }
             }
         }
     },

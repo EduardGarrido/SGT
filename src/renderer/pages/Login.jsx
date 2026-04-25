@@ -2,14 +2,13 @@ import { useState } from 'react'
 import DOMPurify from 'dompurify'
 import { useAuth } from '../context/AuthContext'
 import { login } from '../api/api'
-import { ActionButton } from '../components'
-import TopBar from '../components/TopBar'
+import { TopBar, ActionButton } from '../components'
 
 //Icons
 import { ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/react/20/solid'
 
 // Styles
-const ALERT_STYLE = {
+const RESPONSE_STYLE = {
   error: {
     bg: 'bg-red-50',
     border: 'border-red-300',
@@ -29,7 +28,7 @@ const ALERT_STYLE = {
 export default function Login() {
   const [id, setId] = useState('')
   const [password, setPassword] = useState('')
-  const [status, setStatus] = useState(null) // { type: 'error' | 'success', message: string }
+  const [response, setResponse] = useState(null) // { type: 'error' | 'success', message: string }
   const [loading, setLoading] = useState(false)
   const { guardarSesion } = useAuth()
 
@@ -41,24 +40,24 @@ export default function Login() {
     })
 
     if (!cleanId || !cleanPassword) {
-      setStatus({ type: 'error', message: 'Completa ambos campos' })
+      setResponse({ type: 'error', message: 'Completa ambos campos' })
       return
     }
 
-    setStatus(null)
+    setResponse(null)
     setLoading(true)
 
     try {
       const data = await login(cleanId, cleanPassword)
 
       if (data.ok) {
-        setStatus({ type: 'success', message: data.mensaje })
+        setResponse({ type: 'success', message: data.mensaje })
         setTimeout(() => guardarSesion(data), 200)
       } else {
-        setStatus({ type: 'error', message: data.mensaje || 'Error al iniciar sesión' })
+        setResponse({ type: 'error', message: data.mensaje || 'Error al iniciar sesión' })
       }
     } catch {
-      setStatus({ type: 'error', message: 'No se pudo conectar con el servidor' })
+      setResponse({ type: 'error', message: 'No se pudo conectar con el servidor' })
     } finally {
       setLoading(false)
     }
@@ -68,7 +67,7 @@ export default function Login() {
     if (e.key === 'Enter') handleLogin()
   }
 
-  const style = status ? ALERT_STYLE[status.type] : null
+  const style = response ? RESPONSE_STYLE[response.type] : null
 
   const inputClass = `rounded-lg w-full px-2 py-1 border-2 text-gray-700 bg-gray-100 shadow-sm sm:text-sm ${
     style ? style.input : 'border-gray-400'
@@ -83,12 +82,12 @@ export default function Login() {
             <div className="w-full p-16 bg-gray-50 rounded-lg shadow-2xl">
               <p className="py-1 text-gray-800 text-center text-2xl font-bold">Inicio de sesión</p>
 
-              {status && (
+              {response && (
                 <div
                   className={`flex items-center gap-2 mt-2 mb-1 px-3 py-2 rounded-lg border text-sm ${style.bg} ${style.border} ${style.text}`}
                 >
                   <style.Icon className="w-5 shrink-0" />
-                  {status.message}
+                  {response.message}
                 </div>
               )}
 
@@ -105,7 +104,7 @@ export default function Login() {
                   type="text"
                   value={id}
                   onChange={(e) => {
-                    setStatus(null)
+                    setResponse(null)
                     setId(e.target.value)
                   }}
                   onKeyDown={handleEnter}
@@ -122,7 +121,7 @@ export default function Login() {
                   type="password"
                   value={password}
                   onChange={(e) => {
-                    setStatus(null)
+                    setResponse(null)
                     setPassword(e.target.value)
                   }}
                   onKeyDown={handleEnter}

@@ -31,7 +31,7 @@ export default function Dashboard() {
       <div className="flex my-5 h-full w-full">
         <div className="flex flex-col rounded-lg h-full mx-5 p-5 w-1/4 bg-gray-50 shadow-md justify-between">
           <div className="flex flex-col gap-1">
-            <h1 className="text-2xl font-semibold text-gray-900 text-center">Mi Perfil</h1>
+            <h1 className="text-2xl font-semibold text-gray-900 text-center">Mi información</h1>
             <hr className="rounded-full border-2 w-full border-gray-400 my-3" />
             {loading ? (
               <p className="text-gray-400 text-sm">Cargando...</p>

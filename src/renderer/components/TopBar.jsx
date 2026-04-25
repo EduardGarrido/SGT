@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 //import logo from "../assets/logo.png"; // para el logo de la tienda, en su caso
 
-function TopBar() {
+export default function TopBar() {
   const [dateTime, setDateTime] = useState(new Date().toLocaleString());
 
   useEffect(() => {
@@ -26,5 +26,3 @@ function TopBar() {
     </>
   );
 }
-
-export default TopBar;
