@@ -54,7 +54,6 @@ if ($path === '/api/getUsers') {
 
     $data = json_decode(file_get_contents('php://input'), true);
     $Password = htmlspecialchars($data['Password']);
-    $Estado = htmlspecialchars($data['Estado']);
     $Nombre = htmlspecialchars($data['Nombre']);
     $Puesto = htmlspecialchars($data['Puesto']);
     $Telefono = htmlspecialchars($data['Telefono'] ?? '');
@@ -63,7 +62,7 @@ if ($path === '/api/getUsers') {
     $Colonia = htmlspecialchars($data['Colonia'] ?? '');
     $Codigo_Postal = htmlspecialchars($data['Codigo_Postal'] ?? '');
 
-    if (!$Password || !$Estado || !$Nombre) {
+    if (!$Password || !$Nombre) {
         http_response_code(400);
         echo json_encode(['ok' => false, 'mensaje' => 'Faltan campos obligatorios']);
         return;
@@ -90,7 +89,7 @@ if ($path === '/api/getUsers') {
             $Colonia,
             $Codigo_Postal
         );
-        $resEmpleado = Empleado::crearEmpleado($connection, $Nombre, $Puesto, $Estado, $resContacto, $resUsuario);
+        $resEmpleado = Empleado::crearEmpleado($connection, $Nombre, $Puesto, 'no activo', $resContacto, $resUsuario);
 
         $connection->commit();
         $connection = NULL;

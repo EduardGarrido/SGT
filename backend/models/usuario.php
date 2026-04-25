@@ -38,7 +38,7 @@ class Usuario
             $connection = new Conexion;
 
             $sql = $connection->prepare(
-                'SELECT u.ID_Usuario, e.Nombre  FROM ' . self::TABLE . ' u 
+                'SELECT u.ID_Usuario, e.Nombre, u.Estado FROM ' . self::TABLE . ' u 
                 INNER JOIN Empleado e ON e.ID_Usuario = u.ID_Usuario'
             );
             $sql->execute();
