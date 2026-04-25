@@ -4,6 +4,8 @@
  * Autorizacion mediante sesiones de PHP
  * El estado se resetea al cerrar el navegador
  */
+ini_set('session.gc_maxlifetime', 86400); // 24 hours
+session_set_cookie_params(['lifetime' => 86400]);
 session_start();
 
 

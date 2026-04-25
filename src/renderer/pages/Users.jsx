@@ -4,7 +4,7 @@ import TopBar from '../components/TopBar'
 import { getUsers, getUserInfo } from '../api/api'
 
 export default function Users() {
-  const [users, setUsers] = useState({})
+  const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedId, setSelectedId] = useState(null)
   const [userInfo, setUserInfo] = useState(null)

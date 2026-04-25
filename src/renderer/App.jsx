@@ -1,6 +1,24 @@
+import { useEffect } from 'react'
 import { useAuth } from './context/AuthContext'
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { Login, Dashboard, Users, UserInfo, Sales, Inventory, Register} from './pages' 
+import { HashRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import { Login, Dashboard, Users, UserInfo, Sales, Inventory, Register} from './pages'
+
+function SesionGuard() {
+  const { usuario, cerrarSesion } = useAuth()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    function handleExpirada() {
+      if (!usuario) return
+      cerrarSesion()
+      navigate('/', { replace: true })
+    }
+    window.addEventListener('sesion-expirada', handleExpirada)
+    return () => window.removeEventListener('sesion-expirada', handleExpirada)
+  }, [usuario, cerrarSesion, navigate])
+
+  return null
+}
 
 function RutaProtegida({children}) {
   const { usuario } = useAuth()
@@ -27,6 +45,7 @@ function RutaPublica({children}) {
 export default function App() {
   return (
     <HashRouter>
+      <SesionGuard />
       <Routes>
         <Route path="/"           element={<RutaPublica><Login /></RutaPublica>} />
         <Route path="/dashboard"  element={<RutaProtegida><Dashboard /></RutaProtegida>} />

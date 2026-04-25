@@ -10,6 +10,11 @@ async function request(path, options = {}) {
 
     const data = await res.json()
 
+    if (res.status === 401) {
+      window.dispatchEvent(new CustomEvent('sesion-expirada'))
+      return { ok: false, mensaje: data.mensaje ?? 'No autorizado' }
+    }
+
     if (!res.ok) {
       return { ok: false, mensaje: data.mensaje ?? data.error ?? `Error ${res.status}` }
     }
