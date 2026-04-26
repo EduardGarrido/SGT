@@ -11,6 +11,8 @@ class Usuario
     // 0 = no hay registro o no se encontró 
     // -1 = hubo un error en la ejecución
 
+
+
     //Funcion para crear un usuario
     public static function crearUsuario($connection, $Password, $Estado)
     {
@@ -38,7 +40,7 @@ class Usuario
             $connection = new Conexion;
 
             $sql = $connection->prepare(
-                'SELECT u.ID_Usuario, e.Nombre  FROM ' . self::TABLE . ' u 
+                'SELECT u.ID_Usuario, e.Nombre, u.Estado FROM ' . self::TABLE . ' u 
                 INNER JOIN Empleado e ON e.ID_Usuario = u.ID_Usuario'
             );
             $sql->execute();
@@ -83,63 +85,68 @@ class Usuario
         }
     }//-- Fin funcion info de usuario
 
-    // Funcion leer un usuario especifico
-    public static function readUsuario($ID_Usuario)
+    //Funcion actualizar estado de usuario
+    public static function updateEstado($ID_Usuario, $Estado, $connection = NULL)
     {
 
         try {
-            $connection = new Conexion;
+            $conn = $connection ?? new Conexion;
 
-            $sql = $connection->prepare(
-                'SELECT Estado FROM ' . self::TABLE . ' WHERE ID_Usuario = :ID_Usuario'
+
+            $sql = $conn->prepare(
+                'UPDATE ' . self::TABLE . ' SET Estado = :Estado WHERE ID_Usuario = :ID_Usuario'
             );
             $sql->bindValue(':ID_Usuario', $ID_Usuario, PDO::PARAM_INT);
+            $sql->bindValue(':Estado', $Estado, PDO::PARAM_STR);
             $sql->execute();
-            $usuario = $sql->fetch();
+            $row = $sql->rowCount();
+            $conn = NULL;
+
+
+            if ($row > 0) {
+                return 1;
+            } else {
+                return 0;
+
+            }
+
+
+
+
+        } catch (PDOException $e) {
+            throw new Exception("Hubo un error: " . $e->getMessage());
+        }
+    }//-- Fin funcion actualizar estado de usuario
+
+    //Funcion actualizar password de usuario
+    public static function updatePassword($ID_Usuario, $Password)
+    {
+
+        try {
+            $connection = new Conexion();
+
+            $sql = $connection->prepare(
+                'UPDATE ' . self::TABLE . ' SET Password = :Password WHERE ID_Usuario = :ID_Usuario'
+            );
+            $sql->bindValue(':ID_Usuario', $ID_Usuario, PDO::PARAM_INT);
+            $sql->bindValue(':Password', password_hash($Password, PASSWORD_DEFAULT));
+            $sql->execute();
+            $row = $sql->rowCount();
             $connection = NULL;
 
-            if ($usuario) {
-                return $usuario;
+
+            if ($row > 0) {
+                return 1;
             } else {
                 return 0;
             }
 
-        } catch (PDOException $e) {
-            throw new Exception("Hubo un error: " . $e->getMessage());
-        }
-    }//-- Fin funcion leer un usuario
-
-    //Funcion actualizar un usuario 
-    public static function updateUsuario($ID_Usuario, $Password, $Estado)
-    {
-
-        try {
-            $connection = new Conexion;
-
-            $sql = $connection->prepare(
-                'UPDATE ' . self::TABLE . ' SET Password = :Password, Estado = :Estado WHERE ID_Usuario = :ID_Usuario'
-            );
-            $sql->bindValue(':ID_Usuario', $ID_Usuario, PDO::PARAM_INT);
-            $sql->bindValue(':Password', password_hash($Password, PASSWORD_DEFAULT));
-            $sql->bindValue(':Estado', $Estado, PDO::PARAM_STR);
-            $valid = $sql->execute();
-            $row = $sql->rowCount();
-            $connection = NULL;
-
-            if ($valid) {
-                if ($row > 0) {
-                    return 1; // actualizo usuario
-                } else {
-                    return 0; // no actualizo, usuario no encontrado
-                }
-            } else {
-                return -1; // error
-            }
 
         } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
-    }//-- Fin funcion actualizar usuario
+    }//-- Fin funcion password estado de usuario
+
 
     // Funcion eliminar usuario
     public static function deleteUsuario($ID_Usuario)

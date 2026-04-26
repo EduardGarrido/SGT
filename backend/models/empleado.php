@@ -7,6 +7,9 @@ class Empleado
 {
     const TABLE = 'Empleado';
     // ID_Empleado, Nombre, Puesto, Estado, ID_Contacto_Empleado, ID_Usuario
+    // 1 = correcto
+    // 0 = no hay registro o no se encontró 
+    // -1 = hubo un error en la ejecución
 
     //Funcion para crear empleado 
     public static function crearEmpleado($connection, $Nombre, $Puesto, $Estado, $ID_Contacto_Empleado, $ID_Usuario)
@@ -31,39 +34,37 @@ class Empleado
         }
     }//-- Fin funcion crear empleado 
 
-    //Funcion para leer empleado
-    public static function readEmpleado($ID_Empleado)
+    //Funcion para obtener los IDs de empleado y contacto mediante ID de usuario
+    public static function getIDsByUsuario($ID_Usuario)
     {
-
         try {
-            $connection = new Conexion;
+            $connection = new Conexion();
 
-            $sql = $connection->prepare(
-                'SELECT Nombre, Puesto, Estado FROM ' . self::TABLE . ' WHERE ID_Empleado = :ID_Empleado'
-            );
-            $sql->bindValue(':ID_Empleado', $ID_Empleado, PDO::PARAM_INT);
+            $sql = $connection->prepare('SELECT ID_Empleado, ID_Contacto_Empleado FROM ' . self::TABLE . ' 
+            WHERE ID_Usuario = :ID_Usuario');
+            $sql->bindValue(':ID_Usuario', $ID_Usuario, PDO::PARAM_INT);
             $sql->execute();
-            $empleado = $sql->fetch();
+            $row = $sql->fetch();
             $connection = NULL;
 
-            if ($empleado) {
-                return $empleado;
+            if ($row) {
+                return $row;
             } else {
                 return false;
             }
 
+
         } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
-    }//-- Fin funcion leer empleado 
+
+    }//-- Fin funcion obtener IDs
 
     //Funcion para actualizar empleado
-    public static function updateEmpleado($ID_Empleado, $Nombre, $Puesto, $Estado)
+    public static function updateEmpleado($connection, $ID_Empleado, $Nombre, $Puesto, $Estado)
     {
 
         try {
-            $connection = new Conexion;
-
             $sql = $connection->prepare(
                 'UPDATE ' . self::TABLE . ' SET Nombre = :Nombre, Puesto = :Puesto, Estado = :Estado WHERE ID_Empleado = :ID_Empleado'
             );
@@ -73,16 +74,12 @@ class Empleado
             $sql->bindValue(':Estado', $Estado, PDO::PARAM_STR);
             $valid = $sql->execute();
             $row = $sql->rowCount();
-            $connection = NULL;
 
-            if ($valid) {
-                if ($row > 0) {
-                    return 1; // actualizo empleado
-                } else {
-                    return 0; // no actualizo
-                }
+
+            if ($row > 0) {
+                return 1;
             } else {
-                return -1; // error
+                return 0;
             }
 
         } catch (PDOException $e) {
@@ -90,33 +87,21 @@ class Empleado
         }
     }//-- Fin funcion actualizar empleado 
 
-    //Funcion eliminar empleado 
-    public static function deleteEmpleado($ID_Empleado)
+    //Funcion eliminar (desactivar) empleado 
+    public static function desactivarEmpleado($connection, $ID_Empleado)
     {
-
         try {
-            $connection = new Conexion;
-
             $sql = $connection->prepare(
-                'DELETE FROM ' . self::TABLE . ' WHERE ID_Empleado = :ID_Empleado'
+                'UPDATE ' . self::TABLE . ' SET Estado = :Estado WHERE ID_Empleado = :ID_Empleado'
             );
             $sql->bindValue(':ID_Empleado', $ID_Empleado, PDO::PARAM_INT);
-            $valid = $sql->execute();
-            $row = $sql->rowCount();
-            $connection = NULL;
-
-            if ($valid) {
-                if ($row > 0) {
-                    return 1; // empleado borrado
-                } else {
-                    return 0; // no borro o empleado no encontrado
-                }
-            } else {
-                return -1; // error
-            }
+            $sql->bindValue(':Estado', 'inactivo');
+            $sql->execute();
+            return $sql->rowCount() > 0 ? 1 : 0;
 
         } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
+
     }//-- Fin funcion eliminar empleado
 }

@@ -29,35 +29,11 @@ class Contacto_Empleado
         }
     }
 
-    public static function readContacto($ID_Contacto_Empleado)
+
+    public static function updateContacto($connection, $ID_Contacto_Empleado, $Telefono, $Correo, $Calle, $Colonia, $Codigo_Postal)
     {
 
         try {
-            $connection = new Conexion;
-
-            $sql = $connection->prepare('SELECT * FROM ' . self::TABLE . ' WHERE ID_Contacto_Empleado = :ID_Contacto_Empleado');
-            $sql->bindValue(':ID_Contacto_Empleado', $ID_Contacto_Empleado, PDO::PARAM_INT);
-            $sql->execute();
-            $contacto_empleado = $sql->fetch(PDO::FETCH_ASSOC);
-            $connection = NULL;
-
-            if ($contacto_empleado) {
-                return $contacto_empleado;
-            } else {
-                return false;
-            }
-
-        } catch (PDOException $e) {
-            throw new Exception("Hubo un error: " . $e->getMessage());
-        }
-    }
-
-    public static function updateContacto($ID_Contacto_Empleado, $Telefono, $Correo, $Calle, $Colonia, $Codigo_Postal)
-    {
-
-        try {
-            $connection = new Conexion;
-
             $sql = $connection->prepare(
                 'UPDATE ' . self::TABLE . ' SET Telefono = :Telefono, Correo = :Correo, 
                 Calle = :Calle, Colonia = :Colonia, Codigo_Postal = :Codigo_Postal 
@@ -71,8 +47,6 @@ class Contacto_Empleado
             $sql->bindValue(':Codigo_Postal', $Codigo_Postal, PDO::PARAM_STR);
             $valid = $sql->execute();
             $row = $sql->rowCount();
-            $connection = NULL;
-
             if ($valid) {
                 if ($row > 0) {
                     return 1; // actualizo contacto_empleado
