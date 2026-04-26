@@ -9,7 +9,7 @@ session_start();
 
 //Headers 
 header('Content-Type: application/json');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+header('Access-Control-Allow-Methods: GET, POST, PATCH, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 header('Access-Control-Allow-Credentials: true');
 // Never cache GET requests
@@ -93,6 +93,26 @@ switch (true) {
         break;
 
     case $path === '/api/createUser':
+        requerirAdmin();
+        require_once __DIR__ . '/routes/usuarioRoute.php';
+        break;
+
+    case $path === '/api/modifyInfoUser':
+        requerirAdmin();
+        require_once __DIR__ . '/routes/usuarioRoute.php';
+        break;
+
+    case $path === '/api/modifyPasswordUser':
+        requerirAdmin();
+        require_once __DIR__ . '/routes/usuarioRoute.php';
+        break;
+
+    case $path === '/api/modifyEstadoUser':
+        requerirAdmin();
+        require_once __DIR__ . '/routes/usuarioRoute.php';
+        break;
+
+    case $path === '/api/deleteUser':
         requerirAdmin();
         require_once __DIR__ . '/routes/usuarioRoute.php';
         break;
