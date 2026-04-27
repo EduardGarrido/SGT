@@ -15,12 +15,13 @@ const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const [usuario, setUsuario] = useState(leerSesion())
+  const [userInfo, setUserInfo] = useState(null)
 
   function guardarSesion(data) {
     const u = { id: data.id, puesto: data.puesto }
 
     sessionStorage.setItem(SESSION_KEY, JSON.stringify(u))
-    
+
     setUsuario(u)
   }
 
@@ -28,6 +29,7 @@ export function AuthProvider({ children }) {
     sessionStorage.removeItem(SESSION_KEY)
 
     setUsuario(null)
+    setUserInfo(null)
   }
 
   const esAdmin = usuario?.puesto === 'admin'
@@ -39,6 +41,8 @@ export function AuthProvider({ children }) {
         esAdmin,
         guardarSesion,
         cerrarSesion,
+        userInfo,
+        setUserInfo,
       }}
     >
       {children}
