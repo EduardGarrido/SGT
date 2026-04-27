@@ -41,7 +41,7 @@ export default function Dashboard() {
                 <p className="text-lg font-semibold text-gray-800">{userInfo.Nombre}</p>
                 <span className="text-sm text-gray-500 capitalize">{userInfo.Puesto}</span>
                 <span
-                  className={`text-xs w-fit px-2 py-0.5 rounded-full mt-1 ${userInfo.Estado === 'activo' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}
+                  className={`text-xs w-fit px-2 py-0.5 rounded-full mt-1 ${userInfo.Estado === 'autorizado' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}
                 >
                   {userInfo.Estado}
                 </span>
