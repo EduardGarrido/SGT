@@ -42,7 +42,7 @@ if ($path === '/api/login') {
             'puesto' => $res['Puesto'],
             'id' => $ID_Usuario,
         ]);
-    }// --Cierra switch de respuesta        
+    }// --Cierra if de respuesta        
     return;// --Termina case login
 
 } elseif ($path === '/api/logout') {
