@@ -106,16 +106,16 @@ const fields = [
 
 function mapUsuarioInfo(u) {
   return {
-    nombre:        u.Nombre        ?? '',
-    puesto:        u.Puesto        ?? '',
-    estado:        u.Estado        ?? '',
-    telefono:      u.Telefono      ?? '',
-    correo:        u.Correo        ?? '',
-    calle:         u.Calle         ?? '',
-    colonia:       u.Colonia       ?? '',
+    nombre: u.Nombre ?? '',
+    puesto: u.Puesto ?? '',
+    estado: u.Estado ?? '',
+    telefono: u.Telefono ?? '',
+    correo: u.Correo ?? '',
+    calle: u.Calle ?? '',
+    colonia: u.Colonia ?? '',
     codigo_postal: u.Codigo_Postal ?? '',
-    password:      '',
-    confirmar:     '',
+    password: '',
+    confirmar: '',
   }
 }
 
@@ -127,10 +127,10 @@ export default function ModifyUser() {
 
   const id = searchParams.get('id') ? Number(searchParams.get('id')) : null
 
-  const [userData, setUserData]       = useState(EMPTY_USER)
+  const [userData, setUserData] = useState(EMPTY_USER)
   const [originalData, setOriginalData] = useState(null)
-  const [response, setResponse]       = useState(null)
-  const [loading, setLoading]         = useState(false)
+  const [response, setResponse] = useState(null)
+  const [loading, setLoading] = useState(false)
   const [loadingInfo, setLoadingInfo] = useState(true)
 
   useEffect(() => {
@@ -150,7 +150,7 @@ export default function ModifyUser() {
         }
       })
       .finally(() => setLoadingInfo(false))
-  }, [id])
+  }, [id, navigate])
 
   function handleChange(field) {
     return (e) => {
@@ -169,10 +169,10 @@ export default function ModifyUser() {
   }
 
   async function handleSubmit() {
-    const cleanNombre    = sanitize(userData.nombre)
-    const cleanTelefono  = sanitize(userData.telefono)
-    const cleanCorreo    = sanitize(userData.correo)
-    const cleanPassword  = userData.password.trim()
+    const cleanNombre = sanitize(userData.nombre)
+    const cleanTelefono = sanitize(userData.telefono)
+    const cleanCorreo = sanitize(userData.correo)
+    const cleanPassword = userData.password.trim()
     const cleanConfirmar = userData.confirmar.trim()
 
     if (!cleanNombre || !userData.puesto || !userData.estado) {
@@ -224,13 +224,13 @@ export default function ModifyUser() {
 
     try {
       const payload = {
-        Nombre:        cleanNombre,
-        Puesto:        userData.puesto,
-        Estado:        userData.estado,
-        Telefono:      cleanTelefono,
-        Correo:        cleanCorreo,
-        Calle:         sanitize(userData.calle),
-        Colonia:       sanitize(userData.colonia),
+        Nombre: cleanNombre,
+        Puesto: userData.puesto,
+        Estado: userData.estado,
+        Telefono: cleanTelefono,
+        Correo: cleanCorreo,
+        Calle: sanitize(userData.calle),
+        Colonia: sanitize(userData.colonia),
         Codigo_Postal: sanitize(userData.codigo_postal),
       }
       if (cleanPassword) payload.Password = cleanPassword
@@ -280,7 +280,10 @@ export default function ModifyUser() {
           <div className="modal-action">
             <button
               className="btn bg-gray-800 hover:bg-gray-900 text-white border-none"
-              onClick={() => { modalRef.current.close(); navigate('/users') }}
+              onClick={() => {
+                modalRef.current.close()
+                navigate('/users')
+              }}
             >
               Aceptar
             </button>
