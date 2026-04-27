@@ -12,18 +12,19 @@ const NAVIGATION_BUTTONS = [
 ]
 
 export default function Dashboard() {
-  const { usuario, esAdmin } = useAuth()
-  const [userInfo, setUserInfo] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const { usuario, esAdmin, userInfo, setUserInfo } = useAuth()
+  const [loading, setLoading] = useState(!userInfo)
 
   useEffect(() => {
+    if (userInfo) return
+
     getUserInfo(usuario.id)
       .then((res) => {
         if (res.ok) setUserInfo(res.usuarioinfo)
-        console.log('getUserInfo response:', res)
+        console.log(res)
       })
       .finally(() => setLoading(false))
-  }, [])
+  }, [usuario.id])
 
   return (
     <div className="flex flex-col h-screen font-sans bg-gray-200">
@@ -31,7 +32,7 @@ export default function Dashboard() {
       <div className="flex my-5 h-full w-full">
         <div className="flex flex-col rounded-lg h-full mx-5 p-5 w-1/4 bg-gray-50 shadow-md justify-between">
           <div className="flex flex-col gap-1">
-            <h1 className="text-2xl font-semibold text-gray-900 text-center">Mi Perfil</h1>
+            <h1 className="text-2xl font-semibold text-gray-900 text-center">Mi información</h1>
             <hr className="rounded-full border-2 w-full border-gray-400 my-3" />
             {loading ? (
               <p className="text-gray-400 text-sm">Cargando...</p>
@@ -40,7 +41,7 @@ export default function Dashboard() {
                 <p className="text-lg font-semibold text-gray-800">{userInfo.Nombre}</p>
                 <span className="text-sm text-gray-500 capitalize">{userInfo.Puesto}</span>
                 <span
-                  className={`text-xs w-fit px-2 py-0.5 rounded-full mt-1 ${userInfo.Estado === 'activo' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}
+                  className={`text-xs w-fit px-2 py-0.5 rounded-full mt-1 ${userInfo.Estado === 'autorizado' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}
                 >
                   {userInfo.Estado}
                 </span>
