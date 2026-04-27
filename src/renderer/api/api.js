@@ -57,3 +57,10 @@ export async function createUser(data) {
     body: JSON.stringify(data),
   })
 }
+
+export async function updateUser(id, data) {
+  return request('updateUser', {
+    method: 'PATCH',
+    body: JSON.stringify({ id, ...data }),
+  })
+}

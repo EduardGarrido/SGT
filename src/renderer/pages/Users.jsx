@@ -99,6 +99,14 @@ export default function Users() {
                   <p className="text-gray-500 text-sm">Calle: {userInfo.Calle}</p>
                   <p className="text-gray-500 text-sm">Colonia: {userInfo.Colonia}</p>
                   <p className="text-gray-500 text-sm">C.P.: {userInfo.Codigo_Postal}</p>
+                  <div className="mt-4">
+                    <NavigateButton
+                      className="font-normal rounded-lg"
+                      to={`/modifyUser?id=${selectedId}`}
+                    >
+                      Editar
+                    </NavigateButton>
+                  </div>
                 </>
               )}
             </div>

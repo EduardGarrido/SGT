@@ -12,18 +12,19 @@ const NAVIGATION_BUTTONS = [
 ]
 
 export default function Dashboard() {
-  const { usuario, esAdmin } = useAuth()
-  const [userInfo, setUserInfo] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const { usuario, esAdmin, userInfo, setUserInfo } = useAuth()
+  const [loading, setLoading] = useState(!userInfo)
 
   useEffect(() => {
+    if (userInfo) return
+
     getUserInfo(usuario.id)
       .then((res) => {
         if (res.ok) setUserInfo(res.usuarioinfo)
-        console.log('getUserInfo response:', res)
+        console.log(res)
       })
       .finally(() => setLoading(false))
-  }, [])
+  }, [usuario.id])
 
   return (
     <div className="flex flex-col h-screen font-sans bg-gray-200">

@@ -27,6 +27,7 @@ export default [
       },
     },
     rules: {
+      'react/jsx-uses-vars': 'warn',
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
       'no-unused-vars': 'warn',
