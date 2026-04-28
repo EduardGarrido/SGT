@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import DOMPurify from 'dompurify'
 import { NavigateButton, ActionButton } from '../components'
 import TopBar from '../components/TopBar'
-import { getUserInfo, updateUser } from '../api/api'
+import { getUserInfo, modifyInfoUser, modifyPasswordUser, modifyEstadoUser } from '../api/api'
 import { useAuth } from '../context/AuthContext'
 import { ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/react/20/solid'
 
@@ -37,7 +37,8 @@ const EMPTY_USER = {
   confirmar: '',
 }
 
-const fields = [
+// Campos agrupados por sección / endpoint
+const INFO_FIELDS = [
   {
     label: 'Nombre completo *',
     field: 'nombre',
@@ -52,16 +53,6 @@ const fields = [
     options: [
       { value: 'admin', label: 'Administrador' },
       { value: 'empleado', label: 'Empleado' },
-    ],
-    required: true,
-  },
-  {
-    label: 'Estado *',
-    field: 'estado',
-    type: 'select',
-    options: [
-      { value: 'activo', label: 'Activo' },
-      { value: 'inactivo', label: 'Inactivo' },
     ],
     required: true,
   },
@@ -88,6 +79,22 @@ const fields = [
     placeholder: 'Código Postal',
     required: false,
   },
+]
+
+const ESTADO_FIELDS = [
+  {
+    label: 'Estado *',
+    field: 'estado',
+    type: 'select',
+    options: [
+      { value: 'autorizado', label: 'Autorizado' },
+      { value: 'no autorizado', label: 'No autorizado' },
+    ],
+    required: true,
+  },
+]
+
+const PASSWORD_FIELDS = [
   {
     label: 'Nueva contraseña (dejar vacío para no cambiar)',
     field: 'password',
@@ -117,6 +124,18 @@ function mapUsuarioInfo(u) {
     password: '',
     confirmar: '',
   }
+}
+
+function infoChanged(current, original) {
+  return INFO_FIELDS.some(({ field }) => current[field] !== original[field])
+}
+
+function estadoChanged(current, original) {
+  return current.estado !== original.estado
+}
+
+function passwordChanged(current) {
+  return current.password.trim() !== ''
 }
 
 export default function ModifyUser() {
@@ -209,8 +228,7 @@ export default function ModifyUser() {
     }
 
     if (cleanCorreo) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      if (!emailRegex.test(cleanCorreo)) {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanCorreo)) {
         setResponse({
           type: 'error',
           message: 'El formato del correo no es válido',
@@ -220,28 +238,47 @@ export default function ModifyUser() {
       }
     }
 
+    const hasInfoChange = infoChanged(userData, originalData)
+    const hasEstadoChange = estadoChanged(userData, originalData)
+    const hasPasswordChange = passwordChanged(userData)
+
+    if (!hasInfoChange && !hasEstadoChange && !hasPasswordChange) {
+      setResponse({ type: 'error', message: 'No hay cambios para guardar' })
+      return
+    }
+
     setLoading(true)
+    const errors = []
 
     try {
-      const payload = {
-        Nombre: cleanNombre,
-        Puesto: userData.puesto,
-        Estado: userData.estado,
-        Telefono: cleanTelefono,
-        Correo: cleanCorreo,
-        Calle: sanitize(userData.calle),
-        Colonia: sanitize(userData.colonia),
-        Codigo_Postal: sanitize(userData.codigo_postal),
+      if (hasInfoChange) {
+        const res = await modifyInfoUser(id, {
+          Nombre: cleanNombre,
+          Puesto: userData.puesto,
+          Telefono: cleanTelefono,
+          Correo: cleanCorreo,
+          Calle: sanitize(userData.calle),
+          Colonia: sanitize(userData.colonia),
+          Codigo_Postal: sanitize(userData.codigo_postal),
+        })
+        if (!res.ok) errors.push(res.mensaje || 'Error al actualizar información')
       }
-      if (cleanPassword) payload.Password = cleanPassword
 
-      const res = await updateUser(id, payload)
+      if (hasEstadoChange) {
+        const res = await modifyEstadoUser(id, userData.estado)
+        if (!res.ok) errors.push(res.mensaje || 'Error al actualizar estado')
+      }
 
-      if (res.ok) {
+      if (hasPasswordChange) {
+        const res = await modifyPasswordUser(id, cleanPassword)
+        if (!res.ok) errors.push(res.mensaje || 'Error al actualizar contraseña')
+      }
+
+      if (errors.length) {
+        setResponse({ type: 'error', message: errors.join('. ') })
+      } else {
         setUserInfo(null)
         modalRef.current.showModal()
-      } else {
-        setResponse({ type: 'error', message: res.mensaje || 'Error al actualizar usuario' })
       }
     } catch {
       setResponse({ type: 'error', message: 'No se pudo conectar con el servidor' })
@@ -259,11 +296,57 @@ export default function ModifyUser() {
   const baseInputClass =
     'rounded-lg w-full px-2 py-1 border-2 text-gray-700 bg-gray-100 shadow-sm sm:text-sm'
 
-  const inputClass = (field, required) => {
+  function inputClass(field, required) {
     const hasError = response?.type === 'error' && style?.input
     const isHighlighted =
       hasError && (response.field === field || (response.field === 'required' && required))
     return `${baseInputClass} ${isHighlighted ? style.input : 'border-gray-400'}`
+  }
+
+  function renderField({ label, field, type, placeholder, options, required }) {
+    return (
+      <div key={field}>
+        <label className="block text-sm font-semibold text-gray-800 mb-1" htmlFor={field}>
+          {label}
+        </label>
+        {type === 'select' ? (
+          <select
+            className={inputClass(field, required)}
+            id={field}
+            value={userData[field]}
+            onChange={handleChange(field)}
+          >
+            <option value="">Seleccionar...</option>
+            {options.map(({ value, label: optLabel }) => (
+              <option key={value} value={value}>
+                {optLabel}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <input
+            className={inputClass(field, required)}
+            id={field}
+            type={type}
+            value={userData[field]}
+            onChange={handleChange(field)}
+            onKeyDown={handleEnter}
+            placeholder={placeholder}
+            autoComplete={type === 'password' ? 'new-password' : 'off'}
+          />
+        )}
+      </div>
+    )
+  }
+
+  function SectionDivider({ label }) {
+    return (
+      <div className="flex items-center w-full">
+        <hr className="grow border-gray-300" />
+        <span className="mx-3 text-gray-600 text-sm">{label}</span>
+        <hr className="grow border-gray-300" />
+      </div>
+    )
   }
 
   return (
@@ -271,7 +354,7 @@ export default function ModifyUser() {
       <TopBar />
 
       <dialog ref={modalRef} className="modal">
-        <div className="modal-box">
+        <div className="modal-box bg-white">
           <div className="flex items-center gap-2 mb-2">
             <CheckCircleIcon className="w-6 text-green-600 shrink-0" />
             <h3 className="font-bold text-lg text-gray-900">Usuario actualizado</h3>
@@ -299,88 +382,54 @@ export default function ModifyUser() {
               <hr className="rounded-full border-2 border-gray-400 w-full my-5" />
             </div>
             <div className="flex flex-col w-full h-full justify-begin items-center gap-4">
-              <div className="flex items-center w-full">
-                <hr className="grow border-gray-300" />
-                <span className="mx-3 text-gray-600 text-sm">Información del usuario</span>
-                <hr className="grow border-gray-300" />
-              </div>
-              <div className="flex flex-col w-full h-full justify-begin items-center">
-                {response && (
-                  <div
-                    className={`flex items-center gap-2 mb-4 px-3 py-2 rounded-lg border text-sm ${style.bg} ${style.border} ${style.text}`}
-                  >
-                    <style.Icon className="w-5 shrink-0" />
-                    {response.message}
-                  </div>
-                )}
-                {loadingInfo ? (
-                  <p className="text-gray-400 text-sm">Cargando información...</p>
-                ) : (
-                  <div className="grid grid-cols-1 gap-4 lg:w-160 w-80">
-                    {fields.map(({ label, field, type, placeholder, options, required }) => (
-                      <div key={field}>
-                        <label
-                          className="block text-sm font-semibold text-gray-800 mb-1"
-                          htmlFor={field}
-                        >
-                          {label}
-                        </label>
-                        {type === 'select' ? (
-                          <select
-                            className={inputClass(field, required)}
-                            id={field}
-                            value={userData[field]}
-                            onChange={handleChange(field)}
-                          >
-                            <option value="">Seleccionar...</option>
-                            {options.map(({ value, label: optLabel }) => (
-                              <option key={value} value={value}>
-                                {optLabel}
-                              </option>
-                            ))}
-                          </select>
-                        ) : (
-                          <input
-                            className={inputClass(field, required)}
-                            id={field}
-                            type={type}
-                            value={userData[field]}
-                            onChange={handleChange(field)}
-                            onKeyDown={handleEnter}
-                            placeholder={placeholder}
-                            autoComplete={type === 'password' ? 'new-password' : 'off'}
-                          />
-                        )}
-                      </div>
-                    ))}
-                    <div className="w-full flex flex-col pt-4 pb-8 gap-4">
-                      <div className="lg:w-160 w-80 tracking-wider bg-gray-800 hover:bg-gray-900 rounded-lg text-center">
-                        <ActionButton
-                          className="font-normal w-full rounded-lg"
-                          onClick={handleSubmit}
-                          disabled={loading}
-                        >
-                          Guardar cambios
-                        </ActionButton>
-                      </div>
-                      <div className="lg:w-160 w-80 tracking-wider bg-gray-800 hover:bg-gray-900 rounded-lg text-center">
-                        <ActionButton
-                          className="font-normal w-full rounded-lg"
-                          onClick={handleRestore}
-                          disabled={!originalData}
-                        >
-                          Restaurar
-                        </ActionButton>
-                      </div>
-                      <div className="lg:w-160 w-80 text-white font-light tracking-wider bg-gray-800 hover:bg-gray-900 rounded-lg text-center">
-                        <NavigateButton className="font-normal w-full rounded-lg" to="/users">
-                          Cancelar
-                        </NavigateButton>
-                      </div>
+              {response && (
+                <div
+                  className={`flex items-center gap-2 mb-4 px-3 py-2 rounded-lg border text-sm ${style.bg} ${style.border} ${style.text}`}
+                >
+                  <style.Icon className="w-5 shrink-0" />
+                  {response.message}
+                </div>
+              )}
+              {loadingInfo ? (
+                <p className="text-gray-400 text-sm">Cargando información...</p>
+              ) : (
+                <div className="grid grid-cols-1 gap-4 lg:w-160 w-80">
+                  <SectionDivider label="Información del usuario" />
+                  {INFO_FIELDS.map(renderField)}
+
+                  <SectionDivider label="Estado" />
+                  {ESTADO_FIELDS.map(renderField)}
+
+                  <SectionDivider label="Contraseña" />
+                  {PASSWORD_FIELDS.map(renderField)}
+
+                  <div className="w-full flex flex-col pt-4 pb-8 gap-4">
+                    <div className="lg:w-160 w-80 tracking-wider bg-gray-800 hover:bg-gray-900 rounded-lg text-center">
+                      <ActionButton
+                        className="font-normal w-full rounded-lg"
+                        onClick={handleSubmit}
+                        disabled={loading}
+                      >
+                        Guardar cambios
+                      </ActionButton>
+                    </div>
+                    <div className="lg:w-160 w-80 tracking-wider bg-gray-800 hover:bg-gray-900 rounded-lg text-center">
+                      <ActionButton
+                        className="font-normal w-full rounded-lg"
+                        onClick={handleRestore}
+                        disabled={!originalData}
+                      >
+                        Restaurar
+                      </ActionButton>
+                    </div>
+                    <div className="lg:w-160 w-80 text-white font-light tracking-wider bg-gray-800 hover:bg-gray-900 rounded-lg text-center">
+                      <NavigateButton className="font-normal w-full rounded-lg" to="/users">
+                        Cancelar
+                      </NavigateButton>
                     </div>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
