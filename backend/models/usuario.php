@@ -41,7 +41,7 @@ class Usuario
 
             $sql = $connection->prepare(
                 'SELECT u.ID_Usuario, e.Nombre, u.Estado FROM ' . self::TABLE . ' u 
-                INNER JOIN Empleado e ON e.ID_Usuario = u.ID_Usuario'
+                INNER JOIN Empleado e ON e.ID_Usuario = u.ID_Usuario WHERE e.Estado = "activo"'
             );
             $sql->execute();
             $usuarios = $sql->fetchAll();
@@ -65,9 +65,10 @@ class Usuario
             $connection = new Conexion;
 
             $sql = $connection->prepare(
-                'SELECT e.Nombre, e.Puesto, e.Estado, c.Telefono, c.Correo,
+                'SELECT e.Nombre, e.Puesto, u.Estado, c.Telefono, c.Correo,
                 c.Calle, c.Colonia, c.Codigo_Postal FROM Empleado e 
                 INNER JOIN Contacto_Empleado c ON c.ID_Contacto_Empleado = e.ID_Contacto_Empleado
+                INNER JOIN Usuario u ON u.ID_Usuario = e.ID_Usuario
                 WHERE e.ID_Usuario = :ID_Usuario'
             );
             $sql->bindValue(':ID_Usuario', $ID_Usuario, PDO::PARAM_INT);
@@ -102,16 +103,12 @@ class Usuario
             $row = $sql->rowCount();
             $conn = NULL;
 
-
             if ($row > 0) {
                 return 1;
             } else {
                 return 0;
 
             }
-
-
-
 
         } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
@@ -147,34 +144,4 @@ class Usuario
         }
     }//-- Fin funcion password estado de usuario
 
-
-    // Funcion eliminar usuario
-    public static function deleteUsuario($ID_Usuario)
-    {
-
-        try {
-            $connection = new Conexion;
-
-            $sql = $connection->prepare(
-                'DELETE FROM ' . self::TABLE . ' WHERE ID_Usuario = :ID_Usuario'
-            );
-            $sql->bindValue(':ID_Usuario', $ID_Usuario, PDO::PARAM_INT);
-            $valid = $sql->execute();
-            $row = $sql->rowCount();
-            $connection = NULL;
-
-            if ($valid) {
-                if ($row > 0) {
-                    return 1;
-                } else {
-                    return 0;
-                }
-            } else {
-                return -1;
-            }
-
-        } catch (PDOException $e) {
-            throw new Exception("Hubo un error: " . $e->getMessage());
-        }
-    }//-- Fin funcion eliminar usuario
-}
+}//--Fin clase Usuario
