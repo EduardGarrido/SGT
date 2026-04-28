@@ -1,4 +1,5 @@
 <?php
+// Clase Contacto Empleado, crea y actualiza información del contacto 
 
 require_once __DIR__ . "/../config/database.php";
 
@@ -6,7 +7,12 @@ class Contacto_Empleado
 {
     const TABLE = 'Contacto_Empleado';
     // ID_Contacto_Empleado, Telefono, Correo, Calle, Colonia, Codigo_Postal
+    // 1 = correcto
+    // 0 = no hay registro o no se encontró 
+    // -1 = hubo un error en la ejecución
 
+
+    //Funcion Crear informacion de contacto de usuario 
     public static function crearContacto($connection, $Telefono, $Correo, $Calle, $Colonia, $Codigo_Postal)
     {
 
@@ -27,9 +33,9 @@ class Contacto_Empleado
         } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
-    }
+    }//-- Fin funcion crear info de contacto
 
-
+    // Funcion actualizar info de contacto de usuario 
     public static function updateContacto($connection, $ID_Contacto_Empleado, $Telefono, $Correo, $Calle, $Colonia, $Codigo_Postal)
     {
 
@@ -49,45 +55,17 @@ class Contacto_Empleado
             $row = $sql->rowCount();
             if ($valid) {
                 if ($row > 0) {
-                    return 1; // actualizo contacto_empleado
+                    return 1;
                 } else {
-                    return 0; // no actualizo
+                    return 0;
                 }
             } else {
-                return -1; // error
+                return -1;
             }
 
         } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
-    }
+    }//-- Fin actualizar contacto
 
-    public static function deleteContacto($ID_Contacto_Empleado)
-    {
-
-        try {
-            $connection = new Conexion;
-
-            $sql = $connection->prepare('DELETE FROM ' . self::TABLE . ' WHERE ID_Contacto_Empleado = :ID_Contacto_Empleado');
-            $sql->bindValue(':ID_Contacto_Empleado', $ID_Contacto_Empleado, PDO::PARAM_INT);
-            $valid = $sql->execute();
-            $row = $sql->rowCount();
-            $connection = NULL;
-
-            if ($valid) {
-                if ($row > 0) {
-                    return 1; // contacto_empleado borrado
-                } else {
-                    return 0; // no borro o contacto_empleado no encontrado
-                }
-            } else {
-                return -1; // error
-            }
-
-        } catch (PDOException $e) {
-            throw new Exception("Hubo un error: " . $e->getMessage());
-        }
-    }
-}
-
-?>
+}//--Fin clase Contacto_Empleado

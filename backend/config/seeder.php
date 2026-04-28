@@ -1,4 +1,8 @@
 <?php
+//Creación de usuario administrador por defecto
+// ID = 1 
+// Password = passadmin
+
 require_once __DIR__ . '/database.php';
 
 try {
@@ -10,12 +14,15 @@ try {
     if (!$check->fetch()) {
         $connection->beginTransaction();
 
+        //Insertar información en tabla Usuario
         $sql = $connection->prepare('INSERT INTO Usuario (Password, Estado) VALUES (:Password, :Estado)');
         $sql->bindValue(':Password', password_hash('passadmin', PASSWORD_DEFAULT));
         $sql->bindValue(':Estado', 'autorizado');
         $sql->execute();
         $ID_Usuario = $connection->lastInsertId();
 
+
+        //Insertar información en tabla Contacto_Empleado
         $sql = $connection->prepare('INSERT INTO Contacto_Empleado (Telefono, Correo, Calle, Colonia, Codigo_Postal) 
         VALUES (:Telefono, :Correo, :Calle, :Colonia, :Codigo_Postal)');
         $sql->bindValue(':Telefono', '1239088989');
@@ -26,6 +33,9 @@ try {
         $sql->execute();
         $ID_Contacto = $connection->lastInsertId();
 
+
+
+        //Insertar información en tabla Empleado
         $sql = $connection->prepare('INSERT INTO Empleado (Nombre, Puesto, Estado, ID_Contacto_Empleado, ID_Usuario) 
         VALUES (:Nombre, :Puesto, :Estado, :ID_Contacto, :ID_Usuario)');
         $sql->bindValue(':Nombre', 'Administrador');

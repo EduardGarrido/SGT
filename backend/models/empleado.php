@@ -104,4 +104,4 @@ class Empleado
         }
 
     }//-- Fin funcion eliminar empleado
-}
+}//--Fin clase Empleado
