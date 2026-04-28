@@ -58,9 +58,30 @@ export async function createUser(data) {
   })
 }
 
-export async function updateUser(id, data) {
-  return request('updateUser', {
+export async function modifyInfoUser(id, data) {
+  return request('modifyInfoUser', {
     method: 'PATCH',
-    body: JSON.stringify({ id, ...data }),
+    body: JSON.stringify({ ID_Usuario: id, ...data }),
+  })
+}
+
+export async function modifyPasswordUser(id, password) {
+  return request('modifyPasswordUser', {
+    method: 'POST',
+    body: JSON.stringify({ ID_Usuario: id, Password: password }),
+  })
+}
+
+export async function modifyEstadoUser(id, estado) {
+  return request('modifyEstadoUser', {
+    method: 'PATCH',
+    body: JSON.stringify({ ID_Usuario: id, Estado: estado }),
+  })
+}
+
+export async function deleteUser(id) {
+  return request('deleteUser', {
+    method: 'PATCH',
+    body: JSON.stringify({ ID_Usuario: id }),
   })
 }

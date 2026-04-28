@@ -6,7 +6,7 @@ export default function BaseButton({ children, className, disabled, ...props }) 
     <button
       className={twMerge(
         clsx(
-          'md:px-5 px-2 py-2 rounded-lg text-white bg-gray-800 hover:bg-gray-900 font-normal cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed',
+          'w-full md:px-5 px-2 py-2 rounded-lg text-white bg-gray-800 hover:bg-gray-900 font-normal cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed',
           className
         )
       )}

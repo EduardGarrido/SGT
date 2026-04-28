@@ -79,61 +79,67 @@ export default function Login() {
       <div className="h-dvh w-full flex flex-1 justify-center items-center">
         <div className="w-full max-w-xl">
           <div className="leading-loose">
-            <div className="w-full p-16 bg-gray-50 rounded-lg shadow-2xl">
-              <p className="py-1 text-gray-800 text-center text-2xl font-bold">Inicio de sesión</p>
+            <div className="w-full p-16 bg-gray-50 rounded-lg shadow-2xl flex flex-col gap-8 items-center justify-center">
+              <div className="w-full h-auto">
+                <p className="text-gray-800 text-center text-2xl font-bold w-inherit">
+                  Inicio de sesión
+                </p>
+              </div>
+              <div className="w-full">
+                {response && (
+                  <div
+                    className={`flex items-center gap-2 mt-2 mb-1 px-3 py-2 rounded-lg border text-sm ${style.bg} ${style.border} ${style.text}`}
+                  >
+                    <style.Icon className="w-5 shrink-0" />
+                    {response.message}
+                  </div>
+                )}
 
-              {response && (
-                <div
-                  className={`flex items-center gap-2 mt-2 mb-1 px-3 py-2 rounded-lg border text-sm ${style.bg} ${style.border} ${style.text}`}
-                >
-                  <style.Icon className="w-5 shrink-0" />
-                  {response.message}
+                <div className="w-full justify-self-center-safe">
+                  <label
+                    className="block text-medium font-semibold text-gray-800"
+                    htmlFor="id-usuario"
+                  >
+                    ID del usuario
+                  </label>
+                  <input
+                    className={inputClass}
+                    id="id-usuario"
+                    type="text"
+                    value={id}
+                    onChange={(e) => {
+                      setResponse(null)
+                      setId(e.target.value)
+                    }}
+                    onKeyDown={handleEnter}
+                    placeholder="ID de usuario"
+                    autoComplete="on"
+                  />
                 </div>
-              )}
-
-              <div className="w-full justify-self-center-safe">
-                <label
-                  className="block text-medium font-semibold text-gray-800"
-                  htmlFor="id-usuario"
-                >
-                  ID del usuario
-                </label>
-                <input
-                  className={inputClass}
-                  id="id-usuario"
-                  type="text"
-                  value={id}
-                  onChange={(e) => {
-                    setResponse(null)
-                    setId(e.target.value)
-                  }}
-                  onKeyDown={handleEnter}
-                  placeholder="ID de usuario"
-                  autoComplete="on"
-                />
+                <div className="w-full justify-self-center-safe">
+                  <label
+                    className="block text-medium font-semibold text-gray-800"
+                    htmlFor="password"
+                  >
+                    Contraseña
+                  </label>
+                  <input
+                    className={inputClass}
+                    type="password"
+                    value={password}
+                    onChange={(e) => {
+                      setResponse(null)
+                      setPassword(e.target.value)
+                    }}
+                    onKeyDown={handleEnter}
+                    placeholder="Contraseña"
+                    autoComplete="off"
+                  />
+                </div>
               </div>
-              <div className="w-full justify-self-center-safe">
-                <label className="block text-medium font-semibold text-gray-800" htmlFor="password">
-                  Contraseña
-                </label>
-                <input
-                  className={inputClass}
-                  type="password"
-                  value={password}
-                  onChange={(e) => {
-                    setResponse(null)
-                    setPassword(e.target.value)
-                  }}
-                  onKeyDown={handleEnter}
-                  placeholder="Contraseña"
-                  autoComplete="off"
-                />
-              </div>
-              <div className="mt-6 w-full place-self-center tracking-wider bg-gray-800 hover:bg-gray-900 rounded-lg text-center">
-                <ActionButton className="font-normal" onClick={handleLogin} disabled={loading}>
-                  Iniciar Sesión
-                </ActionButton>
-              </div>
+              <ActionButton className="font-normal" onClick={handleLogin} disabled={loading}>
+                Iniciar Sesión
+              </ActionButton>
             </div>
           </div>
         </div>
