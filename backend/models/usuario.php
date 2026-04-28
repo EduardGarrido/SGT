@@ -41,7 +41,7 @@ class Usuario
 
             $sql = $connection->prepare(
                 'SELECT u.ID_Usuario, e.Nombre, u.Estado FROM ' . self::TABLE . ' u 
-                INNER JOIN Empleado e ON e.ID_Usuario = u.ID_Usuario'
+                INNER JOIN Empleado e ON e.ID_Usuario = u.ID_Usuario WHERE e.Estado = "activo"'
             );
             $sql->execute();
             $usuarios = $sql->fetchAll();
