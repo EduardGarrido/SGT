@@ -1,5 +1,5 @@
 <?php
-
+// Rutas para usuario 
 
 if ($path === '/api/getUsers') {//Ruta que obtiene la información de todos los usuarios
 
@@ -15,6 +15,8 @@ if ($path === '/api/getUsers') {//Ruta que obtiene la información de todos los 
 
     http_response_code(200);
     echo json_encode(['ok' => true, 'usuarios' => $res]);
+
+    //--Termina case getUsers
 
 } elseif ($path === '/api/getUserInfo') { //Ruta para obtener información de un usuario
 
@@ -43,6 +45,8 @@ if ($path === '/api/getUsers') {//Ruta que obtiene la información de todos los 
 
     http_response_code(200);
     echo json_encode(['ok' => true, 'usuarioinfo' => $res]);
+
+    //--Termina case getUserInfo
 
 } elseif ($path === '/api/createUser') { //Ruta para crear usuario 
 
@@ -106,8 +110,9 @@ if ($path === '/api/getUsers') {//Ruta que obtiene la información de todos los 
 
     }
 
+    //--Termina case createUser
 
-} elseif ($path === '/api/modifyInfoUser') {
+} elseif ($path === '/api/modifyInfoUser') { //Ruta para modificar informacion del usuario
 
     if ($_SERVER['REQUEST_METHOD'] !== 'PATCH') {
         http_response_code(405);
@@ -188,8 +193,9 @@ if ($path === '/api/getUsers') {//Ruta que obtiene la información de todos los 
         echo json_encode(['ok' => false, 'mensaje' => $e->getMessage()]);
     }
 
+    //--Termina case modifyInfoUser
 
-} elseif ($path == '/api/modifyPasswordUser') {
+} elseif ($path == '/api/modifyPasswordUser') { //Ruta para modificar password del usuario
 
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         http_response_code(405);
@@ -225,8 +231,9 @@ if ($path === '/api/getUsers') {//Ruta que obtiene la información de todos los 
     }
 
 
+    //--Termina case modifyPasswordUser
 
-} elseif ($path == '/api/modifyEstadoUser') {
+} elseif ($path == '/api/modifyEstadoUser') { //Ruta para modificar estado del usuario
 
     if ($_SERVER['REQUEST_METHOD'] !== 'PATCH') {
         http_response_code(405);
@@ -262,8 +269,9 @@ if ($path === '/api/getUsers') {//Ruta que obtiene la información de todos los 
         echo json_encode(['ok' => false, 'mensaje' => 'Error al actualizar']);
     }
 
+    //-- Termina case modifyEstadoUser
 
-} elseif ($path === '/api/deleteUser') {
+} elseif ($path === '/api/deleteUser') { // Ruta para deshabilitar usuario
 
     if ($_SERVER['REQUEST_METHOD'] !== 'PATCH') {
         http_response_code(405);
@@ -314,4 +322,4 @@ if ($path === '/api/getUsers') {//Ruta que obtiene la información de todos los 
         echo json_encode(['ok' => false, 'mensaje' => $e->getMessage()]);
     }
 
-}
+}//--Termina case deleteUser
