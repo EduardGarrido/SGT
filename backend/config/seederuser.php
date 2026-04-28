@@ -1,4 +1,8 @@
 <?php
+//Creación de usuario empleado default
+// ID = 2
+// password = pass
+
 require_once __DIR__ . '/database.php';
 
 try {
@@ -10,12 +14,15 @@ try {
     if (!$check->fetch()) {
         $connection->beginTransaction();
 
+        //Insertar información tabla usuario
         $sql = $connection->prepare('INSERT INTO Usuario (Password, Estado) VALUES (:Password, :Estado)');
         $sql->bindValue(':Password', password_hash('pass', PASSWORD_DEFAULT));
         $sql->bindValue(':Estado', 'autorizado');
         $sql->execute();
         $ID_Usuario = $connection->lastInsertId();
 
+
+        //Insertar información tabla Contacto_Empleado
         $sql = $connection->prepare('INSERT INTO Contacto_Empleado (Telefono, Correo, Calle, Colonia, Codigo_Postal) 
         VALUES (:Telefono, :Correo, :Calle, :Colonia, :Codigo_Postal)');
         $sql->bindValue(':Telefono', '6763458283');
@@ -26,6 +33,8 @@ try {
         $sql->execute();
         $ID_Contacto = $connection->lastInsertId();
 
+
+        //Insertar información tabla Empleado
         $sql = $connection->prepare('INSERT INTO Empleado (Nombre, Puesto, Estado, ID_Contacto_Empleado, ID_Usuario) 
         VALUES (:Nombre, :Puesto, :Estado, :ID_Contacto, :ID_Usuario)');
         $sql->bindValue(':Nombre', 'Empleado');

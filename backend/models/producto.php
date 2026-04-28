@@ -2,12 +2,26 @@
 
 require_once __DIR__ . "/../config/database.php";
 
-class Producto {
+class Producto
+{
     const TABLE = 'Producto';
     // ID_Producto, Nombre_Producto, Precio, Cantidad, Unidad_Medida, Estado, Cantidad_Minima, ID_Categoria, ID_Proveedor
+    // 1 = correcto
+    // 0 = no hay registro o no se encontró 
+    // -1 = hubo un error en la ejecución
 
-    public static function crearProducto($Nombre_Producto, $Precio, $Cantidad, $Unidad_Medida, 
-    $Estado, $Cantidad_Minima, $ID_Categoria, $ID_Proveedor) {
+
+    // Funcion para crear un Producto
+    public static function crearProducto(
+        $Nombre_Producto,
+        $Precio,
+        $Cantidad,
+        $Unidad_Medida,
+        $Estado,
+        $Cantidad_Minima,
+        $ID_Categoria,
+        $ID_Proveedor
+    ) {
 
         try {
             $connection = new Conexion;
@@ -17,9 +31,9 @@ class Producto {
                 Estado, Cantidad_Minima, ID_Categoria, ID_Proveedor) 
                 VALUES (:Nombre_Producto, :Precio, :Cantidad, :Unidad_Medida, 
                 :Estado, :Cantidad_Minima, :ID_Categoria, :ID_Proveedor)'
-                );
+            );
             $sql->bindValue(':Nombre_Producto', $Nombre_Producto, PDO::PARAM_STR);
-            $sql->bindValue(':Precio', $Precio, PDO::PARAM_STR); // Floats no existe en PDO, se envian como strings???
+            $sql->bindValue(':Precio', $Precio, PDO::PARAM_STR);
             $sql->bindValue(':Cantidad', $Cantidad, PDO::PARAM_INT);
             $sql->bindValue(':Unidad_Medida', $Unidad_Medida, PDO::PARAM_STR);
             $sql->bindValue(':Estado', $Estado, PDO::PARAM_STR);
@@ -33,15 +47,18 @@ class Producto {
             if ($valid) {
                 return $ID_Producto;
             } else {
-                return -1; // error
+                return -1;
             }
 
         } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
-    }
+    }//-- Fin funcion crear producto
 
-    public static function readProducto($ID_Producto) {
+
+    //Funcion para leer producto 
+    public static function readProducto($ID_Producto)
+    {
 
         try {
             $connection = new Conexion;
@@ -62,10 +79,18 @@ class Producto {
         } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
-    }
+    }//--Fin funcion leer producto 
 
-    public static function updateProducto($ID_Producto, $Nombre_Producto, $Precio, $Cantidad, $Unidad_Medida, 
-    $Estado, $Cantidad_Minima) {
+    //Funcion actualizar producto
+    public static function updateProducto(
+        $ID_Producto,
+        $Nombre_Producto,
+        $Precio,
+        $Cantidad,
+        $Unidad_Medida,
+        $Estado,
+        $Cantidad_Minima
+    ) {
 
         try {
             $connection = new Conexion;
@@ -74,10 +99,10 @@ class Producto {
                 'UPDATE ' . self::TABLE . ' SET Nombre_Producto = :Nombre_Producto, Precio = :Precio, 
                 Cantidad = :Cantidad, Unidad_Medida = :Unidad_Medida, Estado = :Estado, Cantidad_Minima = :Cantidad_Minima 
                 WHERE ID_Producto = :ID_Producto'
-                );
+            );
             $sql->bindValue(':ID_Producto', $ID_Producto, PDO::PARAM_INT);
             $sql->bindValue(':Nombre_Producto', $Nombre_Producto, PDO::PARAM_STR);
-            $sql->bindValue(':Precio', $Precio, PDO::PARAM_STR); // Floats no existe en PDO, se envian como strings???
+            $sql->bindValue(':Precio', $Precio, PDO::PARAM_STR);
             $sql->bindValue(':Cantidad', $Cantidad, PDO::PARAM_INT);
             $sql->bindValue(':Unidad_Medida', $Unidad_Medida, PDO::PARAM_STR);
             $sql->bindValue(':Estado', $Estado, PDO::PARAM_STR);
@@ -88,18 +113,20 @@ class Producto {
 
             if ($valid) {
                 if ($row > 0) {
-                    return 1; // actualizo contacto_empleado
+                    return 1;
                 } else {
-                    return 0; // no actualizo
+                    return 0;
                 }
             } else {
-                return -1; // error
+                return -1;
             }
 
         } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
-    }
+    }//--Fin funcion actualizar producto 
+
+
 
     // TODO: Eliminar producto???
     /*
@@ -131,4 +158,3 @@ class Producto {
     */
 }
 
-?>

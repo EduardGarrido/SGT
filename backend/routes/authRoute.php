@@ -1,8 +1,8 @@
 <?php
 
 
-if ($path === '/api/login') {
-    //Respuestas a dirección de login
+if ($path === '/api/login') { //Ruta para inicio de sesion 
+
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         http_response_code(405);
         echo json_encode(['ok' => false, 'error' => 'Método no permitido']);
@@ -29,6 +29,9 @@ if ($path === '/api/login') {
     } elseif ($res === 0) {
         http_response_code(401);
         echo json_encode(['ok' => false, 'mensaje' => 'Credenciales incorrectas']);
+    } elseif ($res === -2) {
+        http_response_code(403);
+        echo json_encode(['ok' => false, 'mensaje' => 'Usuario no autorizado']);
     } else {
         session_regenerate_id(true);
 
@@ -42,11 +45,12 @@ if ($path === '/api/login') {
             'puesto' => $res['Puesto'],
             'id' => $ID_Usuario,
         ]);
-    }// --Cierra if de respuesta        
+    }// --Cierra if de respuesta   
+
     return;// --Termina case login
 
-} elseif ($path === '/api/logout') {
-    //Direccion a direccion logout 
+} elseif ($path === '/api/logout') {//Ruta para cerrar sesion 
+
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         http_response_code(405);
         echo json_encode(['ok' => false, 'error' => 'Método no permitido']);
