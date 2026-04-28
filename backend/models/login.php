@@ -30,6 +30,8 @@ class Login
             if ($row) {
                 if (password_verify($Password, $row['Password']) && $row['Estado'] == 'autorizado') {
                     return $row;
+                } elseif (password_verify($Password, $row['Password']) && $row['Estado'] !== 'autorizado') {
+                    return -2;
                 } else {
                     return 0;
                 }
@@ -41,4 +43,4 @@ class Login
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
     }//---- Fin Funcion Validar 
-}
+}//--Fin Clase Login
