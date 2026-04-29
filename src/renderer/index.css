@@ -1,7 +1,12 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 @plugin "daisyui";
 
+@theme {
+  /* This overrides the default sans font for the whole project */
+  --font-sans: 'Arial', ui-sans-serif, system-ui, sans-serif;
+}
 
 @plugin "daisyui" {
   themes: light --default;
 }
+

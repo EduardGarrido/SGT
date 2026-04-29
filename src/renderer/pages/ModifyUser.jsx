@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import DOMPurify from 'dompurify'
 import { NavigateButton, ActionButton } from '../components'
-import TopBar from '../components/TopBar'
 import { getUserInfo, modifyInfoUser, modifyPasswordUser, modifyEstadoUser } from '../api/api'
 import { useAuth } from '../context/AuthContext'
 import { ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/react/20/solid'
@@ -287,9 +286,9 @@ export default function ModifyUser() {
     }
   }
 
-  function handleEnter(e) {
-    if (e.key === 'Enter') handleSubmit()
-  }
+  // function handleEnter(e) {
+  //   if (e.key === 'Enter') handleSubmit()
+  // }
 
   const style = response ? RESPONSE_STYLE[response.type] : null
 
@@ -330,7 +329,7 @@ export default function ModifyUser() {
             type={type}
             value={userData[field]}
             onChange={handleChange(field)}
-            onKeyDown={handleEnter}
+            // onKeyDown={handleEnter}
             placeholder={placeholder}
             autoComplete={type === 'password' ? 'new-password' : 'off'}
           />
@@ -350,9 +349,7 @@ export default function ModifyUser() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen font-sans bg-gray-200">
-      <TopBar />
-
+    <div className="flex flex-col h-full">
       <dialog ref={modalRef} className="modal">
         <div className="modal-box bg-white">
           <div className="flex items-center gap-2 mb-2">

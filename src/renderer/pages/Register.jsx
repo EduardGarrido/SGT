@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import DOMPurify from 'dompurify'
 import { NavigateButton, ActionButton } from '../components'
-import TopBar from '../components/TopBar'
 import { createUser, checkEmail } from '../api/api'
 import { ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/react/20/solid'
 
@@ -212,8 +211,7 @@ export default function Register() {
   ]
 
   return (
-    <div className="flex flex-col min-h-screen font-sans bg-gray-200">
-      <TopBar />
+    <div className="flex flex-col h-full">
       <div className="flex w-full h-full my-5">
         <div className="w-full h-full bg-gray-50 mx-5 rounded-lg p-5 shadow-md">
           <div className="flex flex-col items-center w-full h-full">
