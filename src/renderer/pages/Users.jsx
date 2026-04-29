@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
 import { ActionButton, NavigateButton } from '../components'
-import TopBar from '../components/TopBar'
 import { getUsers, getUserInfo, deleteUser } from '../api/api'
 import { ExclamationCircleIcon } from '@heroicons/react/20/solid'
 
@@ -51,9 +50,7 @@ export default function Users() {
   }
 
   return (
-    <div className="flex flex-col h-screen font-sans bg-gray-200">
-      <TopBar />
-
+    <div className="flex flex-col h-full">
       <dialog ref={modalRef} className="modal">
         <div className="modal-box bg-white">
           <div className="flex items-center gap-2 mb-2">
@@ -180,12 +177,6 @@ export default function Users() {
                   </ActionButton>
                 </>
               )}
-              <NavigateButton
-                className={`font-normal rounded-lg ${!loadingInfo && userInfo ? 'col-span-2' : 'col-span-2'}`}
-                to="/dashboard"
-              >
-                Ir al menú principal
-              </NavigateButton>
             </div>
           </div>
         </div>
