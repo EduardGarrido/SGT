@@ -86,7 +86,7 @@ class Producto
             $connection = new Conexion;
 
             $sql = $connection->prepare('SELECT p.ID_Producto, p.Nombre_Producto, p.Precio, p.Cantidad, p.Unidad_Medida, p.Estado,
-            c.ID_Categoria, c.Nombre_Categoria, d.ID_Proveedor, d.Nombre_Proveedor  FROM ' . self::TABLE . ' p 
+            p.Cantidad_Minima, c.ID_Categoria, c.Nombre_Categoria, d.ID_Proveedor, d.Nombre_Proveedor  FROM ' . self::TABLE . ' p 
             INNER JOIN Categoria c ON c.ID_Categoria = p.ID_Categoria
             INNER JOIN Proveedor d ON d.ID_Proveedor = p.ID_Proveedor
             WHERE p.ID_Producto = :ID_Producto');
