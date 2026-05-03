@@ -129,6 +129,19 @@ switch (true) {
         require_once __DIR__ . '/routes/productRoute.php';
         break;
 
+    case $path === '/api/getProduct':
+        require_once __DIR__ . '/routes/productRoute.php';
+        break;
+
+    case $path === '/api/getAllProducts':
+        require_once __DIR__ . '/routes/productRoute.php';
+        break;
+
+    case $path === '/api/modifyProduct':
+        requerirAdmin();
+        require_once __DIR__ . '/routes/productRoute.php';
+        break;
+
     default:
         http_response_code(404);
         echo json_encode(['ok' => false, 'error' => 'Ruta no encontrada']);
