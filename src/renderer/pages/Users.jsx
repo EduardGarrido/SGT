@@ -1,21 +1,82 @@
-import { useState, useEffect, useRef } from 'react'
-import { ActionButton, NavigateButton } from '../components'
+import { useState, useRef } from 'react'
+import { NavigateButton, ActionButton } from '../components'
 import { getUsers, getUserInfo, deleteUser } from '../api/api'
-import { ExclamationCircleIcon } from '@heroicons/react/20/solid'
+import { useFetch } from '../hooks/useFetch'
+import { useHeader } from '../context/HeaderContext'
+import {
+  ExclamationCircleIcon,
+  PlusIcon,
+  PencilSquareIcon,
+  TrashIcon,
+} from '@heroicons/react/20/solid'
+
+const user_props = [
+  { label: 'CODIGO', field: 'ID_Usuario' },
+  { label: 'NOMBRE', field: 'Nombre', grow: true },
+  { label: 'ESTADO', field: 'Estado' },
+]
+
+const header_class = 'w-full h-fit bg-gray-800 grid grid-cols-4'
+const base_header_item_class = 'py-2 text-xs text-center border-b-2 border-gray-300 text-white'
+const header_item_class = (grow) => `${base_header_item_class} ${grow ? 'col-span-2' : ''}`
+
+const base_row_item_class = 'py-2 text-xs text-center text-gray-700 truncate px-1'
+const row_item_class = (grow) => `${base_row_item_class} ${grow ? 'col-span-2' : ''}`
+
+const INFO_ROWS = [
+  { label: 'Puesto', field: 'Puesto' },
+  { label: 'Estado', field: 'Estado' },
+  { label: 'Teléfono', field: 'Telefono' },
+  { label: 'Correo', field: 'Correo' },
+  { label: 'Calle', field: 'Calle' },
+  { label: 'Colonia', field: 'Colonia' },
+  { label: 'Código Postal', field: 'Codigo_Postal' },
+]
 
 export default function Users() {
-  const [users, setUsers] = useState([])
-  const [loading, setLoading] = useState(true)
+  const { data: usersData, loading, refetch: refetchUsers } = useFetch(getUsers)
+  const users = usersData?.usuarios ?? []
+
   const [selectedId, setSelectedId] = useState(null)
   const [userInfo, setUserInfo] = useState(null)
   const [loadingInfo, setLoadingInfo] = useState(false)
+  const [search, setSearch] = useState('')
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState(null)
+
   const modalRef = useRef(null)
 
-  const handleSelectUser = (id) => {
+  const headerSearch = (
+    <input
+      type="text"
+      value={search}
+      onChange={(e) => setSearch(e.target.value)}
+      placeholder="Buscar usuario..."
+      className="w-56 px-3 py-1.5 rounded-lg border border-gray-600 bg-gray-700 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400"
+    />
+  )
+
+  const headerAction = (
+    <NavigateButton
+      to="/register"
+      className="w-auto px-3 py-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 rounded-lg gap-1.5"
+    >
+      <PlusIcon className="w-3.5 h-3.5 shrink-0" />
+      Registrar usuario
+    </NavigateButton>
+  )
+
+  useHeader(
+    <>
+      {headerSearch}
+      {headerAction}
+    </>
+  )
+
+  function handleSelectUser(id) {
     setSelectedId(id)
     setDeleteError(null)
+    setUserInfo(null)
     setLoadingInfo(true)
     getUserInfo(id)
       .then((res) => {
@@ -24,14 +85,10 @@ export default function Users() {
       .finally(() => setLoadingInfo(false))
   }
 
-  useEffect(() => {
-    getUsers()
-      .then((res) => {
-        if (res.ok) setUsers(res.usuarios)
-        console.log(res)
-      })
-      .finally(() => setLoading(false))
-  }, [])
+  function handleDeselect() {
+    setSelectedId(null)
+    setUserInfo(null)
+  }
 
   async function handleDeleteConfirm() {
     setDeleting(true)
@@ -41,17 +98,21 @@ export default function Users() {
 
     if (res.ok) {
       modalRef.current.close()
-      setUsers((prev) => prev.filter((u) => u.ID_Usuario !== selectedId))
-      setSelectedId(null)
-      setUserInfo(null)
+      handleDeselect()
+      refetchUsers()
     } else {
       setDeleteError(res.mensaje || 'Error al eliminar el usuario')
     }
   }
 
+  const filtered = users.filter((u) =>
+    (u.Nombre ?? '').toLowerCase().includes(search.toLowerCase())
+  )
+
   return (
-    <div className="flex flex-col h-full">
-      <dialog ref={modalRef} className="modal">
+    <div className="flex flex-row gap-4 w-full h-full" onClick={handleDeselect}>
+      {/* Delete modal */}
+      <dialog ref={modalRef} className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-box bg-white">
           <div className="flex items-center gap-2 mb-2">
             <ExclamationCircleIcon className="w-6 text-red-500 shrink-0" />
@@ -89,96 +150,109 @@ export default function Users() {
         </div>
       </dialog>
 
-      <div className="flex my-5 w-full h-full">
-        <div className="flex flex-col w-1/3 mx-5">
-          <div className="w-full h-full rounded-lg mb-5 p-5 bg-gray-50 shadow-md overflow-y-auto">
-            <h1 className="text-2xl font-semibold text-gray-900 text-center">Usuarios</h1>
-            <hr className="rounded-full border-2 border-gray-400 w-full my-5" />
-
-            {loading ? (
-              <p className="text-center text-gray-500">Cargando usuarios...</p>
-            ) : users.length === 0 ? (
-              <p className="text-center text-gray-500">Sin usuarios</p>
-            ) : (
-              <ul className="space-y-2">
-                {users.map((u) => (
-                  <li
-                    key={u.ID_Usuario}
-                    onClick={() => handleSelectUser(u.ID_Usuario)}
-                    className={`flex flex-row gap-2 border py-4 px-4 rounded-2xl cursor-pointer ${u.ID_Usuario === selectedId ? 'bg-gray-800 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-800'}`}
-                  >
-                    <span className="text-lg font-semibold text-inherit">
-                      Usuario ID:
-                      <span className="font-light px-1">{u.ID_Usuario}</span>
-                    </span>
-                    <span className="text-lg font-semibold text-inherit">
-                      Nombre:
-                      <span className="font-light px-1">{u.Nombre}</span>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-          <div className="grid grid-cols-1 gap-4">
-            <NavigateButton className="font-normal rounded-lg" to="/register">
-              Registrar Usuario
-            </NavigateButton>
-          </div>
+      {/* User table */}
+      <div className="flex flex-col flex-1 min-w-0 h-full border border-gray-300 bg-white shadow rounded-lg overflow-hidden">
+        <div className={header_class}>
+          {user_props.map(({ label, grow }) => (
+            <div key={label} className={header_item_class(grow)}>
+              {label}
+            </div>
+          ))}
         </div>
-        <div className="flex w-2/3 mr-5">
-          <div className="rounded-lg w-full p-5 bg-gray-50 shadow-md">
-            <h1 className="text-2xl font-semibold text-gray-900 text-center">
-              Información del usuario
-            </h1>
-            <hr className="rounded-full border-2 border-gray-400 w-full my-5" />
-            <div className="flex flex-col gap-1 flex-1">
-              {loadingInfo ? (
-                <p className="text-gray-400 text-sm">Cargando...</p>
-              ) : !userInfo ? (
-                <p className="text-gray-400 text-sm text-center">
-                  Selecciona un usuario para ver su información
-                </p>
-              ) : (
-                <>
-                  <p className="text-lg font-semibold text-gray-800">{userInfo.Nombre}</p>
-                  <span className="text-sm text-gray-500 capitalize">{userInfo.Puesto}</span>
-                  <span
-                    className={`text-xs w-fit px-2 py-0.5 rounded-full mt-1 ${userInfo.Estado === 'autorizado' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}
-                  >
-                    {userInfo.Estado === 'autorizado' ? 'Autorizado' : 'No autorizado'}
-                  </span>
-                  <hr className="border border-gray-200 my-3" />
-                  <p className="text-gray-500 text-sm">Teléfono: {userInfo.Telefono}</p>
-                  <p className="text-gray-500 text-sm">Correo: {userInfo.Correo}</p>
-                  <p className="text-gray-500 text-sm">Calle: {userInfo.Calle}</p>
-                  <p className="text-gray-500 text-sm">Colonia: {userInfo.Colonia}</p>
-                  <p className="text-gray-500 text-sm">C.P.: {userInfo.Codigo_Postal}</p>
-                </>
-              )}
-            </div>
-            <div className="mt-6 mb-2 grid grid-cols-2 gap-4">
-              {!loadingInfo && userInfo && (
-                <>
-                  <NavigateButton
-                    className="font-normal rounded-lg"
-                    to={`/modifyUser?id=${selectedId}`}
-                  >
-                    Editar
-                  </NavigateButton>
-                  <ActionButton
-                    className="font-normal rounded-lg"
-                    onClick={() => {
-                      setDeleteError(null)
-                      modalRef.current.showModal()
-                    }}
-                  >
-                    Eliminar
-                  </ActionButton>
-                </>
-              )}
-            </div>
-          </div>
+        <div className="flex flex-col w-full overflow-y-auto flex-1">
+          {loading ? (
+            <p className="w-full text-center text-gray-600 py-4">Cargando usuarios...</p>
+          ) : filtered.length === 0 ? (
+            <p className="w-full text-center text-gray-600 py-4">Sin usuarios</p>
+          ) : (
+            <ul>
+              {filtered.map((u) => (
+                <li
+                  key={u.ID_Usuario}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleSelectUser(u.ID_Usuario)
+                  }}
+                  className={`grid grid-cols-4 cursor-pointer border-b border-gray-100 hover:bg-gray-50 ${u.ID_Usuario === selectedId ? 'bg-gray-100' : ''}`}
+                >
+                  {user_props.map(({ field, grow }) => (
+                    <span key={field} className={row_item_class(grow)}>
+                      {u[field] || '—'}
+                    </span>
+                  ))}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+
+      {/* Right info panel */}
+      <div
+        className="flex flex-col flex-2 min-w-0 h-full border border-gray-300 bg-white shadow rounded-lg overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Panel header */}
+        <div className="px-4 py-2 bg-gray-800 shrink-0">
+          <p className="text-xs font-semibold tracking-wide text-gray-300 uppercase">Información</p>
+          {selectedId ? (
+            <p className="text-xs text-gray-400 truncate">{userInfo?.Nombre ?? '...'}</p>
+          ) : (
+            <p className="text-xs text-gray-500 italic">Selecciona un usuario</p>
+          )}
+        </div>
+
+        {/* Panel body */}
+        <div className="flex flex-col flex-1 overflow-y-auto px-4 py-4">
+          {!selectedId ? (
+            <p className="text-xs text-gray-400 italic text-center mt-8">
+              Ningún usuario seleccionado
+            </p>
+          ) : loadingInfo ? (
+            <p className="text-xs text-gray-400 text-center mt-8">Cargando...</p>
+          ) : userInfo ? (
+            <dl className="flex flex-col gap-4">
+              {INFO_ROWS.map(({ label, field }) => (
+                <div key={field}>
+                  <dt className="text-xs text-gray-400 mb-0.5">{label}</dt>
+                  <dd className="text-sm font-medium text-gray-800 break-words">
+                    {userInfo[field] || '—'}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          ) : (
+            <p className="text-xs text-gray-400 italic text-center mt-8">
+              No se pudo cargar la información
+            </p>
+          )}
+        </div>
+
+        {/* Panel actions */}
+        <div className="flex flex-col gap-3 p-4 border-t border-gray-200 shrink-0">
+          <NavigateButton
+            className="font-normal rounded-lg"
+            to={`/modifyUser?id=${selectedId}`}
+            disabled={!selectedId || loadingInfo}
+          >
+            <span className="flex items-center gap-2 justify-center">
+              <PencilSquareIcon className="w-4 h-4" />
+              Editar
+            </span>
+          </NavigateButton>
+          <ActionButton
+            className="font-normal rounded-lg"
+            onClick={() => {
+              setDeleteError(null)
+              modalRef.current.showModal()
+            }}
+            disabled={!selectedId || loadingInfo}
+          >
+            <span className="flex items-center gap-2 justify-center">
+              <TrashIcon className="w-4 h-4" />
+              Eliminar
+            </span>
+          </ActionButton>
         </div>
       </div>
     </div>

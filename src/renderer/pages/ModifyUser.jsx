@@ -349,7 +349,7 @@ export default function ModifyUser() {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col ">
       <dialog ref={modalRef} className="modal">
         <div className="modal-box bg-white">
           <div className="flex items-center gap-2 mb-2">
