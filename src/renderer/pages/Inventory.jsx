@@ -189,7 +189,11 @@ function ProductForm({ data, onChange, error, categorias, proveedores }) {
 }
 
 export default function Inventory() {
-  const { data: productsData, loading: loadingProducts, refetch: refetchProducts } = useFetch(getProducts)
+  const {
+    data: productsData,
+    loading: loadingProducts,
+    refetch: refetchProducts,
+  } = useFetch(getProducts)
   const { data: categoriasData } = useFetch(getCategorias)
   const { data: proveedoresData } = useFetch(getProveedores)
 
@@ -230,9 +234,9 @@ export default function Inventory() {
   const headerAction = (
     <ActionButton
       onClick={() => newModalRef.current.showModal()}
-      className="w-auto font-semibold bg-emerald-600 hover:bg-emerald-700 rounded-lg gap-1.5"
+      className="w-auto text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 rounded-lg gap-1.5"
     >
-      <PlusIcon className="w-4.5 h-4.5 shrink-0" />
+      <PlusIcon className="w-4 h-4 shrink-0" />
       Nuevo producto
     </ActionButton>
   )
