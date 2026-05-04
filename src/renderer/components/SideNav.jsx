@@ -54,7 +54,7 @@ export default function SideNav() {
   const { esAdmin } = useAuth()
 
   return (
-    <nav className="flex flex-col w-52 shrink-0 bg-gray-800 text-white h-full">
+    <nav className="flex flex-col w-fit shrink-0 bg-gray-800 text-white h-full">
       <div className="flex-1 overflow-y-auto p-3 pt-5">
         <NavSection title="Principal" items={PRINCIPAL} esAdmin={esAdmin} />
         <NavSection title="Catálogo" items={CATALOGO} esAdmin={esAdmin} />

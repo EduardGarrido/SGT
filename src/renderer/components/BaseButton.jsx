@@ -6,14 +6,14 @@ export default function BaseButton({ children, className, disabled, ...props }) 
     <button
       className={twMerge(
         clsx(
-          'w-full md:px-5 px-2 py-2 rounded-lg text-white bg-gray-800 hover:bg-gray-900 font-normal cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed',
+          'flex flex-row justify-center items-center w-full md:px-12 px-4 py-2 rounded-lg text-white bg-gray-800 hover:bg-gray-900 text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed',
           className
         )
       )}
       disabled={disabled}
       {...props}
     >
-      {children}
+      <span className="flex flex-row items-center justify-center gap-2">{children}</span>
     </button>
   )
 }
