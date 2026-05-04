@@ -608,7 +608,7 @@ export default function Users() {
               {INFO_ROWS.map(({ label, field, format }) => (
                 <div key={field}>
                   <dt className="text-xs text-gray-400 mb-0.5">{label}</dt>
-                  <dd className="text-sm font-medium text-gray-800 break-words">
+                  <dd className="text-sm font-medium text-gray-800 wrap-break-word">
                     {format ? format(userInfo[field]) : userInfo[field] || '—'}
                   </dd>
                 </div>
