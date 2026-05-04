@@ -16,7 +16,6 @@ export function useFetch(apiFn) {
     } else setError(res.mensaje ?? 'Error al cargar los datos')
   }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     run()
   }, [])
