@@ -12,8 +12,6 @@ const PAGE_TITLES = {
   '/categorias': 'Categorías',
   '/proveedores': 'Proveedores',
   '/users': 'Usuarios',
-  '/register': 'Registro de Usuario',
-  '/modifyUser': 'Modificar Usuario',
   '/user-info': 'Información de Usuario',
 }
 

@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useAuth } from './context/AuthContext'
 import { HashRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
-import { Login, Dashboard, Users, UserInfo, Sales, Inventory, Register, ModifyUser } from './pages'
+import { Login, Dashboard, Users, UserInfo, Sales, Inventory } from './pages'
 import AppLayout from './components/AppLayout'
 
 function SesionGuard() {
@@ -64,8 +64,6 @@ export default function App() {
           <Route path="/categorias" element={<PaginaEnConstruccion titulo="Categorías" />} />
           <Route path="/proveedores" element={<PaginaEnConstruccion titulo="Proveedores" />} />
           <Route path="/inventory"  element={<RutaAdmin><Inventory /></RutaAdmin>} />
-          <Route path="/register"   element={<RutaAdmin><Register /></RutaAdmin>} />
-          <Route path="/modifyUser" element={<RutaAdmin><ModifyUser /></RutaAdmin>} />
           <Route path="/users"      element={<RutaAdmin><Users /></RutaAdmin>} />
         </Route>
 

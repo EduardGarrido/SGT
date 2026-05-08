@@ -1,43 +1,19 @@
 import { useState } from 'react'
-import DOMPurify from 'dompurify'
 import { useAuth } from '../context/AuthContext'
 import { login } from '../api/api'
-import { TopBar, ActionButton } from '../components'
-
-//Icons
-import { ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/react/20/solid'
-
-// Styles
-const RESPONSE_STYLE = {
-  error: {
-    bg: 'bg-red-50',
-    border: 'border-red-300',
-    text: 'text-red-700',
-    input: 'border-red-400',
-    Icon: ExclamationCircleIcon,
-  },
-  success: {
-    bg: 'bg-green-50',
-    border: 'border-green-300',
-    text: 'text-green-700',
-    input: 'border-green-400',
-    Icon: CheckCircleIcon,
-  },
-}
+import { TopBar, ActionButton, FormAlert, fieldInputClass } from '../components'
+import { sanitize } from '../utils/sanitize'
 
 export default function Login() {
   const [id, setId] = useState('')
   const [password, setPassword] = useState('')
-  const [response, setResponse] = useState(null) // { type: 'error' | 'success', message: string }
+  const [response, setResponse] = useState(null)
   const [loading, setLoading] = useState(false)
   const { guardarSesion } = useAuth()
 
   async function handleLogin() {
-    const cleanId = DOMPurify.sanitize(id.trim(), { ALLOWED_TAGS: [], ALLOWED_ATTR: [] })
-    const cleanPassword = DOMPurify.sanitize(password.trim(), {
-      ALLOWED_TAGS: [],
-      ALLOWED_ATTR: [],
-    })
+    const cleanId = sanitize(id)
+    const cleanPassword = sanitize(password)
 
     if (!cleanId || !cleanPassword) {
       setResponse({ type: 'error', message: 'Completa ambos campos' })
@@ -49,7 +25,6 @@ export default function Login() {
 
     try {
       const data = await login(cleanId, cleanPassword)
-
       if (data.ok) {
         setResponse({ type: 'success', message: data.mensaje })
         setTimeout(() => guardarSesion(data), 200)
@@ -67,11 +42,14 @@ export default function Login() {
     if (e.key === 'Enter') handleLogin()
   }
 
-  const style = response ? RESPONSE_STYLE[response.type] : null
+  function handleChange(setter) {
+    return (e) => {
+      setResponse(null)
+      setter(e.target.value)
+    }
+  }
 
-  const inputClass = `rounded-lg w-full px-2 py-1 border-2 text-gray-700 bg-gray-100 shadow-sm sm:text-sm ${
-    style ? style.input : 'border-gray-400'
-  }`
+  const inputClass = fieldInputClass(response, 'any')
 
   return (
     <div className="flex flex-col w-screen h-screen font-sans bg-gray-200">
@@ -86,14 +64,7 @@ export default function Login() {
                 </p>
               </div>
               <div className="w-full">
-                {response && (
-                  <div
-                    className={`flex items-center gap-2 mt-2 mb-1 px-3 py-2 rounded-lg border text-sm ${style.bg} ${style.border} ${style.text}`}
-                  >
-                    <style.Icon className="w-5 shrink-0" />
-                    {response.message}
-                  </div>
-                )}
+                <FormAlert response={response} />
 
                 <div className="w-full justify-self-center-safe">
                   <label
@@ -107,10 +78,7 @@ export default function Login() {
                     id="id-usuario"
                     type="text"
                     value={id}
-                    onChange={(e) => {
-                      setResponse(null)
-                      setId(e.target.value)
-                    }}
+                    onChange={handleChange(setId)}
                     onKeyDown={handleEnter}
                     placeholder="ID de usuario"
                     autoComplete="on"
@@ -127,10 +95,7 @@ export default function Login() {
                     className={inputClass}
                     type="password"
                     value={password}
-                    onChange={(e) => {
-                      setResponse(null)
-                      setPassword(e.target.value)
-                    }}
+                    onChange={handleChange(setPassword)}
                     onKeyDown={handleEnter}
                     placeholder="Contraseña"
                     autoComplete="off"
