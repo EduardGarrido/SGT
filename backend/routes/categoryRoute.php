@@ -53,7 +53,7 @@ if ($path === '/api/createCategory') { // Ruta para crear categoria
     http_response_code(200);
     echo json_encode(['ok' => true, 'categorias' => $res]);
 
-    //-- Termina case readAllCategory
+    //-- Termina case readAllCategories
 
 } elseif ($path === '/api/getCategory') {// Ruta para leer una categoria
 
@@ -114,7 +114,7 @@ if ($path === '/api/createCategory') { // Ruta para crear categoria
 
     $Nombre_Categoria = $Nombre_Categoria ?? $infoActual['Nombre_Categoria'];
 
-    $res = Categoria::updateCategoria($ID_Producto, $Nombre_Producto);
+    $res = Categoria::updateCategoria($ID_Categoria, $Nombre_Categoria);
 
     if ($res !== 1) {
         http_response_code(404);

@@ -14,7 +14,7 @@ class Categoria
         try {
             $connection = new Conexion();
 
-            $sql = $connection->prepare('INSERT INTO ' . self::TABLE . '(Nombre_Categoria) VALUES (:Nombre_Categoria)');
+            $sql = $connection->prepare('INSERT INTO ' . self::TABLE . ' (Nombre_Categoria) VALUES (:Nombre_Categoria)');
             $sql->bindValue(':Nombre_Categoria', $Nombre_Categoria);
             $sql->execute();
             $ID_Categoria = $connection->lastInsertId();
@@ -60,7 +60,7 @@ class Categoria
 
             $sql = $connection->prepare('SELECT Nombre_Categoria FROM ' . self::TABLE . '
             WHERE ID_Categoria = :ID_Categoria');
-            $sql->bindValue(':ID_Categoria', $ID_Categoria);
+            $sql->bindValue(':ID_Categoria', $ID_Categoria, PDO::PARAM_INT);
             $sql->execute();
             $row = $sql->fetch();
 
