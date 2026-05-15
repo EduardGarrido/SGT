@@ -54,7 +54,7 @@ if ($path === '/api/createProduct') { // Ruta que crea productos
         echo json_encode(['ok' => false, 'mensaje' => 'El producto no se pudo crear']);
     }
 
-    // Termina case createProduct
+    //-- Termina case createProduct
 
 } elseif ($path === '/api/getAllProducts') { // Ruta que lee todos los productos 
 
@@ -78,7 +78,7 @@ if ($path === '/api/createProduct') { // Ruta que crea productos
     echo json_encode(['ok' => true, 'productos' => $res]);
 
 
-    // Termina case getAllProducts
+    //-- Termina case getAllProducts
 
 } elseif ($path === '/api/getProduct') { // Ruta que lee un producto 
 
@@ -111,9 +111,9 @@ if ($path === '/api/createProduct') { // Ruta que crea productos
     echo json_encode(['ok' => true, 'producto' => $res]);
 
 
-    // Termina case getProduct
+    //-- Termina case getProduct
 
-} elseif ($path === '/api/modifyProduct') {
+} elseif ($path === '/api/modifyProduct') {// Ruta para modificar un producto 
     if ($_SERVER['REQUEST_METHOD'] !== 'PATCH') {
         http_response_code(405);
         echo json_encode(['ok' => false, 'error' => 'Método no permitido']);
@@ -177,4 +177,7 @@ if ($path === '/api/createProduct') { // Ruta que crea productos
         http_response_code(200);
         echo json_encode(['ok' => true, 'mensaje' => 'Producto actualizado correctamente']);
     }
-}
+
+
+
+}//-- Termina ruta modifyProduct 
