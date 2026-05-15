@@ -1,5 +1,5 @@
 <?php
-// Rutas para proveedor 
+// Rutas para proveedor
 
 if ($path === '/api/createSupplier') { // Ruta para crear proveedor
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -99,9 +99,10 @@ if ($path === '/api/createSupplier') { // Ruta para crear proveedor
 
 
     $data = json_decode(file_get_contents('php://input'), true);
-    $ID_Proveedor = (int) $data['ID_Proveedor'];
+    $ID_Proveedor = (int) ($data['ID_Proveedor'] ?? 0);
     $Nombre_Proveedor = isset($data['Nombre_Proveedor']) ? htmlspecialchars($data['Nombre_Proveedor']) : null;
     $Telefono = isset($data['Telefono']) ? htmlspecialchars($data['Telefono']) : null;
+    $Estado = isset($data['Estado']) ? htmlspecialchars($data['Estado']) : null;
 
 
     if (!$ID_Proveedor) {
@@ -114,10 +115,17 @@ if ($path === '/api/createSupplier') { // Ruta para crear proveedor
 
     $infoActual = Proveedor::readProveedor($ID_Proveedor);
 
+    if (!$infoActual) {
+        http_response_code(404);
+        echo json_encode(['ok' => false, 'mensaje' => 'No se encontró el proveedor']);
+        return;
+    }
+
     $Nombre_Proveedor = $Nombre_Proveedor ?? $infoActual['Nombre_Proveedor'];
     $Telefono = $Telefono ?? $infoActual['Telefono'];
+    $Estado = $Estado ?? $infoActual['Estado'];
 
-    $res = Proveedor::updateProveedor($ID_Proveedor, $Nombre_Proveedor, $Telefono);
+    $res = Proveedor::updateProveedor($ID_Proveedor, $Nombre_Proveedor, $Telefono, $Estado);
 
     if ($res !== 1) {
         http_response_code(404);
@@ -128,5 +136,36 @@ if ($path === '/api/createSupplier') { // Ruta para crear proveedor
         echo json_encode(['ok' => true, 'mensaje' => 'Proveedor actualizado correctamente']);
     }
 
-}//-- Termina ruta modifySupplier
+    //-- Termina ruta modifySupplier
 
+} else if ($path === '/api/deleteSupplier') { // Soft-delete de proveedor (PATCH: actualiza Estado)
+
+    if ($_SERVER['REQUEST_METHOD'] !== 'PATCH') {
+        http_response_code(405);
+        echo json_encode(['ok' => false, 'mensaje' => 'Método no permitido']);
+        return;
+    }
+
+    $data = json_decode(file_get_contents('php://input'), true);
+    $ID_Proveedor = (int) ($data['ID_Proveedor'] ?? 0);
+
+    if (!$ID_Proveedor) {
+        http_response_code(400);
+        echo json_encode(['ok' => false, 'mensaje' => 'Faltan campos obligatorios']);
+        return;
+    }
+
+    require_once __DIR__ . '/../models/proveedor.php';
+
+    $res = Proveedor::desactivarProveedor($ID_Proveedor);
+
+    if ($res !== 1) {
+        http_response_code(404);
+        echo json_encode(['ok' => false, 'mensaje' => 'No se encontró el proveedor']);
+        return;
+    }
+
+    http_response_code(200);
+    echo json_encode(['ok' => true, 'mensaje' => 'Proveedor desactivado correctamente']);
+
+}//-- Termina ruta deleteSupplier

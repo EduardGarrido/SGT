@@ -51,6 +51,16 @@ export const createProduct = (data)   => post('createProduct', data)
 export const modifyProduct = (id, data) => patch('modifyProduct', { ID_Producto: id, ...data })
 export const deleteProduct = (id)     => del('deleteProduct', { ID_Producto: id })
 
-// Catálogos
-export const getCategorias  = () => get('getCategorias')
-export const getProveedores = () => get('getProveedores')
+// Catálogos — Categorías
+export const getCategorias    = ()       => get('getAllCategories')
+export const getCategoria     = (id)     => get(`getCategory?id=${id}`)
+export const createCategoria  = (data)   => post('createCategory', data)
+export const modifyCategoria  = (id, data) => patch('modifyCategory', { ID_Categoria: id, ...data })
+export const deleteCategoria  = (id)     => patch('deleteCategory', { ID_Categoria: id })
+
+// Catálogos — Proveedores
+export const getProveedores   = ()       => get('getAllSuppliers')
+export const getProveedor     = (id)     => get(`getSupplier?id=${id}`)
+export const createProveedor  = (data)   => post('createSupplier', data)
+export const modifyProveedor  = (id, data) => patch('modifySupplier', { ID_Proveedor: id, ...data })
+export const deleteProveedor  = (id)     => patch('deleteSupplier', { ID_Proveedor: id })

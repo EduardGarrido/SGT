@@ -14,8 +14,10 @@ class Categoria
         try {
             $connection = new Conexion();
 
-            $sql = $connection->prepare('INSERT INTO ' . self::TABLE . ' (Nombre_Categoria) VALUES (:Nombre_Categoria)');
+            $sql = $connection->prepare('INSERT INTO ' . self::TABLE . ' (Nombre_Categoria, Estado)
+            VALUES (:Nombre_Categoria, :Estado)');
             $sql->bindValue(':Nombre_Categoria', $Nombre_Categoria);
+            $sql->bindValue(':Estado', 'activo');
             $sql->execute();
             $ID_Categoria = $connection->lastInsertId();
             $connection = NULL;
@@ -26,15 +28,20 @@ class Categoria
         } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
-    }//-- Fin funcion crear categoria 
+    }//-- Fin funcion crear categoria
 
-    // Funcion para leer todas las categorias
+    // Funcion para leer todas las categorias (con conteo de productos asociados)
     public static function readAllCategoria()
     {
         try {
             $connection = new Conexion();
 
-            $sql = $connection->prepare('SELECT ID_Categoria, Nombre_Categoria FROM ' . self::TABLE);
+            $sql = $connection->prepare('SELECT c.ID_Categoria, c.Nombre_Categoria, c.Estado,
+            COUNT(p.ID_Producto) AS Productos
+            FROM ' . self::TABLE . ' c
+            LEFT JOIN Producto p ON p.ID_Categoria = c.ID_Categoria
+            GROUP BY c.ID_Categoria, c.Nombre_Categoria, c.Estado
+            ORDER BY c.ID_Categoria');
             $sql->execute();
             $categorias = $sql->fetchAll();
 
@@ -58,7 +65,7 @@ class Categoria
         try {
             $connection = new Conexion();
 
-            $sql = $connection->prepare('SELECT Nombre_Categoria FROM ' . self::TABLE . '
+            $sql = $connection->prepare('SELECT Nombre_Categoria, Estado FROM ' . self::TABLE . '
             WHERE ID_Categoria = :ID_Categoria');
             $sql->bindValue(':ID_Categoria', $ID_Categoria, PDO::PARAM_INT);
             $sql->execute();
@@ -76,18 +83,20 @@ class Categoria
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
 
-    }//-- Fin funcion leer categoria 
+    }//-- Fin funcion leer categoria
 
 
     // Funcion para modificar una categoria
-    public static function updateCategoria($ID_Categoria, $Nombre_Categoria)
+    public static function updateCategoria($ID_Categoria, $Nombre_Categoria, $Estado)
     {
         try {
 
             $connection = new Conexion();
-            $sql = $connection->prepare('UPDATE ' . self::TABLE . ' SET Nombre_Categoria = :Nombre_Categoria 
+            $sql = $connection->prepare('UPDATE ' . self::TABLE . ' SET Nombre_Categoria = :Nombre_Categoria,
+            Estado = :Estado
             WHERE ID_Categoria = :ID_Categoria');
             $sql->bindValue(':Nombre_Categoria', $Nombre_Categoria);
+            $sql->bindValue(':Estado', $Estado);
             $sql->bindValue(':ID_Categoria', $ID_Categoria, PDO::PARAM_INT);
 
             $sql->execute();
@@ -102,18 +111,17 @@ class Categoria
         }
     }//-- Fin funcion modificar categoria
 
-    /*
-    // Funcion para eliminar categoria
-    public static function deleteCategoria($ID_Categoria)
+    // Funcion para desactivar categoria (soft-delete)
+    public static function desactivarCategoria($ID_Categoria)
     {
         try {
-
             $connection = new Conexion();
 
-            $sql = $connection->prepare('DELETE FROM ' . self::TABLE . ' WHERE ID_Categoria = :ID_Categoria');
+            $sql = $connection->prepare('UPDATE ' . self::TABLE . ' SET Estado = :Estado
+            WHERE ID_Categoria = :ID_Categoria');
+            $sql->bindValue(':Estado', 'inactivo');
             $sql->bindValue(':ID_Categoria', $ID_Categoria, PDO::PARAM_INT);
             $sql->execute();
-
             $row = $sql->rowCount();
             $connection = NULL;
 
@@ -122,6 +130,5 @@ class Categoria
         } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
-    }//-- Fin funcion eliminar categoria 
-    */
+    }//-- Fin funcion desactivar categoria
 }

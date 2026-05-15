@@ -1,5 +1,5 @@
 <?php
-// Rutas para categoria 
+// Rutas para categoria
 
 if ($path === '/api/createCategory') { // Ruta para crear categoria
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -32,7 +32,7 @@ if ($path === '/api/createCategory') { // Ruta para crear categoria
 
     //-- Termina case createCategory
 
-} elseif ($path === '/api/getAllCategories') { // Ruta para leer todas las categorias 
+} elseif ($path === '/api/getAllCategories') { // Ruta para leer todas las categorias
 
     if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
         http_response_code(405);
@@ -98,8 +98,9 @@ if ($path === '/api/createCategory') { // Ruta para crear categoria
 
 
     $data = json_decode(file_get_contents('php://input'), true);
-    $ID_Categoria = (int) $data['ID_Categoria'];
+    $ID_Categoria = (int) ($data['ID_Categoria'] ?? 0);
     $Nombre_Categoria = isset($data['Nombre_Categoria']) ? htmlspecialchars($data['Nombre_Categoria']) : null;
+    $Estado = isset($data['Estado']) ? htmlspecialchars($data['Estado']) : null;
 
 
     if (!$ID_Categoria) {
@@ -112,9 +113,16 @@ if ($path === '/api/createCategory') { // Ruta para crear categoria
 
     $infoActual = Categoria::readCategoria($ID_Categoria);
 
-    $Nombre_Categoria = $Nombre_Categoria ?? $infoActual['Nombre_Categoria'];
+    if (!$infoActual) {
+        http_response_code(404);
+        echo json_encode(['ok' => false, 'mensaje' => 'No se encontró la categoria']);
+        return;
+    }
 
-    $res = Categoria::updateCategoria($ID_Categoria, $Nombre_Categoria);
+    $Nombre_Categoria = $Nombre_Categoria ?? $infoActual['Nombre_Categoria'];
+    $Estado = $Estado ?? $infoActual['Estado'];
+
+    $res = Categoria::updateCategoria($ID_Categoria, $Nombre_Categoria, $Estado);
 
     if ($res !== 1) {
         http_response_code(404);
@@ -122,8 +130,39 @@ if ($path === '/api/createCategory') { // Ruta para crear categoria
         return;
     } else {
         http_response_code(200);
-        echo json_encode(['ok' => true, 'mensaje' => 'Categoria actualizado correctamente']);
+        echo json_encode(['ok' => true, 'mensaje' => 'Categoria actualizada correctamente']);
     }
 
-}//-- Termina ruta modifyCategoria
+    //-- Termina ruta modifyCategoria
 
+} else if ($path === '/api/deleteCategory') { // Soft-delete de categoria (PATCH: actualiza Estado)
+
+    if ($_SERVER['REQUEST_METHOD'] !== 'PATCH') {
+        http_response_code(405);
+        echo json_encode(['ok' => false, 'mensaje' => 'Método no permitido']);
+        return;
+    }
+
+    $data = json_decode(file_get_contents('php://input'), true);
+    $ID_Categoria = (int) ($data['ID_Categoria'] ?? 0);
+
+    if (!$ID_Categoria) {
+        http_response_code(400);
+        echo json_encode(['ok' => false, 'mensaje' => 'Faltan campos obligatorios']);
+        return;
+    }
+
+    require_once __DIR__ . '/../models/categoria.php';
+
+    $res = Categoria::desactivarCategoria($ID_Categoria);
+
+    if ($res !== 1) {
+        http_response_code(404);
+        echo json_encode(['ok' => false, 'mensaje' => 'No se encontró la categoria']);
+        return;
+    }
+
+    http_response_code(200);
+    echo json_encode(['ok' => true, 'mensaje' => 'Categoría desactivada correctamente']);
+
+}//-- Termina ruta deleteCategory

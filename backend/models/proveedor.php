@@ -14,9 +14,11 @@ class Proveedor
         try {
             $connection = new Conexion();
 
-            $sql = $connection->prepare('INSERT INTO ' . self::TABLE . ' (Nombre_Proveedor, Telefono) VALUES (:Nombre_Proveedor, :Telefono)');
+            $sql = $connection->prepare('INSERT INTO ' . self::TABLE . ' (Nombre_Proveedor, Telefono, Estado)
+            VALUES (:Nombre_Proveedor, :Telefono, :Estado)');
             $sql->bindValue(':Nombre_Proveedor', $Nombre_Proveedor);
             $sql->bindValue(':Telefono', $Telefono);
+            $sql->bindValue(':Estado', 'activo');
             $sql->execute();
             $ID_Proveedor = $connection->lastInsertId();
             $connection = NULL;
@@ -27,7 +29,7 @@ class Proveedor
         } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
-    }//-- Fin funcion crear proveedor 
+    }//-- Fin funcion crear proveedor
 
     // Funcion para leer todos los proveedores
     public static function readAllProveedores()
@@ -35,7 +37,7 @@ class Proveedor
         try {
             $connection = new Conexion();
 
-            $sql = $connection->prepare('SELECT ID_Proveedor, Nombre_Proveedor, Telefono FROM ' . self::TABLE);
+            $sql = $connection->prepare('SELECT ID_Proveedor, Nombre_Proveedor, Telefono, Estado FROM ' . self::TABLE);
             $sql->execute();
             $proveedores = $sql->fetchAll();
 
@@ -59,7 +61,7 @@ class Proveedor
         try {
             $connection = new Conexion();
 
-            $sql = $connection->prepare('SELECT Nombre_Proveedor, Telefono FROM ' . self::TABLE . '
+            $sql = $connection->prepare('SELECT Nombre_Proveedor, Telefono, Estado FROM ' . self::TABLE . '
             WHERE ID_Proveedor = :ID_Proveedor');
             $sql->bindValue(':ID_Proveedor', $ID_Proveedor, PDO::PARAM_INT);
             $sql->execute();
@@ -77,20 +79,22 @@ class Proveedor
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
 
-    }//-- Fin funcion leer proveedor 
+    }//-- Fin funcion leer proveedor
 
 
     // Funcion para modificar un proveedor
-    public static function updateProveedor($ID_Proveedor, $Nombre_Proveedor, $Telefono)
+    public static function updateProveedor($ID_Proveedor, $Nombre_Proveedor, $Telefono, $Estado)
     {
         try {
 
             $connection = new Conexion();
             $sql = $connection->prepare('UPDATE ' . self::TABLE . ' SET Nombre_Proveedor = :Nombre_Proveedor,
-            Telefono = :Telefono 
+            Telefono = :Telefono,
+            Estado = :Estado
             WHERE ID_Proveedor = :ID_Proveedor');
             $sql->bindValue(':Nombre_Proveedor', $Nombre_Proveedor);
             $sql->bindValue(':Telefono', $Telefono);
+            $sql->bindValue(':Estado', $Estado);
             $sql->bindValue(':ID_Proveedor', $ID_Proveedor, PDO::PARAM_INT);
 
             $sql->execute();
@@ -105,5 +109,25 @@ class Proveedor
         }
     }//-- Fin funcion modificar proveedor
 
+    // Funcion para desactivar proveedor (soft-delete)
+    public static function desactivarProveedor($ID_Proveedor)
+    {
+        try {
+            $connection = new Conexion();
+
+            $sql = $connection->prepare('UPDATE ' . self::TABLE . ' SET Estado = :Estado
+            WHERE ID_Proveedor = :ID_Proveedor');
+            $sql->bindValue(':Estado', 'inactivo');
+            $sql->bindValue(':ID_Proveedor', $ID_Proveedor, PDO::PARAM_INT);
+            $sql->execute();
+            $row = $sql->rowCount();
+            $connection = NULL;
+
+            return $row > 0 ? 1 : 0;
+
+        } catch (PDOException $e) {
+            throw new Exception("Hubo un error: " . $e->getMessage());
+        }
+    }//-- Fin funcion desactivar proveedor
 
 }

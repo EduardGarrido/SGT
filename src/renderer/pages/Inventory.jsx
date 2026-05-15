@@ -96,6 +96,12 @@ function productToForm(p) {
   }
 }
 
+function visibleOptions(items, idField, currentValue) {
+  return items.filter(
+    (it) => it.Estado !== 'inactivo' || String(it[idField]) === String(currentValue)
+  )
+}
+
 function ProductForm({ data, setData, response, setResponse, categorias, proveedores }) {
   function onChange(field) {
     return (e) => {
@@ -105,6 +111,9 @@ function ProductForm({ data, setData, response, setResponse, categorias, proveed
   }
 
   const cls = (field) => fieldInputClass(response, field)
+
+  const visibleCategorias = visibleOptions(categorias, 'ID_Categoria', data.id_categoria)
+  const visibleProveedores = visibleOptions(proveedores, 'ID_Proveedor', data.id_proveedor)
 
   return (
     <>
@@ -186,9 +195,10 @@ function ProductForm({ data, setData, response, setResponse, categorias, proveed
             onChange={onChange('id_categoria')}
           >
             <option value="">Seleccionar...</option>
-            {categorias.map((c) => (
+            {visibleCategorias.map((c) => (
               <option key={c.ID_Categoria} value={c.ID_Categoria}>
                 {c.Nombre_Categoria}
+                {c.Estado === 'inactivo' ? ' (inactiva)' : ''}
               </option>
             ))}
           </select>
@@ -202,9 +212,10 @@ function ProductForm({ data, setData, response, setResponse, categorias, proveed
             onChange={onChange('id_proveedor')}
           >
             <option value="">Seleccionar...</option>
-            {proveedores.map((p) => (
+            {visibleProveedores.map((p) => (
               <option key={p.ID_Proveedor} value={p.ID_Proveedor}>
                 {p.Nombre_Proveedor}
+                {p.Estado === 'inactivo' ? ' (inactivo)' : ''}
               </option>
             ))}
           </select>

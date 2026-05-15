@@ -160,6 +160,11 @@ switch (true) {
         require_once __DIR__ . '/routes/categoryRoute.php';
         break;
 
+    case $path === '/api/deleteCategory':
+        requerirAdmin();
+        require_once __DIR__ . '/routes/categoryRoute.php';
+        break;
+
     case $path === '/api/createSupplier':
         requerirAdmin();
         require_once __DIR__ . '/routes/supplierRoute.php';
@@ -174,6 +179,11 @@ switch (true) {
         break;
 
     case $path === '/api/modifySupplier':
+        requerirAdmin();
+        require_once __DIR__ . '/routes/supplierRoute.php';
+        break;
+
+    case $path === '/api/deleteSupplier':
         requerirAdmin();
         require_once __DIR__ . '/routes/supplierRoute.php';
         break;

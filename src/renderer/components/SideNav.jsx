@@ -12,8 +12,8 @@ const PRINCIPAL = [
 ]
 
 const CATALOGO = [
-  { label: 'Categorías', to: '/categorias' },
-  { label: 'Proveedores', to: '/proveedores' },
+  { label: 'Categorías', to: '/categorias', adminOnly: true },
+  { label: 'Proveedores', to: '/proveedores', adminOnly: true },
   { label: 'Usuarios', to: '/users', adminOnly: true },
 ]
 
