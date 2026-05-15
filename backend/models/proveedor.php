@@ -7,6 +7,7 @@ require_once __DIR__ . '/../config/database.php';
 class Proveedor
 {
     const TABLE = "Proveedor";
+    // ID_Proveedor, Nombre_Proveedor, Telefono
 
     // Funcion para crear un nuevo proveedor
     public static function createProveedor($Nombre_Proveedor, $Telefono)

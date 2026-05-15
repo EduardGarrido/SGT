@@ -7,6 +7,8 @@ require_once __DIR__ . '/../config/database.php';
 class Categoria
 {
     const TABLE = "Categoria";
+    // ID_Categoria, Nombre_Categoria
+
 
     // Funcion para crear una nueva categoria
     public static function createCategoria($Nombre_Categoria)
