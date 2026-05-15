@@ -14,7 +14,7 @@ class Usuario
 
 
     //Funcion para crear un usuario
-    public static function crearUsuario($connection, $Password, $Estado)
+    public static function createUsuario($connection, $Password, $Estado)
     {
 
         try {
