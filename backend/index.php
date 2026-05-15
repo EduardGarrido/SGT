@@ -142,8 +142,27 @@ switch (true) {
         require_once __DIR__ . '/routes/productRoute.php';
         break;
 
+    case $path === '/api/createCategory':
+        requerirAdmin();
+        require_once __DIR__ . '/routes/categoryRoute.php';
+        break;
+
+    case $path === '/api/getCategory':
+        require_once __DIR__ . '/routes/categoryRoute.php';
+        break;
+
+    case $path === '/api/getAllCategories':
+        require_once __DIR__ . '/routes/categoryRoute.php';
+        break;
+
+    case $path === '/api/modifyCategory':
+        requerirAdmin();
+        require_once __DIR__ . '/routes/categoryRoute.php';
+        break;
+
     default:
         http_response_code(404);
         echo json_encode(['ok' => false, 'error' => 'Ruta no encontrada']);
         break;
+
 }// --Fin switch principal
