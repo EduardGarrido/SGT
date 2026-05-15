@@ -210,7 +210,7 @@ async function waitPHP(tries = 10) {
 function runSeeders() {
   const phpBin = getPhpBinary()
   const configDir = path.join(getBackendPath(), 'config')
-  for (const file of ['seeder.php', 'seederuser.php']) {
+  for (const file of ['migrations.php', 'seeder.php', 'seederuser.php']) {
     try {
       execFileSync(phpBin, [path.join(configDir, file)], { stdio: 'inherit' })
     } catch (e) {
