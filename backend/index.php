@@ -160,6 +160,24 @@ switch (true) {
         require_once __DIR__ . '/routes/categoryRoute.php';
         break;
 
+    case $path === '/api/createSupplier':
+        requerirAdmin();
+        require_once __DIR__ . '/routes/supplierRoute.php';
+        break;
+
+    case $path === '/api/getSupplier':
+        require_once __DIR__ . '/routes/supplierRoute.php';
+        break;
+
+    case $path === '/api/getAllSuppliers':
+        require_once __DIR__ . '/routes/supplierRoute.php';
+        break;
+
+    case $path === '/api/modifySupplier':
+        requerirAdmin();
+        require_once __DIR__ . '/routes/supplierRoute.php';
+        break;
+
     default:
         http_response_code(404);
         echo json_encode(['ok' => false, 'error' => 'Ruta no encontrada']);
