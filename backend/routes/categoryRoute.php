@@ -98,9 +98,8 @@ if ($path === '/api/createCategory') { // Ruta para crear categoria
 
 
     $data = json_decode(file_get_contents('php://input'), true);
-    $ID_Categoria = (int) ($data['ID_Categoria'] ?? 0);
+    $ID_Categoria = (int) htmlspecialchars($data['ID_Categoria']);
     $Nombre_Categoria = isset($data['Nombre_Categoria']) ? htmlspecialchars($data['Nombre_Categoria']) : null;
-    $Estado = isset($data['Estado']) ? htmlspecialchars($data['Estado']) : null;
 
 
     if (!$ID_Categoria) {
@@ -120,9 +119,8 @@ if ($path === '/api/createCategory') { // Ruta para crear categoria
     }
 
     $Nombre_Categoria = $Nombre_Categoria ?? $infoActual['Nombre_Categoria'];
-    $Estado = $Estado ?? $infoActual['Estado'];
 
-    $res = Categoria::updateCategoria($ID_Categoria, $Nombre_Categoria, $Estado);
+    $res = Categoria::updateCategoria($ID_Categoria, $Nombre_Categoria);
 
     if ($res !== 1) {
         http_response_code(404);
@@ -145,7 +143,7 @@ if ($path === '/api/createCategory') { // Ruta para crear categoria
 
 
     $data = json_decode(file_get_contents('php://input'), true);
-    $ID_Categoria = (int) $data['ID_Categoria'];
+    $ID_Categoria = (int) htmlspecialchars($data['ID_Categoria']);
 
 
 
@@ -157,7 +155,7 @@ if ($path === '/api/createCategory') { // Ruta para crear categoria
 
     require_once __DIR__ . '/../models/categoria.php';
 
-    $res = Categoria::desactivarCategoria($ID_Categoria, 'noactivo');
+    $res = Categoria::desactivarCategoria($ID_Categoria, 'inactivo');
 
     if ($res !== 1) {
         http_response_code(404);

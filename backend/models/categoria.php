@@ -87,16 +87,14 @@ class Categoria
 
 
     // Funcion para modificar una categoria
-    public static function updateCategoria($ID_Categoria, $Nombre_Categoria, $Estado)
+    public static function updateCategoria($ID_Categoria, $Nombre_Categoria)
     {
         try {
 
             $connection = new Conexion();
-            $sql = $connection->prepare('UPDATE ' . self::TABLE . ' SET Nombre_Categoria = :Nombre_Categoria,
-            Estado = :Estado
+            $sql = $connection->prepare('UPDATE ' . self::TABLE . ' SET Nombre_Categoria = :Nombre_Categoria
             WHERE ID_Categoria = :ID_Categoria');
             $sql->bindValue(':Nombre_Categoria', $Nombre_Categoria);
-            $sql->bindValue(':Estado', $Estado);
             $sql->bindValue(':ID_Categoria', $ID_Categoria, PDO::PARAM_INT);
 
             $sql->execute();

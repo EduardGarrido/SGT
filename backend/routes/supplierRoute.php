@@ -99,10 +99,9 @@ if ($path === '/api/createSupplier') { // Ruta para crear proveedor
 
 
     $data = json_decode(file_get_contents('php://input'), true);
-    $ID_Proveedor = (int) ($data['ID_Proveedor'] ?? 0);
+    $ID_Proveedor = (int) htmlspecialchars($data['ID_Proveedor']);
     $Nombre_Proveedor = isset($data['Nombre_Proveedor']) ? htmlspecialchars($data['Nombre_Proveedor']) : null;
     $Telefono = isset($data['Telefono']) ? htmlspecialchars($data['Telefono']) : null;
-    $Estado = isset($data['Estado']) ? htmlspecialchars($data['Estado']) : null;
 
 
     if (!$ID_Proveedor) {
@@ -123,9 +122,8 @@ if ($path === '/api/createSupplier') { // Ruta para crear proveedor
 
     $Nombre_Proveedor = $Nombre_Proveedor ?? $infoActual['Nombre_Proveedor'];
     $Telefono = $Telefono ?? $infoActual['Telefono'];
-    $Estado = $Estado ?? $infoActual['Estado'];
 
-    $res = Proveedor::updateProveedor($ID_Proveedor, $Nombre_Proveedor, $Telefono, $Estado);
+    $res = Proveedor::updateProveedor($ID_Proveedor, $Nombre_Proveedor, $Telefono);
 
     if ($res !== 1) {
         http_response_code(404);
@@ -148,7 +146,7 @@ if ($path === '/api/createSupplier') { // Ruta para crear proveedor
 
 
     $data = json_decode(file_get_contents('php://input'), true);
-    $ID_Proveedor = (int) $data['ID_Proveedor'];
+    $ID_Proveedor = (int) htmlspecialchars($data['ID_Proveedor']);
 
 
 
@@ -160,7 +158,7 @@ if ($path === '/api/createSupplier') { // Ruta para crear proveedor
 
     require_once __DIR__ . '/../models/proveedor.php';
 
-    $res = Proveedor::desactivarProveedor($ID_Proveedor, 'noactivo');
+    $res = Proveedor::desactivarProveedor($ID_Proveedor, 'inactivo');
 
     if ($res !== 1) {
         http_response_code(404);
