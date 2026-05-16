@@ -135,16 +135,19 @@ if ($path === '/api/createCategory') { // Ruta para crear categoria
 
     //-- Termina ruta modifyCategoria
 
-} else if ($path === '/api/deleteCategory') { // Soft-delete de categoria (PATCH: actualiza Estado)
+} else if ($path === '/api/deleteCategory') { // Ruta delete (cambiar estado) a categoria
 
     if ($_SERVER['REQUEST_METHOD'] !== 'PATCH') {
         http_response_code(405);
-        echo json_encode(['ok' => false, 'mensaje' => 'Método no permitido']);
+        echo json_encode(['ok' => false, 'error' => 'Método no permitido']);
         return;
     }
 
+
     $data = json_decode(file_get_contents('php://input'), true);
-    $ID_Categoria = (int) ($data['ID_Categoria'] ?? 0);
+    $ID_Categoria = (int) $data['ID_Categoria'];
+
+
 
     if (!$ID_Categoria) {
         http_response_code(400);
@@ -154,15 +157,16 @@ if ($path === '/api/createCategory') { // Ruta para crear categoria
 
     require_once __DIR__ . '/../models/categoria.php';
 
-    $res = Categoria::desactivarCategoria($ID_Categoria);
+    $res = Categoria::desactivarCategoria($ID_Categoria, 'noactivo');
 
     if ($res !== 1) {
         http_response_code(404);
         echo json_encode(['ok' => false, 'mensaje' => 'No se encontró la categoria']);
         return;
+    } else {
+        http_response_code(200);
+        echo json_encode(['ok' => true, 'mensaje' => 'Categoria eliminada correctamente']);
     }
 
-    http_response_code(200);
-    echo json_encode(['ok' => true, 'mensaje' => 'Categoría desactivada correctamente']);
-
-}//-- Termina ruta deleteCategory
+    //-- Termina ruta deleteCategory
+}

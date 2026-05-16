@@ -84,7 +84,7 @@ if ($path === '/api/getUsers') {//Ruta que obtiene la información de todos los 
     try {
         $connection->beginTransaction();
 
-        $resUsuario = Usuario::crearUsuario($connection, $Password, 'autorizado');
+        $resUsuario = Usuario::createUsuario($connection, $Password, 'autorizado');
         $resContacto = Contacto_Empleado::crearContacto(
             $connection,
             $Telefono,

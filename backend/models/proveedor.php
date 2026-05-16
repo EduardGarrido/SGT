@@ -7,6 +7,7 @@ require_once __DIR__ . '/../config/database.php';
 class Proveedor
 {
     const TABLE = "Proveedor";
+    // ID_Proveedor, Nombre_Proveedor, Telefono
 
     // Funcion para crear un nuevo proveedor
     public static function createProveedor($Nombre_Proveedor, $Telefono)
@@ -35,9 +36,12 @@ class Proveedor
     public static function readAllProveedores()
     {
         try {
+            $Estado = 'activo';
             $connection = new Conexion();
 
-            $sql = $connection->prepare('SELECT ID_Proveedor, Nombre_Proveedor, Telefono, Estado FROM ' . self::TABLE);
+            $sql = $connection->prepare('SELECT ID_Proveedor, Nombre_Proveedor, Telefono FROM ' . self::TABLE .
+                ' WHERE Estado = :Estado');
+            $sql->bindValue(':Estado', $Estado);
             $sql->execute();
             $proveedores = $sql->fetchAll();
 
@@ -109,15 +113,15 @@ class Proveedor
         }
     }//-- Fin funcion modificar proveedor
 
-    // Funcion para desactivar proveedor (soft-delete)
-    public static function desactivarProveedor($ID_Proveedor)
+    // Funcion para modificar el estado de un proveedor 
+    public static function desactivarProveedor($ID_Proveedor, $Estado)
     {
         try {
-            $connection = new Conexion();
 
+            $connection = new Conexion();
             $sql = $connection->prepare('UPDATE ' . self::TABLE . ' SET Estado = :Estado
             WHERE ID_Proveedor = :ID_Proveedor');
-            $sql->bindValue(':Estado', 'inactivo');
+            $sql->bindValue(':Estado', $Estado);
             $sql->bindValue(':ID_Proveedor', $ID_Proveedor, PDO::PARAM_INT);
             $sql->execute();
             $row = $sql->rowCount();
@@ -128,6 +132,5 @@ class Proveedor
         } catch (PDOException $e) {
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
-    }//-- Fin funcion desactivar proveedor
-
+    }//-- Fin funcion modificar estado
 }

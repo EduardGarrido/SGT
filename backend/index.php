@@ -188,6 +188,17 @@ switch (true) {
         require_once __DIR__ . '/routes/supplierRoute.php';
         break;
 
+    case $path === '/api/openCashRegister':
+        requerirAutorizacion();
+        require_once __DIR__ . '/routes/cashRegisterRoute.php';
+        break;
+
+    case $path === '/api/closeCashRegister':
+        requerirAutorizacion();
+        require_once __DIR__ . '/routes/cashRegisterRoute.php';
+        break;
+
+
     default:
         http_response_code(404);
         echo json_encode(['ok' => false, 'error' => 'Ruta no encontrada']);

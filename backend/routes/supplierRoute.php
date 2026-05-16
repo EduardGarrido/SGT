@@ -138,16 +138,19 @@ if ($path === '/api/createSupplier') { // Ruta para crear proveedor
 
     //-- Termina ruta modifySupplier
 
-} else if ($path === '/api/deleteSupplier') { // Soft-delete de proveedor (PATCH: actualiza Estado)
+} else if ($path === '/api/deleteSupplier') { // Ruta delete (cambiar estado) a proveedor
 
     if ($_SERVER['REQUEST_METHOD'] !== 'PATCH') {
         http_response_code(405);
-        echo json_encode(['ok' => false, 'mensaje' => 'Método no permitido']);
+        echo json_encode(['ok' => false, 'error' => 'Método no permitido']);
         return;
     }
 
+
     $data = json_decode(file_get_contents('php://input'), true);
-    $ID_Proveedor = (int) ($data['ID_Proveedor'] ?? 0);
+    $ID_Proveedor = (int) $data['ID_Proveedor'];
+
+
 
     if (!$ID_Proveedor) {
         http_response_code(400);
@@ -157,15 +160,16 @@ if ($path === '/api/createSupplier') { // Ruta para crear proveedor
 
     require_once __DIR__ . '/../models/proveedor.php';
 
-    $res = Proveedor::desactivarProveedor($ID_Proveedor);
+    $res = Proveedor::desactivarProveedor($ID_Proveedor, 'noactivo');
 
     if ($res !== 1) {
         http_response_code(404);
         echo json_encode(['ok' => false, 'mensaje' => 'No se encontró el proveedor']);
         return;
+    } else {
+        http_response_code(200);
+        echo json_encode(['ok' => true, 'mensaje' => 'Proveedor eliminado correctamente']);
     }
 
-    http_response_code(200);
-    echo json_encode(['ok' => true, 'mensaje' => 'Proveedor desactivado correctamente']);
-
-}//-- Termina ruta deleteSupplier
+    //-- Termina ruta deleteSupplier
+}
