@@ -34,9 +34,12 @@ class Categoria
     public static function readAllCategoria()
     {
         try {
+            $Estado = 'activo';
             $connection = new Conexion();
 
-            $sql = $connection->prepare('SELECT ID_Categoria, Nombre_Categoria FROM ' . self::TABLE);
+            $sql = $connection->prepare('SELECT ID_Categoria, Nombre_Categoria FROM ' . self::TABLE .
+                ' WHERE Estado = :Estado');
+            $sql->bindValue(':Estado', $Estado);
             $sql->execute();
             $categorias = $sql->fetchAll();
 
@@ -104,20 +107,20 @@ class Categoria
         }
     }//-- Fin funcion modificar categoria
 
-    /*
+
     // Funcion para eliminar categoria
-    public static function deleteCategoria($ID_Categoria)
+    public static function desactivarCategoria($ID_Categoria, $Estado)
     {
         try {
-
             $connection = new Conexion();
-
-            $sql = $connection->prepare('DELETE FROM ' . self::TABLE . ' WHERE ID_Categoria = :ID_Categoria');
+            $sql = $connection->prepare('UPDATE ' . self::TABLE . ' SET Estado = :Estado 
+            WHERE ID_Categoria = :ID_Categoria');
+            $sql->bindValue(':Estado', $Estado);
             $sql->bindValue(':ID_Categoria', $ID_Categoria, PDO::PARAM_INT);
             $sql->execute();
-
             $row = $sql->rowCount();
             $connection = NULL;
+
 
             return $row > 0 ? 1 : 0;
 
@@ -125,5 +128,5 @@ class Categoria
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
     }//-- Fin funcion eliminar categoria 
-    */
+
 }
