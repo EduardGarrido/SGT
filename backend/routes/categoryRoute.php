@@ -125,5 +125,41 @@ if ($path === '/api/createCategory') { // Ruta para crear categoria
         echo json_encode(['ok' => true, 'mensaje' => 'Categoria actualizado correctamente']);
     }
 
-}//-- Termina ruta modifyCategoria
+    //-- Termina ruta modifyCategoria
+
+} else if ($path === '/api/deleteCategory') { // Ruta delete (cambiar estado) a categoria
+
+    if ($_SERVER['REQUEST_METHOD'] !== 'PATCH') {
+        http_response_code(405);
+        echo json_encode(['ok' => false, 'error' => 'Método no permitido']);
+        return;
+    }
+
+
+    $data = json_decode(file_get_contents('php://input'), true);
+    $ID_Categoria = (int) $data['ID_Categoria'];
+
+
+
+    if (!$ID_Categoria) {
+        http_response_code(400);
+        echo json_encode(['ok' => false, 'mensaje' => 'Faltan campos obligatorios']);
+        return;
+    }
+
+    require_once __DIR__ . '/../models/categoria.php';
+
+    $res = Categoria::desactivarCategoria($ID_Categoria, 'noactivo');
+
+    if ($res !== 1) {
+        http_response_code(404);
+        echo json_encode(['ok' => false, 'mensaje' => 'No se encontró la categoria']);
+        return;
+    } else {
+        http_response_code(200);
+        echo json_encode(['ok' => true, 'mensaje' => 'Categoria eliminada correctamente']);
+    }
+
+    //-- Termina ruta deleteCategory
+}
 
