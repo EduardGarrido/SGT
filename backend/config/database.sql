@@ -48,6 +48,7 @@ DROP TABLE IF EXISTS `Categoria`;
 CREATE TABLE `Categoria` (
   `ID_Categoria` int(11) NOT NULL AUTO_INCREMENT,
   `Nombre_Categoria` varchar(50) NOT NULL,
+  `Estado` varchar(20) NOT NULL DEFAULT 'activo',
   PRIMARY KEY (`ID_Categoria`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -170,6 +171,7 @@ CREATE TABLE `Proveedor` (
   `ID_Proveedor` int(11) NOT NULL AUTO_INCREMENT,
   `Nombre_Proveedor` varchar(255) NOT NULL,
   `Telefono` varchar(20) DEFAULT NULL,
+  `Estado` varchar(20) NOT NULL DEFAULT 'activo',
   PRIMARY KEY (`ID_Proveedor`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;

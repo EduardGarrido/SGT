@@ -25,42 +25,42 @@ async function request(path, options = {}) {
   }
 }
 
-export async function login(id, pw) {
-  return request('login', {
-    method: 'POST',
-    body: JSON.stringify({ ID_Usuario: id, Password: pw }),
-  })
-}
+const get  = (path)        => request(path)
+const post = (path, data)  => request(path, { method: 'POST',   body: JSON.stringify(data) })
+const patch = (path, data) => request(path, { method: 'PATCH',  body: JSON.stringify(data) })
+const del  = (path, data)  => request(path, { method: 'DELETE', body: JSON.stringify(data) })
 
-export async function logout() {
-  return request('logout', {
-    method: 'POST',
-  })
-}
+// Auth
+export const login  = (id, pw) => post('login', { ID_Usuario: id, Password: pw })
+export const logout = ()       => post('logout')
 
-export async function getUsers() {
-  return request('getUsers')
-}
+// Usuarios
+export const getUsers            = ()           => get('getUsers')
+export const getUserInfo         = (id)         => get(id ? `getUserInfo?id=${id}` : 'getUserInfo')
+export const checkEmail          = (correo)     => get(`checkEmail?correo=${encodeURIComponent(correo)}`)
+export const createUser          = (data)       => post('createUser', data)
+export const modifyInfoUser      = (id, data)   => patch('modifyInfoUser',   { ID_Usuario: id, ...data })
+export const modifyPasswordUser  = (id, pw)     => post('modifyPasswordUser', { ID_Usuario: id, Password: pw })
+export const modifyEstadoUser    = (id, estado) => patch('modifyEstadoUser',  { ID_Usuario: id, Estado: estado })
+export const deleteUser          = (id)         => patch('deleteUser',         { ID_Usuario: id })
 
-export async function getUserInfo(id) {
-  const path = id ? `getUserInfo?id=${id}` : 'getUserInfo'
-  return request(path)
-}
+// Productos
+export const getProducts   = ()       => get('getAllProducts')
+export const getProduct    = (id)     => get(`getProduct?id=${id}`)
+export const createProduct = (data)   => post('createProduct', data)
+export const modifyProduct = (id, data) => patch('modifyProduct', { ID_Producto: id, ...data })
+export const deleteProduct = (id)     => del('deleteProduct', { ID_Producto: id })
 
-export async function checkEmail(correo) {
-  return request(`checkEmail?correo=${encodeURIComponent(correo)}`)
-}
+// Catálogos — Categorías
+export const getCategorias    = ()       => get('getAllCategories')
+export const getCategoria     = (id)     => get(`getCategory?id=${id}`)
+export const createCategoria  = (data)   => post('createCategory', data)
+export const modifyCategoria  = (id, data) => patch('modifyCategory', { ID_Categoria: id, ...data })
+export const deleteCategoria  = (id)     => patch('deleteCategory', { ID_Categoria: id })
 
-export async function createUser(data) {
-  return request('createUser', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  })
-}
-
-export async function updateUser(id, data) {
-  return request('updateUser', {
-    method: 'PATCH',
-    body: JSON.stringify({ id, ...data }),
-  })
-}
+// Catálogos — Proveedores
+export const getProveedores   = ()       => get('getAllSuppliers')
+export const getProveedor     = (id)     => get(`getSupplier?id=${id}`)
+export const createProveedor  = (data)   => post('createSupplier', data)
+export const modifyProveedor  = (id, data) => patch('modifySupplier', { ID_Proveedor: id, ...data })
+export const deleteProveedor  = (id)     => patch('deleteSupplier', { ID_Proveedor: id })

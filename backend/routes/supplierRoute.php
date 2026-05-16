@@ -1,5 +1,5 @@
 <?php
-// Rutas para proveedor 
+// Rutas para proveedor
 
 if ($path === '/api/createSupplier') { // Ruta para crear proveedor
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -99,9 +99,10 @@ if ($path === '/api/createSupplier') { // Ruta para crear proveedor
 
 
     $data = json_decode(file_get_contents('php://input'), true);
-    $ID_Proveedor = (int) $data['ID_Proveedor'];
+    $ID_Proveedor = (int) ($data['ID_Proveedor'] ?? 0);
     $Nombre_Proveedor = isset($data['Nombre_Proveedor']) ? htmlspecialchars($data['Nombre_Proveedor']) : null;
     $Telefono = isset($data['Telefono']) ? htmlspecialchars($data['Telefono']) : null;
+    $Estado = isset($data['Estado']) ? htmlspecialchars($data['Estado']) : null;
 
 
     if (!$ID_Proveedor) {
@@ -114,10 +115,17 @@ if ($path === '/api/createSupplier') { // Ruta para crear proveedor
 
     $infoActual = Proveedor::readProveedor($ID_Proveedor);
 
+    if (!$infoActual) {
+        http_response_code(404);
+        echo json_encode(['ok' => false, 'mensaje' => 'No se encontró el proveedor']);
+        return;
+    }
+
     $Nombre_Proveedor = $Nombre_Proveedor ?? $infoActual['Nombre_Proveedor'];
     $Telefono = $Telefono ?? $infoActual['Telefono'];
+    $Estado = $Estado ?? $infoActual['Estado'];
 
-    $res = Proveedor::updateProveedor($ID_Proveedor, $Nombre_Proveedor, $Telefono);
+    $res = Proveedor::updateProveedor($ID_Proveedor, $Nombre_Proveedor, $Telefono, $Estado);
 
     if ($res !== 1) {
         http_response_code(404);
@@ -165,4 +173,3 @@ if ($path === '/api/createSupplier') { // Ruta para crear proveedor
 
     //-- Termina ruta deleteSupplier
 }
-

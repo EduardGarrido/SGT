@@ -210,12 +210,10 @@ async function waitPHP(tries = 10) {
 function runSeeders() {
   const phpBin = getPhpBinary()
   const configDir = path.join(getBackendPath(), 'config')
-  for (const file of ['seeder.php', 'seederuser.php']) {
-    try {
-      execFileSync(phpBin, [path.join(configDir, file)], { stdio: 'inherit' })
-    } catch (e) {
-      console.error(`[Seeder] Error en ${file}:`, e.message)
-    }
+  try {
+    execFileSync(phpBin, [path.join(configDir, 'seeder.php')], { stdio: 'inherit' })
+  } catch (e) {
+    console.error('[Seeder] Error:', e.message)
   }
 }
 

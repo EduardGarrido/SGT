@@ -1,43 +1,19 @@
 import { useState } from 'react'
-import DOMPurify from 'dompurify'
 import { useAuth } from '../context/AuthContext'
 import { login } from '../api/api'
-import { TopBar, ActionButton } from '../components'
-
-//Icons
-import { ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/react/20/solid'
-
-// Styles
-const RESPONSE_STYLE = {
-  error: {
-    bg: 'bg-red-50',
-    border: 'border-red-300',
-    text: 'text-red-700',
-    input: 'border-red-400',
-    Icon: ExclamationCircleIcon,
-  },
-  success: {
-    bg: 'bg-green-50',
-    border: 'border-green-300',
-    text: 'text-green-700',
-    input: 'border-green-400',
-    Icon: CheckCircleIcon,
-  },
-}
+import { TopBar, ActionButton, FormAlert, fieldInputClass } from '../components'
+import { sanitize } from '../utils/sanitize'
 
 export default function Login() {
   const [id, setId] = useState('')
   const [password, setPassword] = useState('')
-  const [response, setResponse] = useState(null) // { type: 'error' | 'success', message: string }
+  const [response, setResponse] = useState(null)
   const [loading, setLoading] = useState(false)
   const { guardarSesion } = useAuth()
 
   async function handleLogin() {
-    const cleanId = DOMPurify.sanitize(id.trim(), { ALLOWED_TAGS: [], ALLOWED_ATTR: [] })
-    const cleanPassword = DOMPurify.sanitize(password.trim(), {
-      ALLOWED_TAGS: [],
-      ALLOWED_ATTR: [],
-    })
+    const cleanId = sanitize(id)
+    const cleanPassword = sanitize(password)
 
     if (!cleanId || !cleanPassword) {
       setResponse({ type: 'error', message: 'Completa ambos campos' })
@@ -49,7 +25,6 @@ export default function Login() {
 
     try {
       const data = await login(cleanId, cleanPassword)
-
       if (data.ok) {
         setResponse({ type: 'success', message: data.mensaje })
         setTimeout(() => guardarSesion(data), 200)
@@ -67,11 +42,14 @@ export default function Login() {
     if (e.key === 'Enter') handleLogin()
   }
 
-  const style = response ? RESPONSE_STYLE[response.type] : null
+  function handleChange(setter) {
+    return (e) => {
+      setResponse(null)
+      setter(e.target.value)
+    }
+  }
 
-  const inputClass = `rounded-lg w-full px-2 py-1 border-2 text-gray-700 bg-gray-100 shadow-sm sm:text-sm ${
-    style ? style.input : 'border-gray-400'
-  }`
+  const inputClass = fieldInputClass(response, 'any')
 
   return (
     <div className="flex flex-col w-screen h-screen font-sans bg-gray-200">
@@ -79,61 +57,54 @@ export default function Login() {
       <div className="h-dvh w-full flex flex-1 justify-center items-center">
         <div className="w-full max-w-xl">
           <div className="leading-loose">
-            <div className="w-full p-16 bg-gray-50 rounded-lg shadow-2xl">
-              <p className="py-1 text-gray-800 text-center text-2xl font-bold">Inicio de sesión</p>
+            <div className="w-full p-16 bg-gray-50 rounded-lg shadow-2xl flex flex-col gap-8 items-center justify-center">
+              <div className="w-full h-auto">
+                <p className="text-gray-800 text-center text-2xl font-bold w-inherit">
+                  Inicio de sesión
+                </p>
+              </div>
+              <div className="w-full">
+                <FormAlert response={response} />
 
-              {response && (
-                <div
-                  className={`flex items-center gap-2 mt-2 mb-1 px-3 py-2 rounded-lg border text-sm ${style.bg} ${style.border} ${style.text}`}
-                >
-                  <style.Icon className="w-5 shrink-0" />
-                  {response.message}
+                <div className="w-full justify-self-center-safe">
+                  <label
+                    className="block text-medium font-semibold text-gray-800"
+                    htmlFor="id-usuario"
+                  >
+                    ID del usuario
+                  </label>
+                  <input
+                    className={inputClass}
+                    id="id-usuario"
+                    type="text"
+                    value={id}
+                    onChange={handleChange(setId)}
+                    onKeyDown={handleEnter}
+                    placeholder="ID de usuario"
+                    autoComplete="on"
+                  />
                 </div>
-              )}
-
-              <div className="w-full justify-self-center-safe">
-                <label
-                  className="block text-medium font-semibold text-gray-800"
-                  htmlFor="id-usuario"
-                >
-                  ID del usuario
-                </label>
-                <input
-                  className={inputClass}
-                  id="id-usuario"
-                  type="text"
-                  value={id}
-                  onChange={(e) => {
-                    setResponse(null)
-                    setId(e.target.value)
-                  }}
-                  onKeyDown={handleEnter}
-                  placeholder="ID de usuario"
-                  autoComplete="on"
-                />
+                <div className="w-full justify-self-center-safe">
+                  <label
+                    className="block text-medium font-semibold text-gray-800"
+                    htmlFor="password"
+                  >
+                    Contraseña
+                  </label>
+                  <input
+                    className={inputClass}
+                    type="password"
+                    value={password}
+                    onChange={handleChange(setPassword)}
+                    onKeyDown={handleEnter}
+                    placeholder="Contraseña"
+                    autoComplete="off"
+                  />
+                </div>
               </div>
-              <div className="w-full justify-self-center-safe">
-                <label className="block text-medium font-semibold text-gray-800" htmlFor="password">
-                  Contraseña
-                </label>
-                <input
-                  className={inputClass}
-                  type="password"
-                  value={password}
-                  onChange={(e) => {
-                    setResponse(null)
-                    setPassword(e.target.value)
-                  }}
-                  onKeyDown={handleEnter}
-                  placeholder="Contraseña"
-                  autoComplete="off"
-                />
-              </div>
-              <div className="mt-6 w-full place-self-center tracking-wider bg-gray-800 hover:bg-gray-900 rounded-lg text-center">
-                <ActionButton className="font-normal" onClick={handleLogin} disabled={loading}>
-                  Iniciar Sesión
-                </ActionButton>
-              </div>
+              <ActionButton className="font-normal" onClick={handleLogin} disabled={loading}>
+                Iniciar Sesión
+              </ActionButton>
             </div>
           </div>
         </div>
