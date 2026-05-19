@@ -97,7 +97,7 @@ class Caja
     {
         try {
             $connection = new Conexion();
-            $sql = $connection->prepare('SELECT ID_Caja FROM ' . self::TABLE . ' WHERE Estado = :Estado');
+            $sql = $connection->prepare('SELECT ID_Caja, Monto_Inicial FROM ' . self::TABLE . ' WHERE Estado = :Estado');
             $sql->bindValue(':Estado', 'abierta');
             $sql->execute();
             $caja = $sql->fetch();

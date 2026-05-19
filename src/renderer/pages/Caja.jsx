@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react'
-import { ActionButton } from '../components'
+import { ActionButton, FormAlert } from '../components'
 import { useHeader } from '../context/HeaderContext.jsx'
+import { useAuth } from '../context/AuthContext'
+import { openCaja, closeCaja } from '../api/api'
 import {
   LockClosedIcon,
   LockOpenIcon,
@@ -27,14 +29,17 @@ function formatHora(d) {
 }
 
 export default function Caja() {
-  const [estado, setEstado] = useState('cerrada')
-  const [saldoInicial, setSaldoInicial] = useState(0)
+  const { usuario, caja, setCaja } = useAuth()
+  const [estado, setEstado] = useState(caja ? 'abierta' : 'cerrada')
+  const [saldoInicial, setSaldoInicial] = useState(caja ? Number(caja.Monto_Inicial) : 0)
   const [movimientos, setMovimientos] = useState([])
 
   const [montoApertura, setMontoApertura] = useState('')
   const [tipoMov, setTipoMov] = useState('ingreso')
   const [conceptoMov, setConceptoMov] = useState('')
   const [montoMov, setMontoMov] = useState('')
+
+  const [response, setResponse] = useState(null)
 
   const totalIngresos = useMemo(
     () => movimientos.filter((m) => m.tipo === 'ingreso').reduce((s, m) => s + m.monto, 0),
@@ -56,16 +61,30 @@ export default function Caja() {
     </span>
   )
 
-  function abrirCaja() {
+  async function abrirCaja() {
     const monto = parseFloat(montoApertura)
     if (!Number.isFinite(monto) || monto < 0) return
+    setResponse(null)
+    const res = await openCaja({ Monto_Inicial: monto, ID_Usuario: usuario.id })
+    if (!res.ok) {
+      setResponse({ type: 'error', message: res.mensaje ?? 'No se pudo abrir la caja' })
+      return
+    }
+    setCaja(res.caja ?? { Monto_Inicial: monto })
     setSaldoInicial(monto)
     setMovimientos([])
     setEstado('abierta')
     setMontoApertura('')
   }
 
-  function cerrarCaja() {
+  async function cerrarCaja() {
+    setResponse(null)
+    const res = await closeCaja({ Monto_Final: saldoActual })
+    if (!res.ok) {
+      setResponse({ type: 'error', message: res.mensaje ?? 'No se pudo cerrar la caja' })
+      return
+    }
+    setCaja(null)
     alert(
       `Resumen del corte\n\n` +
         `Saldo inicial: ${formatMoney(saldoInicial)}\n` +
@@ -107,6 +126,10 @@ export default function Caja() {
             Ingresa el saldo inicial para abrir la caja del turno.
           </p>
 
+          <div className="mb-3">
+            <FormAlert response={response} />
+          </div>
+
           <label className="block text-xs font-semibold text-gray-700 mb-1">Saldo inicial</label>
           <input
             type="text"
@@ -134,6 +157,8 @@ export default function Caja() {
 
   return (
     <div className="flex flex-col gap-4 w-full h-full">
+      {response && <FormAlert response={response} />}
+
       <div className="grid grid-cols-4 gap-4">
         <StatCard label="Saldo inicial" value={saldoInicial} />
         <StatCard label="Ingresos" value={totalIngresos} tone="emerald" />

@@ -38,12 +38,16 @@ if ($path === '/api/login') { //Ruta para inicio de sesion
         $_SESSION['ID_Usuario'] = $ID_Usuario;
         $_SESSION['Puesto'] = $res['Puesto'];
 
+        require_once __DIR__ . '/../models/caja.php';
+        $caja = Caja::cajaAbierta();
+
         http_response_code(200);
         echo json_encode([
             'ok' => true,
             'mensaje' => 'Login exitoso',
             'puesto' => $res['Puesto'],
             'id' => $ID_Usuario,
+            'caja' => $caja ?: null,
         ]);
     }// --Cierra if de respuesta   
 

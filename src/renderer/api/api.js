@@ -58,6 +58,10 @@ export const createCategoria  = (data)   => post('createCategory', data)
 export const modifyCategoria  = (id, data) => patch('modifyCategory', { ID_Categoria: id, ...data })
 export const deleteCategoria  = (id)     => patch('deleteCategory', { ID_Categoria: id })
 
+// Caja
+export const openCaja  = (data) => post('openCashRegister', data)
+export const closeCaja = (data) => patch('closeCashRegister', data)
+
 // Catálogos — Proveedores
 export const getProveedores   = ()       => get('getAllSuppliers')
 export const getProveedor     = (id)     => get(`getSupplier?id=${id}`)

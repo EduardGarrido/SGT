@@ -13,6 +13,9 @@ const CART_COLUMNS = [
   { label: 'IMPORTE' },
 ]
 
+// TODO agregar descontar inventario
+// Agregar producto a venta
+
 function formatMoney(n) {
   return `$${(Number.isFinite(n) ? n : 0).toFixed(2)}`
 }
