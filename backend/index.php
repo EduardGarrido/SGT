@@ -198,6 +198,10 @@ switch (true) {
         require_once __DIR__ . '/routes/cashRegisterRoute.php';
         break;
 
+    case $path === '/api/getCashRegister':
+        require_once __DIR__ . '/routes/cashRegisterRoute.php';
+        break;
+
     case $path === '/api/getMontoFinal':
         requerirAutorizacion();
         require_once __DIR__ . '/routes/cashRegisterRoute.php';

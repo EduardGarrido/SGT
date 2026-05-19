@@ -145,7 +145,7 @@ if ($path === '/api/openCashRegister') { // Ruta para abrir caja
 
     //-- Fin case getAllVentas
 
-} else if ($path === '/api/getMontoFinal') {
+} else if ($path === '/api/getMontoFinal') { // Ruta para obtener el que deberia ser el monto final digital
 
     if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
         http_response_code(405);
@@ -175,4 +175,27 @@ if ($path === '/api/openCashRegister') { // Ruta para abrir caja
     http_response_code(200);
     echo json_encode(['ok' => true, 'monto' => $res]);
 
-}
+
+    //-- Fin case getMontoFinal
+
+} else if ($path === '/api/getCashRegister') { // Ruta para obtener info de caja 
+
+    if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+        http_response_code(405);
+        echo json_encode(['ok' => false, 'mensaje' => 'Método no permitido']);
+        return;
+    }
+
+    require_once __DIR__ . '/../models/caja.php';
+
+    $res = Caja::readCaja();
+
+    if (!$res) {
+        http_response_code(404);
+        echo json_encode(['ok' => false, 'mensaje' => 'No hay caja pasada']);
+        return;
+    }
+
+    http_response_code(200);
+    echo json_encode(['ok' => true, 'monto' => $res]);
+}//-- Fin case getCashRegister
