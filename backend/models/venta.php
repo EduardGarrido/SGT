@@ -130,7 +130,7 @@ class Venta
         try {
             $Estado = 'finalizada';
             $connection = new Conexion();
-            $sql = $connection->prepare('SELECT Fecha, Hora, Monto FROM ' . self::TABLE . '
+            $sql = $connection->prepare('SELECT Fecha, Hora, Monto  FROM ' . self::TABLE . '
         WHERE ID_Caja = :ID_Caja AND Estado = :Estado');
             $sql->bindValue(':ID_Caja', $ID_Caja, PDO::PARAM_INT);
             $sql->bindValue(':Estado', $Estado, PDO::PARAM_STR);

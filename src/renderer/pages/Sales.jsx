@@ -4,6 +4,7 @@ import { useFetch } from '../hooks/useFetch'
 import { ActionButton } from '../components'
 import { useHeader } from '../context/HeaderContext.jsx'
 import { useAuth } from '../context/AuthContext'
+import { useNotify } from '../context/NotificationContext.jsx'
 import {
   TrashIcon,
   PlusIcon,
@@ -40,7 +41,8 @@ function formatMoney(n) {
 
 export default function Sales() {
   const { caja } = useAuth()
-  const { data: productsData, loading: loadingProducts } = useFetch(getProducts)
+  const notify = useNotify()
+  const { data: productsData, loading: loadingProducts, refetch: refetchProducts } = useFetch(getProducts)
 
   const persisted = readSalesState()
 
@@ -59,7 +61,7 @@ export default function Sales() {
       openSale().then((res) => {
         if (!res.ok) {
           ventaActivaRef.current = false
-          alert(res.mensaje ?? 'No se pudo iniciar la venta')
+          notify({ message: res.mensaje ?? 'No se pudo iniciar la venta', type: 'error' })
           sessionStorage.setItem(
             SALES_KEY,
             JSON.stringify({ cart, pago, formaPago, ventaActiva: false })
@@ -203,15 +205,22 @@ export default function Sales() {
     }
     const res = await completeSale(payload)
     if (!res.ok) {
-      alert(res.mensaje ?? 'No se pudo completar la venta')
+      notify({ message: res.mensaje ?? 'No se pudo completar la venta', type: 'error' })
       return
     }
-    alert(`Venta completada.\nTotal: ${formatMoney(total)}\nCambio: ${formatMoney(cambio)}`)
     ventaActivaRef.current = false
     setCart([])
     setSelectedItem(null)
     setPago('')
     setFormaPago('efectivo')
+    setSearchQuery('')
+    setShowResults(false)
+    refetchProducts()
+    notify({
+      title: 'Venta completada',
+      type: 'success',
+      message: `Total: ${formatMoney(total)}\nCambio: ${formatMoney(cambio)}`,
+    })
   }
 
   if (!caja) {
