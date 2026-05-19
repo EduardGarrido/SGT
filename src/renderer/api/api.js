@@ -59,13 +59,15 @@ export const modifyCategoria  = (id, data) => patch('modifyCategory', { ID_Categ
 export const deleteCategoria  = (id)     => patch('deleteCategory', { ID_Categoria: id })
 
 // Caja
-export const openCaja  = (data) => post('openCashRegister', data)
-export const closeCaja = (data) => patch('closeCashRegister', data)
+export const openCaja      = (data) => post('openCashRegister', data)
+export const closeCaja     = (data) => patch('closeCashRegister', data)
+export const getMontoFinal = ()     => get('getMontoFinal')
 
 // Ventas
 export const openSale     = ()     => post('openSale')
 export const cancelSale   = ()     => patch('cancelSale')
 export const completeSale = (data) => patch('completeSale', data)
+export const getAllVentas = ()     => get('getAllVentas')
 
 // Catálogos — Proveedores
 export const getProveedores   = ()       => get('getAllSuppliers')

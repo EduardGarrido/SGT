@@ -1,65 +1,55 @@
-import { useMemo, useState } from 'react'
-import { ActionButton, FormAlert } from '../components'
-import { useHeader } from '../context/HeaderContext.jsx'
+import { useEffect, useRef, useState } from 'react'
+import { ActionButton, FormAlert, FormModal } from '../components'
 import { useAuth } from '../context/AuthContext'
-import { openCaja, closeCaja } from '../api/api'
-import {
-  LockClosedIcon,
-  LockOpenIcon,
-  ArrowDownCircleIcon,
-  ArrowUpCircleIcon,
-  PlusIcon,
-} from '@heroicons/react/20/solid'
+import { useNotify } from '../context/NotificationContext.jsx'
+import { openCaja, closeCaja, getAllVentas, getMontoFinal } from '../api/api'
+import { LockClosedIcon, LockOpenIcon } from '@heroicons/react/20/solid'
 
-const MOV_COLUMNS = [
+const VENTA_COLUMNS = [
+  { label: 'FECHA' },
   { label: 'HORA' },
-  { label: 'CONCEPTO' },
-  { label: 'TIPO' },
   { label: 'MONTO' },
 ]
 
-const GRID_COLS = 'grid grid-cols-[1fr_3fr_1fr_1fr]'
+const GRID_COLS = 'grid grid-cols-[1fr_1fr_1fr]'
 
 function formatMoney(n) {
   return `$${(Number.isFinite(n) ? n : 0).toFixed(2)}`
 }
 
-function formatHora(d) {
-  return d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })
-}
-
 export default function Caja() {
   const { usuario, caja, setCaja } = useAuth()
+  const notify = useNotify()
   const [estado, setEstado] = useState(caja ? 'abierta' : 'cerrada')
   const [saldoInicial, setSaldoInicial] = useState(caja ? Number(caja.Monto_Inicial) : 0)
-  const [movimientos, setMovimientos] = useState([])
+
+  const [ventas, setVentas] = useState([])
+  const [totalVentas, setTotalVentas] = useState(0)
+  const [loadingVentas, setLoadingVentas] = useState(false)
 
   const [montoApertura, setMontoApertura] = useState('')
-  const [tipoMov, setTipoMov] = useState('ingreso')
-  const [conceptoMov, setConceptoMov] = useState('')
-  const [montoMov, setMontoMov] = useState('')
+
+  const [montoFinal, setMontoFinal] = useState('')
+  const [cerrando, setCerrando] = useState(false)
+  const [cierreError, setCierreError] = useState(null)
+  const cierreModalRef = useRef(null)
 
   const [response, setResponse] = useState(null)
 
-  const totalIngresos = useMemo(
-    () => movimientos.filter((m) => m.tipo === 'ingreso').reduce((s, m) => s + m.monto, 0),
-    [movimientos]
-  )
-  const totalEgresos = useMemo(
-    () => movimientos.filter((m) => m.tipo === 'egreso').reduce((s, m) => s + m.monto, 0),
-    [movimientos]
-  )
-  const saldoActual = saldoInicial + totalIngresos - totalEgresos
+  const saldoActual = saldoInicial + totalVentas
 
-  useHeader(
-    <span
-      className={`text-xs font-semibold px-3 py-1 rounded-full ${
-        estado === 'abierta' ? 'bg-emerald-500 text-white' : 'bg-gray-500 text-white'
-      }`}
-    >
-      Caja {estado === 'abierta' ? 'abierta' : 'cerrada'}
-    </span>
-  )
+  async function fetchVentas() {
+    setLoadingVentas(true)
+    const [ventasRes, montoRes] = await Promise.all([getAllVentas(), getMontoFinal()])
+    setLoadingVentas(false)
+    setVentas(ventasRes.ok ? (ventasRes.ventas ?? []) : [])
+    const monto = montoRes.ok ? Number(Object.values(montoRes.monto ?? {})[0] ?? 0) : 0
+    setTotalVentas(Number.isFinite(monto) ? monto : 0)
+  }
+
+  useEffect(() => {
+    if (estado === 'abierta') fetchVentas()
+  }, [estado])
 
   async function abrirCaja() {
     const monto = parseFloat(montoApertura)
@@ -72,46 +62,47 @@ export default function Caja() {
     }
     setCaja(res.caja ?? { Monto_Inicial: monto })
     setSaldoInicial(monto)
-    setMovimientos([])
     setEstado('abierta')
     setMontoApertura('')
   }
 
-  async function cerrarCaja() {
-    setResponse(null)
-    const res = await closeCaja({ Monto_Final: saldoActual })
-    if (!res.ok) {
-      setResponse({ type: 'error', message: res.mensaje ?? 'No se pudo cerrar la caja' })
-      return
-    }
-    setCaja(null)
-    alert(
-      `Resumen del corte\n\n` +
-        `Saldo inicial: ${formatMoney(saldoInicial)}\n` +
-        `Ingresos: ${formatMoney(totalIngresos)}\n` +
-        `Egresos: ${formatMoney(totalEgresos)}\n` +
-        `Saldo final: ${formatMoney(saldoActual)}`
-    )
-    setEstado('cerrada')
-    setSaldoInicial(0)
-    setMovimientos([])
+  function abrirModalCierre() {
+    setMontoFinal(saldoActual.toFixed(2))
+    setCierreError(null)
+    cierreModalRef.current?.showModal()
   }
 
-  function agregarMovimiento() {
-    const monto = parseFloat(montoMov)
-    if (!conceptoMov.trim() || !Number.isFinite(monto) || monto <= 0) return
-    setMovimientos((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        hora: new Date(),
-        concepto: conceptoMov.trim(),
-        tipo: tipoMov,
-        monto,
-      },
-    ])
-    setConceptoMov('')
-    setMontoMov('')
+  async function confirmarCierre() {
+    const monto = parseFloat(montoFinal)
+    if (!Number.isFinite(monto) || monto < 0) {
+      setCierreError('Ingresa un monto final válido')
+      return
+    }
+    setCerrando(true)
+    setCierreError(null)
+    const res = await closeCaja({ Monto_Final: monto })
+    setCerrando(false)
+    if (!res.ok) {
+      setCierreError(res.mensaje ?? 'No se pudo cerrar la caja')
+      return
+    }
+    cierreModalRef.current?.close()
+    setCaja(null)
+    notify({
+      title: 'Resumen del corte',
+      type: 'success',
+      message:
+        `Saldo inicial: ${formatMoney(saldoInicial)}\n` +
+        `Ventas: ${ventas.length} (${formatMoney(totalVentas)})\n` +
+        `Saldo esperado: ${formatMoney(saldoActual)}\n` +
+        `Monto final contado: ${formatMoney(monto)}\n` +
+        `Diferencia: ${formatMoney(monto - saldoActual)}`,
+    })
+    setEstado('cerrada')
+    setSaldoInicial(0)
+    setVentas([])
+    setTotalVentas(0)
+    setMontoFinal('')
   }
 
   if (estado === 'cerrada') {
@@ -161,76 +152,44 @@ export default function Caja() {
 
       <div className="grid grid-cols-4 gap-4">
         <StatCard label="Saldo inicial" value={saldoInicial} />
-        <StatCard label="Ingresos" value={totalIngresos} tone="emerald" />
-        <StatCard label="Egresos" value={totalEgresos} tone="red" />
-        <StatCard label="Saldo actual" value={saldoActual} bold />
+        <StatCard label="Total ventas" value={totalVentas} tone="emerald" />
+        <StatCard label="# de ventas" value={ventas.length} isMoney={false} />
+        <StatCard label="Saldo esperado" value={saldoActual} bold />
       </div>
 
-      <div className="bg-white border border-gray-300 shadow rounded-lg p-4 grid grid-cols-[1fr_2fr_1fr_auto] gap-3 items-end">
-        <div className="flex flex-col">
-          <label className="text-xs font-semibold text-gray-600 uppercase mb-1">Tipo</label>
-          <select
-            value={tipoMov}
-            onChange={(e) => setTipoMov(e.target.value)}
-            className="px-3 py-2 rounded-lg border border-gray-300 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-          >
-            <option value="ingreso">Ingreso</option>
-            <option value="egreso">Egreso</option>
-          </select>
-        </div>
-        <div className="flex flex-col">
-          <label className="text-xs font-semibold text-gray-600 uppercase mb-1">Concepto</label>
-          <input
-            type="text"
-            value={conceptoMov}
-            onChange={(e) => setConceptoMov(e.target.value)}
-            placeholder="Ej. Venta mostrador, retiro..."
-            className="px-3 py-2 rounded-lg border border-gray-300 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-          />
-        </div>
-        <div className="flex flex-col">
-          <label className="text-xs font-semibold text-gray-600 uppercase mb-1">Monto</label>
-          <input
-            type="text"
-            inputMode="decimal"
-            value={montoMov}
-            onChange={(e) => setMontoMov(e.target.value)}
-            placeholder="0.00"
-            className="px-3 py-2 rounded-lg border border-gray-300 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-          />
-        </div>
-        <ActionButton
-          onClick={agregarMovimiento}
-          disabled={!conceptoMov.trim() || !montoMov}
-          className="w-auto rounded-lg bg-gray-800 hover:bg-gray-900 disabled:bg-gray-300 disabled:cursor-not-allowed font-semibold"
+      <div className="flex justify-between items-center px-1">
+        <h3 className="text-sm font-semibold text-gray-700 uppercase">Ventas del turno</h3>
+        <button
+          onClick={fetchVentas}
+          disabled={loadingVentas}
+          className="text-xs text-gray-600 hover:text-gray-900 underline disabled:opacity-50"
         >
-          <span className="flex items-center gap-2 justify-center">
-            <PlusIcon className="w-4 h-4" />
-            Registrar
-          </span>
-        </ActionButton>
+          {loadingVentas ? 'Cargando...' : 'Refrescar'}
+        </button>
       </div>
 
       <div className="flex flex-col w-full flex-1 border border-gray-300 bg-white shadow rounded-lg overflow-hidden">
         <div className={`w-full bg-gray-800 ${GRID_COLS}`}>
-          {MOV_COLUMNS.map(({ label }, i) => (
+          {VENTA_COLUMNS.map(({ label }, i) => (
             <div
               key={label}
-              className={`py-2 text-xs text-center border-b-2 border-gray-300 text-white ${i === 0 ? 'pl-4' : ''} ${i === MOV_COLUMNS.length - 1 ? 'pr-4' : ''}`}
+              className={`py-2 text-xs text-center border-b-2 border-gray-300 text-white ${i === 0 ? 'pl-4' : ''} ${i === VENTA_COLUMNS.length - 1 ? 'pr-4' : ''}`}
             >
               {label}
             </div>
           ))}
         </div>
         <div className="flex flex-col w-full overflow-y-auto flex-1">
-          {movimientos.length === 0 ? (
+          {loadingVentas ? (
+            <p className="w-full text-center text-gray-500 py-6 text-sm">Cargando ventas...</p>
+          ) : ventas.length === 0 ? (
             <p className="w-full text-center text-gray-500 py-6 text-sm">
-              Aún no hay movimientos registrados
+              Aún no hay ventas registradas en este turno
             </p>
           ) : (
             <ul>
-              {movimientos.map((m) => (
-                <MovimientoRow key={m.id} mov={m} />
+              {ventas.map((v, i) => (
+                <VentaRow key={i} venta={v} />
               ))}
             </ul>
           )}
@@ -239,7 +198,7 @@ export default function Caja() {
 
       <div className="flex justify-end">
         <ActionButton
-          onClick={cerrarCaja}
+          onClick={abrirModalCierre}
           className="w-auto rounded-lg bg-red-600 hover:bg-red-700 font-semibold"
         >
           <span className="flex items-center gap-2 justify-center">
@@ -248,37 +207,88 @@ export default function Caja() {
           </span>
         </ActionButton>
       </div>
+
+      <FormModal
+        ref={cierreModalRef}
+        title="Cerrar caja"
+        busy={cerrando}
+        submitLabel="Confirmar cierre"
+        submitClass="bg-red-600 hover:bg-red-700"
+        onSubmit={confirmarCierre}
+        onClose={() => {
+          setCierreError(null)
+        }}
+      >
+        <div className="mb-3">
+          <FormAlert response={cierreError ? { type: 'error', message: cierreError } : null} />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 mb-4 text-sm">
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+            <span className="block text-xs font-semibold text-gray-600 uppercase">
+              Saldo esperado
+            </span>
+            <span className="text-lg font-bold text-gray-900">{formatMoney(saldoActual)}</span>
+          </div>
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+            <span className="block text-xs font-semibold text-gray-600 uppercase">Diferencia</span>
+            <span
+              className={`text-lg font-bold ${
+                parseFloat(montoFinal) - saldoActual === 0
+                  ? 'text-gray-900'
+                  : parseFloat(montoFinal) - saldoActual > 0
+                    ? 'text-emerald-600'
+                    : 'text-red-600'
+              }`}
+            >
+              {formatMoney((parseFloat(montoFinal) || 0) - saldoActual)}
+            </span>
+          </div>
+        </div>
+
+        <label className="block text-xs font-semibold text-gray-700 mb-1">
+          Monto final contado *
+        </label>
+        <input
+          type="text"
+          inputMode="decimal"
+          value={montoFinal}
+          onChange={(e) => {
+            setCierreError(null)
+            setMontoFinal(e.target.value)
+          }}
+          placeholder="0.00"
+          className="w-full px-3 py-2 rounded-lg border border-gray-300 text-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-red-500"
+        />
+      </FormModal>
     </div>
   )
 }
 
-function StatCard({ label, value, tone, bold }) {
+function StatCard({ label, value, tone, bold, isMoney = true }) {
   const toneCls =
     tone === 'emerald' ? 'text-emerald-600' : tone === 'red' ? 'text-red-600' : 'text-gray-900'
   return (
     <div className="bg-white border border-gray-300 shadow rounded-lg p-4">
       <span className="text-xs font-semibold text-gray-600 uppercase">{label}</span>
       <p className={`text-2xl ${bold ? 'font-bold' : 'font-semibold'} ${toneCls} mt-1`}>
-        {formatMoney(value)}
+        {isMoney ? formatMoney(value) : value}
       </p>
     </div>
   )
 }
 
-const rowCell = 'py-2 text-xs text-center text-gray-700 truncate px-2 flex items-center justify-center'
+const rowCell =
+  'py-2 text-xs text-center text-gray-700 truncate px-2 flex items-center justify-center'
 
-function MovimientoRow({ mov }) {
-  const Icon = mov.tipo === 'ingreso' ? ArrowDownCircleIcon : ArrowUpCircleIcon
-  const tipoCls = mov.tipo === 'ingreso' ? 'text-emerald-600' : 'text-red-600'
+function VentaRow({ venta }) {
   return (
     <li className={`${GRID_COLS} border-b border-gray-100 hover:bg-gray-50`}>
-      <span className={`${rowCell} pl-4`}>{formatHora(mov.hora)}</span>
-      <span className={`${rowCell} justify-start`}>{mov.concepto}</span>
-      <span className={`${rowCell} ${tipoCls} font-semibold gap-1`}>
-        <Icon className="w-4 h-4" />
-        {mov.tipo === 'ingreso' ? 'Ingreso' : 'Egreso'}
+      <span className={`${rowCell} pl-4`}>{venta.Fecha ?? '-'}</span>
+      <span className={rowCell}>{venta.Hora ?? '-'}</span>
+      <span className={`${rowCell} font-semibold text-emerald-600 pr-4`}>
+        {formatMoney(Number(venta.Monto))}
       </span>
-      <span className={`${rowCell} font-semibold ${tipoCls} pr-4`}>{formatMoney(mov.monto)}</span>
     </li>
   )
 }

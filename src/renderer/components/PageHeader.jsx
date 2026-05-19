@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useHeaderContent } from '../context/HeaderContext'
+import { useAuth } from '../context/AuthContext'
 
 const PAGE_TITLES = {
   '/dashboard': 'Inicio',
@@ -15,13 +16,13 @@ const PAGE_TITLES = {
   '/user-info': 'Información de Usuario',
 }
 
-const ESTADO_CAJA = 'Cerrada'
-
 export default function PageHeader() {
   const { pathname } = useLocation()
   const titulo = PAGE_TITLES[pathname] ?? ''
   const [hora, setHora] = useState(new Date().toLocaleTimeString())
   const headerContent = useHeaderContent()
+  const { caja } = useAuth()
+  const estadoCaja = caja ? 'Abierta' : 'Cerrada'
 
   useEffect(() => {
     const timer = setInterval(() => setHora(new Date().toLocaleTimeString()), 1000)
@@ -40,12 +41,10 @@ export default function PageHeader() {
           Estado de caja:{' '}
           <span
             className={
-              ESTADO_CAJA === 'Abierta'
-                ? 'text-green-400 font-semibold'
-                : 'text-red-400 font-semibold'
+              caja ? 'text-green-400 font-semibold' : 'text-red-400 font-semibold'
             }
           >
-            {ESTADO_CAJA}
+            {estadoCaja}
           </span>
         </span>
         <span className="font-mono">{hora}</span>
