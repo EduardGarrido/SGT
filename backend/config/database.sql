@@ -27,6 +27,7 @@ CREATE TABLE `Caja` (
   `ID_Caja` int(11) NOT NULL AUTO_INCREMENT,
   `Fecha` date NOT NULL,
   `Hora` time NOT NULL,
+  `Hora_Final` time DEFAULT NULL,
   `Monto_Inicial` float NOT NULL,
   `Monto_Final` float DEFAULT NULL,
   `Estado` varchar(20) DEFAULT NULL,
