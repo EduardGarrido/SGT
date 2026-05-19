@@ -49,11 +49,6 @@ if ($path === '/api/openSale') { // Ruta para abrir venta
     $ID_Venta = (int) $_SESSION['ID_Venta'];
     $Hora = date("H:i:s");
 
-    foreach ($data['productos'] as $item) {
-        $producto = Producto::readProducto($item['ID_Producto']);
-        Venta::addProductoVenta($connection, $ID_Venta, $item['ID_Producto'], $item['Cantidad'], $producto['Precio']);
-        Producto::descontarInventario($connection, $item['ID_Producto'], $item['Cantidad']);
-    }
 
 
     if (!$Monto || !$Forma_Pago || !$ID_Venta) {
@@ -75,9 +70,11 @@ if ($path === '/api/openSale') { // Ruta para abrir venta
         Venta::completeVenta($ID_Venta, $Hora, $Monto, $Forma_Pago);
 
         // Descontar inventario
-        $detalles = Venta::getDetalleVenta($ID_Venta);
-        foreach ($detalles as $detalle) {
-            Producto::descontarInventario($connection, $detalle['ID_Producto'], $detalle['Cantidad']);
+
+        foreach ($data['productos'] as $item) {
+            $producto = Producto::readProducto($item['ID_Producto']);
+            Venta::addProductoVenta($connection, $ID_Venta, $item['ID_Producto'], $item['Cantidad'], $producto['Precio']);
+            Producto::descontarInventario($connection, $item['ID_Producto'], $item['Cantidad']);
         }
 
         $connection->commit();
