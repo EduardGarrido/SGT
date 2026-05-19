@@ -21,8 +21,10 @@ const CART_COLUMNS = [
   { label: 'IMPORTE' },
 ]
 
-// TODO agregar descontar inventario
-// Agregar producto a venta
+const FORMAS_PAGO = ['efectivo', 'tarjeta', 'transferencia']
+
+const KBD =
+  'inline-flex items-center justify-center min-w-fit p-1 rounded border-none bg-white text-gray-900 text-[10px] font-bold font-mono shadow-sm leading-none'
 
 const SALES_KEY = 'venta-pendiente'
 
@@ -52,7 +54,10 @@ export default function Sales() {
   const [selectedItem, setSelectedItem] = useState(null)
   const [pago, setPago] = useState(persisted?.pago ?? '')
   const [formaPago, setFormaPago] = useState(persisted?.formaPago ?? 'efectivo')
+  const [activeResultIndex, setActiveResultIndex] = useState(0)
 
+  const searchInputRef = useRef(null)
+  const pagoInputRef = useRef(null)
   const ventaActivaRef = useRef(persisted?.ventaActiva ?? false)
 
   useEffect(() => {
@@ -103,46 +108,9 @@ export default function Sales() {
       .slice(0, 8)
   }, [productsData, searchQuery])
 
-  useHeader(
-    <div className="relative">
-      <input
-        type="text"
-        value={searchQuery}
-        onChange={(e) => {
-          setSearchQuery(e.target.value)
-          setShowResults(true)
-        }}
-        onFocus={() => setShowResults(true)}
-        placeholder="Buscar producto..."
-        className="w-72 px-3 py-1.5 rounded-lg border border-gray-600 bg-gray-700 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400"
-      />
-      {showResults && searchQuery && (
-        <ul className="absolute z-20 mt-1 w-72 max-h-72 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg">
-          {loadingProducts ? (
-            <li className="px-3 py-2 text-sm text-gray-500">Cargando...</li>
-          ) : resultados.length === 0 ? (
-            <li className="px-3 py-2 text-sm text-gray-500">Sin resultados</li>
-          ) : (
-            resultados.map((p) => (
-              <li
-                key={p.ID_Producto}
-                onClick={() => {
-                  addToCart(p)
-                  setSearchQuery('')
-                  setShowResults(false)
-                }}
-                className="flex justify-between items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
-              >
-                <span className="truncate flex-1">{p.Nombre_Producto}</span>
-                <span className="text-gray-500 ml-2">{formatMoney(Number(p.Precio))}</span>
-                <PlusIcon className="w-4 h-4 ml-2 text-emerald-600 shrink-0" />
-              </li>
-            ))
-          )}
-        </ul>
-      )}
-    </div>
-  )
+  useEffect(() => {
+    setActiveResultIndex(0)
+  }, [searchQuery])
 
   function addToCart(producto) {
     setCart((prev) => {
@@ -156,6 +124,16 @@ export default function Sales() {
       if (Number(producto.Cantidad) <= 0) return prev
       return [...prev, { ...producto, cantidad: 1 }]
     })
+  }
+
+  function agregarResultadoActivo() {
+    if (resultados.length === 0) return
+    const idx = Math.min(Math.max(activeResultIndex, 0), resultados.length - 1)
+    const p = resultados[idx]
+    if (!p) return
+    addToCart(p)
+    setSearchQuery('')
+    setShowResults(false)
   }
 
   function updateCantidad(id, value) {
@@ -223,6 +201,148 @@ export default function Sales() {
     })
   }
 
+  useEffect(() => {
+    if (!caja) return
+    function handleKeyDown(e) {
+      const ae = document.activeElement
+      const tag = ae?.tagName
+      const isTextInput =
+        (tag === 'INPUT' && ae?.type !== 'button' && ae?.type !== 'checkbox') ||
+        tag === 'TEXTAREA'
+
+      if (e.key === 'F1') {
+        e.preventDefault()
+        setShowResults(true)
+        searchInputRef.current?.focus()
+        searchInputRef.current?.select()
+        return
+      }
+      if (e.key === 'F2') {
+        e.preventDefault()
+        pagoInputRef.current?.focus()
+        pagoInputRef.current?.select()
+        return
+      }
+      if (e.key === 'F3') {
+        e.preventDefault()
+        handleCobrar()
+        return
+      }
+      if (e.key === 'F4') {
+        e.preventDefault()
+        setFormaPago('efectivo')
+        return
+      }
+      if (e.key === 'F5') {
+        e.preventDefault()
+        setFormaPago('tarjeta')
+        return
+      }
+      if (e.key === 'F6') {
+        e.preventDefault()
+        setFormaPago('transferencia')
+        return
+      }
+      if (e.key === 'F8') {
+        e.preventDefault()
+        clearCart()
+        return
+      }
+
+      if (e.key === 'Delete' && !isTextInput && selectedItem != null) {
+        e.preventDefault()
+        removeSelected()
+        return
+      }
+
+      if (e.key === 'Escape') {
+        if (showResults || searchQuery) {
+          setShowResults(false)
+          setSearchQuery('')
+          searchInputRef.current?.blur()
+        } else if (selectedItem != null) {
+          setSelectedItem(null)
+        } else if (isTextInput) {
+          ae?.blur?.()
+        }
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [caja, showResults, searchQuery, selectedItem, resultados, activeResultIndex, pagoSuficiente, total, cart, formaPago, pago])
+
+  function handleSearchKeyDown(e) {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setShowResults(true)
+      setActiveResultIndex((i) =>
+        Math.min(i + 1, Math.max(resultados.length - 1, 0))
+      )
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setActiveResultIndex((i) => Math.max(i - 1, 0))
+    } else if (e.key === 'Enter') {
+      e.preventDefault()
+      agregarResultadoActivo()
+    }
+  }
+
+  function handlePagoKeyDown(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      handleCobrar()
+    }
+  }
+
+  useHeader(
+    <div className="relative">
+      {caja && (
+        <input
+          ref={searchInputRef}
+          type="text"
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value)
+            setShowResults(true)
+          }}
+          onFocus={() => setShowResults(true)}
+          onKeyDown={handleSearchKeyDown}
+          placeholder="Buscar producto (F1)..."
+          className="w-72 px-3 py-1.5 rounded-lg border border-gray-600 bg-gray-700 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400"
+        />
+      )}
+      {showResults && searchQuery && (
+        <ul className="absolute z-20 mt-1 w-72 max-h-72 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg">
+          {loadingProducts ? (
+            <li className="px-3 py-2 text-sm text-gray-500">Cargando...</li>
+          ) : resultados.length === 0 ? (
+            <li className="px-3 py-2 text-sm text-gray-500">Sin resultados</li>
+          ) : (
+            resultados.map((p, idx) => (
+              <li
+                key={p.ID_Producto}
+                onMouseEnter={() => setActiveResultIndex(idx)}
+                onClick={() => {
+                  addToCart(p)
+                  setSearchQuery('')
+                  setShowResults(false)
+                }}
+                className={`flex justify-between items-center px-3 py-2 text-sm text-gray-700 cursor-pointer border-b border-gray-100 last:border-b-0 ${
+                  idx === activeResultIndex ? 'bg-emerald-50' : 'hover:bg-gray-100'
+                }`}
+              >
+                <span className="truncate flex-1">{p.Nombre_Producto}</span>
+                <span className="text-gray-500 ml-2">{formatMoney(Number(p.Precio))}</span>
+                <PlusIcon className="w-4 h-4 ml-2 text-emerald-600 shrink-0" />
+              </li>
+            ))
+          )}
+        </ul>
+      )}
+    </div>
+  )
+
   if (!caja) {
     return (
       <div className="flex flex-1 items-center justify-center">
@@ -279,12 +399,16 @@ export default function Sales() {
         </div>
 
         <div className="flex flex-col">
-          <label className="text-xs font-semibold text-gray-600 uppercase mb-1">Pago</label>
+          <label className="text-xs font-semibold text-gray-600 uppercase mb-1 flex items-center gap-2">
+            Pago <kbd className={KBD}>F2</kbd>
+          </label>
           <input
+            ref={pagoInputRef}
             type="text"
             inputMode="decimal"
             value={pago}
             onChange={(e) => setPago(e.target.value)}
+            onKeyDown={handlePagoKeyDown}
             placeholder="0.00"
             className="px-3 py-2 rounded-lg border border-gray-300 text-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
@@ -303,17 +427,18 @@ export default function Sales() {
 
         <div className="flex flex-col gap-2 col-span-2">
           <div className="grid grid-cols-3 gap-1 p-1 bg-gray-100 rounded-lg">
-            {['efectivo', 'tarjeta', 'transferencia'].map((opt) => (
+            {FORMAS_PAGO.map((opt, idx) => (
               <button
                 key={opt}
                 onClick={() => setFormaPago(opt)}
-                className={`text-xs font-semibold py-1.5 rounded capitalize transition ${
+                className={`text-xs font-semibold py-1.5 rounded capitalize transition flex items-center justify-center gap-1.5 ${
                   formaPago === opt
                     ? 'bg-white text-gray-900 shadow'
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
                 {opt}
+                <kbd className={KBD}>{`F${4 + idx}`}</kbd>
               </button>
             ))}
           </div>
@@ -326,6 +451,7 @@ export default function Sales() {
             <span className="flex items-center gap-2 justify-center">
               <BanknotesIcon className="w-5 h-5" />
               Cobrar
+              <kbd className={KBD}>F3</kbd>
             </span>
           </ActionButton>
 
@@ -338,6 +464,7 @@ export default function Sales() {
               <span className="flex items-center gap-1.5 justify-center">
                 <TrashIcon className="w-3.5 h-3.5" />
                 Eliminar seleccionado
+                <kbd className={KBD}>Supr</kbd>
               </span>
             </ActionButton>
             <ActionButton
@@ -348,6 +475,7 @@ export default function Sales() {
               <span className="flex items-center gap-1.5 justify-center">
                 <XMarkIcon className="w-3.5 h-3.5" />
                 Limpiar carrito
+                <kbd className={KBD}>F8</kbd>
               </span>
             </ActionButton>
           </div>
