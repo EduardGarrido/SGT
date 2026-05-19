@@ -123,4 +123,27 @@ class Venta
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
     }//-- fin funcion cancelar venta
+
+
+    public static function readAllVentas($ID_Caja)
+    {
+        try {
+            $connection = new Conexion();
+            $sql = $connection->prepare('SELECT Fecha, Hora, Monto  FROM' . self::TABLE . '
+        WHERE ID_Caja = :ID_Caja');
+            $sql->bindValue(':ID_Caja', $ID_Caja, PDO::PARAM_INT);
+            $sql->execute();
+            $ventas = $sql->fetchAll();
+            $connection = NULL;
+
+            if ($ventas) {
+                return $ventas;
+            } else {
+                return false;
+            }
+
+        } catch (PDOException $e) {
+            throw new Exception("Hubo un error: " . $e->getMessage());
+        }
+    }
 }
