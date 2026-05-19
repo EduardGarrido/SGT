@@ -4,10 +4,14 @@ import { logout } from '../api/api'
 import BaseButton from './BaseButton'
 
 export default function LogoutButton({ children, className, ...props }) {
-  const { cerrarSesion } = useAuth()
+  const { cerrarSesion, caja } = useAuth()
   const [loading, setLoading] = useState(false)
 
   async function handleLogout() {
+    if (caja) {
+      alert('No puedes cerrar sesión con una caja abierta. Cierra la caja primero.')
+      return
+    }
     setLoading(true)
     try {
       await logout()
@@ -18,7 +22,13 @@ export default function LogoutButton({ children, className, ...props }) {
   }
 
   return (
-    <BaseButton className={className} onClick={handleLogout} disabled={loading} {...props}>
+    <BaseButton
+      className={className}
+      onClick={handleLogout}
+      disabled={loading || !!caja}
+      title={caja ? 'Cierra la caja antes de salir' : undefined}
+      {...props}
+    >
       {children ?? 'Cerrar sesion'}
     </BaseButton>
   )
