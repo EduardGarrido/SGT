@@ -135,4 +135,31 @@ class Caja
         }
     }//-- Fin funcion caja abierta
 
+
+    // Funcion para leer caja
+    public static function readCaja()
+    {
+        try {
+            $connection = new Conexion;
+
+            $sql = $connection->prepare('SELECT c.ID_Caja, c.Fecha, c.Hora, c.Monto_Inicial, c.Monto_Final,
+            c.Estado_Final, c.Hora_Final, e.Nombre  FROM ' . self::TABLE . ' c
+            INNER JOIN Empleado e ON e.ID_Usuario = c.ID_Usuario  
+            WHERE Fecha = (SELECT MAX(Fecha) FROM Caja) AND Hora = (SELECT MIN(Hora) FROM Caja)');
+            $sql->execute();
+            $producto = $sql->fetch();
+            $connection = NULL;
+
+            if ($producto) {
+                return $producto;
+            } else {
+                return false;
+            }
+
+        } catch (PDOException $e) {
+            throw new Exception("Hubo un error: " . $e->getMessage());
+        }
+
+    }
+
 }//-- Fin clase Caja
