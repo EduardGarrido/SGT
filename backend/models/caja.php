@@ -92,6 +92,31 @@ class Caja
         }
     }//-- Fin funcion obtener monto
 
+    // Funcion para obtener el monto final de una caja 
+    public static function getMontoFinal($ID_Caja)
+    {
+        try {
+            $connection = new Conexion;
+
+            $sql = $connection->prepare('SELECT SUM(Monto) FROM Venta 
+            WHERE ID_Caja = :ID_Caja');
+            $sql->bindValue(':ID_Caja', $ID_Caja, PDO::PARAM_INT);
+            $sql->execute();
+            $monto = $sql->fetch();
+            $connection = NULL;
+
+            if ($monto) {
+                return $monto;
+            } else {
+                return false;
+            }
+
+        } catch (PDOException $e) {
+            throw new Exception("Hubo un error: " . $e->getMessage());
+        }
+    }//-- Fin funcion obtener monto final
+
+
     // Funcion para saber si existe alguna caja abierta
     public static function cajaAbierta()
     {

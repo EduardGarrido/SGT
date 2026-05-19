@@ -198,9 +198,16 @@ switch (true) {
         require_once __DIR__ . '/routes/cashRegisterRoute.php';
         break;
 
+    case $path === '/api/getMontoFinal':
+        requerirAutorizacion();
+        require_once __DIR__ . '/routes/cashRegisterRoute.php';
+        break;
+
     case $path === '/api/openSale':
+        requerirAutorizacion();
         require_once __DIR__ . '/routes/saleRoute.php';
         break;
+
     /*
         case $path === '/api/addProductSale':
             require_once __DIR__ . '/routes/saleRoute.php';
@@ -211,10 +218,12 @@ switch (true) {
             break;
     */
     case $path === '/api/completeSale':
+        requerirAutorizacion();
         require_once __DIR__ . '/routes/saleRoute.php';
         break;
 
     case $path === '/api/cancelSale':
+        requerirAutorizacion();
         require_once __DIR__ . '/routes/saleRoute.php';
         break;
 
