@@ -111,4 +111,35 @@ if ($path === '/api/openCashRegister') { // Ruta para abrir caja
         echo json_encode(['ok' => false, 'mensaje' => 'La caja no se pudo cerrar']);
     }
 
-}//-- Fin case closeCashRegister
+    //-- Fin case closeCashRegister
+
+} else if ($path === '/api/getAllVentas') { //Ruta para obtener todas las ventas de una caja 
+
+    if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+        http_response_code(405);
+        echo json_encode(['ok' => false, 'mensaje' => 'Método no permitido']);
+        return;
+    }
+
+    $ID_Caja = $_SESSION['ID_Caja'];
+
+    if (!$ID_Caja) {
+        http_response_code(404);
+        echo json_encode(['ok' => false, 'mensaje' => 'Caja no encontrada']);
+        return;
+    }
+
+
+    require_once __DIR__ . '/../models/venta.php';
+
+    $res = Venta::readAllVentas($ID_Caja);
+
+    if (!$res) {
+        http_response_code(404);
+        echo json_encode(['ok' => false, 'mensaje' => 'No hay ventas de esa caja']);
+        return;
+    }
+
+    http_response_code(200);
+    echo json_encode(['ok' => true, 'ventas' => $res]);
+}//-- Fin case getAllVentas

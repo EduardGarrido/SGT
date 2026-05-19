@@ -218,6 +218,9 @@ switch (true) {
         require_once __DIR__ . '/routes/saleRoute.php';
         break;
 
+    case $path === '/api/getAllVentas':
+        require_once __DIR__ . '/routes/cashRegisterRoute.php';
+        break;
 
     default:
         http_response_code(404);
