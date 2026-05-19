@@ -41,17 +41,18 @@ class Caja
 
 
     //Funcion cerrar caja
-    public static function closeCaja($ID_Caja, $Monto_Final, $Estado_Final, $Hora_Final)
+    public static function closeCaja($ID_Caja, $Monto_Final, $Monto_Final_Sistema, $Estado_Final, $Hora_Final)
     {
         try {
             $Estado = 'cerrada';
             $connection = new Conexion();
 
             $sql = $connection->prepare("UPDATE " . self::TABLE . " SET Monto_Final
-            = :Monto_Final, Estado = :Estado, Estado_Final = :Estado_Final, Hora_Final = :Hora_Final 
+            = :Monto_Final, Monto_Final_Sistema = :Monto_Final_Sistema, Estado = :Estado, Estado_Final = :Estado_Final, Hora_Final = :Hora_Final 
             WHERE ID_Caja = :ID_Caja");
             $sql->bindValue(":ID_Caja", $ID_Caja, PDO::PARAM_INT);
             $sql->bindValue(":Monto_Final", $Monto_Final);
+            $sql->bindValue(":Monto_Final_Sistema", $Monto_Final_Sistema);
             $sql->bindValue(":Estado", $Estado);
             $sql->bindValue(":Estado_Final", $Estado_Final);
             $sql->bindValue(":Hora_Final", $Hora_Final);
