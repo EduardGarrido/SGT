@@ -96,6 +96,7 @@ export default function Dashboard() {
           </h1>
           <hr className="rounded-full border-2 w-full border-gray-400 my-5" />
           <img src={cat}/>
+          <p className="text-sm italic text-gray-500">Cute_kitties_photo_1.png</p>
         </div>
       </div>
 

@@ -14,6 +14,7 @@ import {
 } from '@heroicons/react/20/solid'
 
 const CART_COLUMNS = [
+  { label: 'ID'},
   { label: 'PRODUCTO' },
   { label: 'PRECIO' },
   { label: 'EXISTENCIA' },
@@ -327,6 +328,7 @@ export default function Sales() {
                   addToCart(p)
                   setSearchQuery('')
                   setShowResults(false)
+                  console.log(p)
                 }}
                 className={`flex justify-between items-center px-3 py-2 text-sm text-gray-700 cursor-pointer border-b border-gray-100 last:border-b-0 ${
                   idx === activeResultIndex ? 'bg-emerald-50' : 'hover:bg-gray-100'
@@ -485,10 +487,10 @@ export default function Sales() {
   )
 }
 
-const headerCell = 'py-2 text-xs text-center border-b-2 border-gray-300 text-white'
+const headerCell = 'py-2 px-2 text-xs text-center border-b-2 border-gray-300 text-white'
 const rowCell = 'py-2 text-xs text-center text-gray-700 truncate px-2 flex items-center justify-center'
 
-const GRID_COLS = 'grid grid-cols-[2fr_1fr_1fr_1fr_1fr]'
+const GRID_COLS = 'grid grid-cols-[0.25fr_2fr_1fr_1fr_1fr_1fr]'
 
 function CartTableHeader() {
   return (
@@ -496,7 +498,8 @@ function CartTableHeader() {
       {CART_COLUMNS.map(({ label }, i) => (
         <div
           key={label}
-          className={`${headerCell} ${i === 0 ? 'pl-4' : ''} ${i === CART_COLUMNS.length - 1 ? 'pr-4' : ''}`}
+          className={headerCell}
+          // className={`${headerCell} ${i === 0 ? 'pl-4' : ''} ${i === CART_COLUMNS.length - 1 ? 'pr-4' : ''}`}
         >
           {label}
         </div>
@@ -515,7 +518,8 @@ function CartRow({ item, selected, onSelect, onCantidadChange, onCantidadBlur })
       }}
       className={`${GRID_COLS} cursor-pointer border-b border-gray-100 hover:bg-gray-50 ${selected ? 'bg-gray-100' : ''}`}
     >
-      <span className={`${rowCell} justify-start pl-4`}>{item.Nombre_Producto}</span>
+      <span className={rowCell}>{item.ID_Producto}</span>
+      <span className={rowCell}>{item.Nombre_Producto}</span>
       <span className={rowCell}>{formatMoney(Number(item.Precio))}</span>
       <span className={rowCell}>{item.Cantidad}</span>
       <span className={rowCell}>
