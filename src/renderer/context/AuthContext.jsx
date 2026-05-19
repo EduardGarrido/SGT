@@ -46,6 +46,7 @@ export function AuthProvider({ children }) {
   function cerrarSesion() {
     sessionStorage.removeItem(SESSION_KEY)
     sessionStorage.removeItem(CAJA_KEY)
+    sessionStorage.removeItem('venta-pendiente')
 
     setUsuario(null)
     setUserInfo(null)

@@ -16,8 +16,6 @@ export function validateCorreo(value) {
   return null
 }
 
-// Synchronous validation for the shared user form. Returns { message, field } or null.
-// Uniqueness checks (e.g. checkEmail) are left to the caller.
 export function validateUserForm(form, mode) {
   const requiredMissing =
     mode === 'create'

@@ -1,9 +1,16 @@
-import { useMemo, useState } from 'react'
-import { getProducts } from '../api/api'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { getProducts, openSale, cancelSale, completeSale } from '../api/api'
 import { useFetch } from '../hooks/useFetch'
 import { ActionButton } from '../components'
 import { useHeader } from '../context/HeaderContext.jsx'
-import { TrashIcon, PlusIcon, BanknotesIcon, XMarkIcon } from '@heroicons/react/20/solid'
+import { useAuth } from '../context/AuthContext'
+import {
+  TrashIcon,
+  PlusIcon,
+  BanknotesIcon,
+  XMarkIcon,
+  LockClosedIcon,
+} from '@heroicons/react/20/solid'
 
 const CART_COLUMNS = [
   { label: 'PRODUCTO' },
@@ -16,18 +23,62 @@ const CART_COLUMNS = [
 // TODO agregar descontar inventario
 // Agregar producto a venta
 
+const SALES_KEY = 'venta-pendiente'
+
+function readSalesState() {
+  try {
+    const raw = sessionStorage.getItem(SALES_KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
+  }
+}
+
 function formatMoney(n) {
   return `$${(Number.isFinite(n) ? n : 0).toFixed(2)}`
 }
 
 export default function Sales() {
+  const { caja } = useAuth()
   const { data: productsData, loading: loadingProducts } = useFetch(getProducts)
+
+  const persisted = readSalesState()
 
   const [searchQuery, setSearchQuery] = useState('')
   const [showResults, setShowResults] = useState(false)
-  const [cart, setCart] = useState([])
+  const [cart, setCart] = useState(persisted?.cart ?? [])
   const [selectedItem, setSelectedItem] = useState(null)
-  const [pago, setPago] = useState('')
+  const [pago, setPago] = useState(persisted?.pago ?? '')
+  const [formaPago, setFormaPago] = useState(persisted?.formaPago ?? 'efectivo')
+
+  const ventaActivaRef = useRef(persisted?.ventaActiva ?? false)
+
+  useEffect(() => {
+    if (cart.length > 0 && !ventaActivaRef.current) {
+      ventaActivaRef.current = true
+      openSale().then((res) => {
+        if (!res.ok) {
+          ventaActivaRef.current = false
+          alert(res.mensaje ?? 'No se pudo iniciar la venta')
+          sessionStorage.setItem(
+            SALES_KEY,
+            JSON.stringify({ cart, pago, formaPago, ventaActiva: false })
+          )
+        }
+      })
+    } else if (cart.length === 0 && ventaActivaRef.current) {
+      ventaActivaRef.current = false
+      cancelSale()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cart.length])
+
+  useEffect(() => {
+    sessionStorage.setItem(
+      SALES_KEY,
+      JSON.stringify({ cart, pago, formaPago, ventaActiva: ventaActivaRef.current })
+    )
+  }, [cart, pago, formaPago])
 
   const total = useMemo(
     () => cart.reduce((sum, item) => sum + Number(item.Precio) * (Number(item.cantidad) || 0), 0),
@@ -140,12 +191,41 @@ export default function Sales() {
     setSelectedItem(null)
   }
 
-  function handleCobrar() {
+  async function handleCobrar() {
     if (!pagoSuficiente) return
+    const payload = {
+      Monto: Number(total.toFixed(2)),
+      Forma_Pago: formaPago,
+      productos: cart.map((it) => ({
+        ID_Producto: it.ID_Producto,
+        Cantidad: Number(it.cantidad) || 0,
+      })),
+    }
+    const res = await completeSale(payload)
+    if (!res.ok) {
+      alert(res.mensaje ?? 'No se pudo completar la venta')
+      return
+    }
     alert(`Venta completada.\nTotal: ${formatMoney(total)}\nCambio: ${formatMoney(cambio)}`)
+    ventaActivaRef.current = false
     setCart([])
     setSelectedItem(null)
     setPago('')
+    setFormaPago('efectivo')
+  }
+
+  if (!caja) {
+    return (
+      <div className="flex flex-1 items-center justify-center">
+        <div className="bg-white rounded-lg shadow border border-gray-300 p-8 w-full max-w-md text-center">
+          <LockClosedIcon className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+          <h2 className="text-lg font-semibold text-gray-800 mb-1">No hay caja abierta</h2>
+          <p className="text-sm text-gray-500">
+            Debes abrir una caja desde el módulo Caja antes de registrar ventas.
+          </p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -213,6 +293,22 @@ export default function Sales() {
         </div>
 
         <div className="flex flex-col gap-2 col-span-2">
+          <div className="grid grid-cols-3 gap-1 p-1 bg-gray-100 rounded-lg">
+            {['efectivo', 'tarjeta', 'transferencia'].map((opt) => (
+              <button
+                key={opt}
+                onClick={() => setFormaPago(opt)}
+                className={`text-xs font-semibold py-1.5 rounded capitalize transition ${
+                  formaPago === opt
+                    ? 'bg-white text-gray-900 shadow'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                {opt}
+              </button>
+            ))}
+          </div>
+
           <ActionButton
             onClick={handleCobrar}
             disabled={!pagoSuficiente}
