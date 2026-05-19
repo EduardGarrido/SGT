@@ -30,6 +30,7 @@ CREATE TABLE `Caja` (
   `Hora_Final` time DEFAULT NULL,
   `Monto_Inicial` float NOT NULL,
   `Monto_Final` float DEFAULT NULL,
+  `Monto_Final_Sistema`float DEFAULT NULL,
   `Estado` varchar(20) DEFAULT NULL,
   `Estado_Final` varchar(20) DEFAULT NULL,
   `ID_Usuario` int(11) DEFAULT NULL,

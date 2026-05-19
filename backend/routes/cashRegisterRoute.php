@@ -84,23 +84,25 @@ if ($path === '/api/openCashRegister') { // Ruta para abrir caja
     $ID_Caja = $cajaActiva['ID_Caja'];
 
 
-    $Monto = Caja::getMontoInicial($ID_Caja);
+    $MontoSistema = Caja::getMontoFinal($ID_Caja);
+    $Monto_Inicial = Caja::getMontoInicial($ID_Caja);
+    $MontoFinalSistema = $MontoSistema['SUM(Monto)'] + $Monto_Inicial['Monto_Inicial'];
 
-    if (!$Monto) {
+    if (!$MontoSistema || !$Monto_Inicial) {
         http_response_code(404);
         echo json_encode(['ok' => false, 'mensaje' => 'Caja no encontrada']);
         return;
     }
 
 
-    if ($Monto_Final == $Monto['Monto_Inicial']) {
+    if ($Monto_Final == $MontoFinalSistema) {
         $Estado_Final = 'cuadrada';
     } else {
         $Estado_Final = 'descuadrada';
     }
 
 
-    $res = Caja::closeCaja($ID_Caja, $Monto_Final, $Estado_Final, $Hora_Final);
+    $res = Caja::closeCaja($ID_Caja, $Monto_Final, $MontoFinalSistema, $Estado_Final, $Hora_Final);
 
     if ($res) {
         unset($_SESSION['ID_Caja']);
