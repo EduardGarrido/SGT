@@ -38,7 +38,7 @@ class Venta
     {
         try {
             $sql = $connection->prepare('INSERT INTO Detalle_Venta (Cantidad, Precio_Unitario, ID_Venta, ID_Producto)
-        VALUES (:Cantidad, :Precio_Unitario, :ID_Venta, :ID_Producto)');
+            VALUES (:Cantidad, :Precio_Unitario, :ID_Venta, :ID_Producto)');
             $sql->bindValue(':Cantidad', $Cantidad, PDO::PARAM_INT);
             $sql->bindValue(':Precio_Unitario', $Precio_Unitario);
             $sql->bindValue(':ID_Venta', $ID_Venta, PDO::PARAM_INT);
@@ -49,20 +49,21 @@ class Venta
             throw new Exception("Hubo un error: " . $e->getMessage());
         }
     }//-- Fin funcion agregar producto a detalle
-
-    // Funcion para quitar producto del detalle
-    public static function removeProductoVenta($ID_Detalle_Venta)
-    {
-        try {
-            $connection = new Conexion();
-            $sql = $connection->prepare('DELETE FROM Detalle_Venta WHERE ID_Detalle_Venta = :ID_Detalle_Venta');
-            $sql->bindValue(':ID_Detalle_Venta', $ID_Detalle_Venta, PDO::PARAM_INT);
-            $sql->execute();
-            return $sql->rowCount() > 0 ? 1 : 0;
-        } catch (PDOException $e) {
-            throw new Exception("Hubo un error: " . $e->getMessage());
-        }
-    }//-- Fin funcion quitar producto de detalle
+/*
+        // Funcion para quitar producto del detalle
+        public static function removeProductoVenta($ID_Detalle_Venta)
+        {
+            try {
+                $connection = new Conexion();
+                $sql = $connection->prepare('DELETE FROM Detalle_Venta WHERE ID_Detalle_Venta = :ID_Detalle_Venta');
+                $sql->bindValue(':ID_Detalle_Venta', $ID_Detalle_Venta, PDO::PARAM_INT);
+                $sql->execute();
+                return $sql->rowCount() > 0 ? 1 : 0;
+            } catch (PDOException $e) {
+                throw new Exception("Hubo un error: " . $e->getMessage());
+            }
+        }//-- Fin funcion quitar producto de detalle
+    */
 
     // Funcion para obtener detalles de una venta
     public static function getDetalleVenta($ID_Venta)
