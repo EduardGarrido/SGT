@@ -29,6 +29,7 @@ if ($path === '/api/openCashRegister') { // Ruta para abrir caja
 
     $cajaActiva = Caja::cajaAbierta();
 
+
     if ($cajaActiva) {
         http_response_code(409);
         echo json_encode(['ok' => false, 'mensaje' => 'Ya hay una caja abierta']);
@@ -40,6 +41,7 @@ if ($path === '/api/openCashRegister') { // Ruta para abrir caja
 
 
     if ($res) {
+        $_SESSION['ID_Caja'] = $res;
         http_response_code(201);
         echo json_encode(['ok' => true, 'mensaje' => 'Caja abierta correctamente']);
     } else {
@@ -100,8 +102,8 @@ if ($path === '/api/openCashRegister') { // Ruta para abrir caja
 
     $res = Caja::closeCaja($ID_Caja, $Monto_Final, $Estado_Final, $Hora_Final);
 
-
     if ($res) {
+        unset($_SESSION['ID_Caja']);
         http_response_code(200);
         echo json_encode(['ok' => true, 'mensaje' => 'Caja cerrada correctamente']);
     } else {

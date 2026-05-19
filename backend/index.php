@@ -198,6 +198,26 @@ switch (true) {
         require_once __DIR__ . '/routes/cashRegisterRoute.php';
         break;
 
+    case $path === '/api/openSale':
+        require_once __DIR__ . '/routes/saleRoute.php';
+        break;
+
+    case $path === '/api/addProductSale':
+        require_once __DIR__ . '/routes/saleRoute.php';
+        break;
+
+    case $path === '/api/removeProductSale':
+        require_once __DIR__ . '/routes/saleRoute.php';
+        break;
+
+    case $path === '/api/completeSale':
+        require_once __DIR__ . '/routes/saleRoute.php';
+        break;
+
+    case $path === '/api/cancelSale':
+        require_once __DIR__ . '/routes/saleRoute.php';
+        break;
+
 
     default:
         http_response_code(404);

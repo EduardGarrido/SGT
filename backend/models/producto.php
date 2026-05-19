@@ -151,6 +151,31 @@ class Producto
     }//--Fin funcion actualizar producto 
 
 
+    // Funcion para descontar inventario
+    public static function descontarInventario($connection, $ID_Producto, $Cantidad)
+    {
+        try {
+            $sql = $connection->prepare('UPDATE ' . self::TABLE . ' SET Cantidad = Cantidad - :Cantidad
+        WHERE ID_Producto = :ID_Producto');
+            $sql->bindValue(':Cantidad', $Cantidad, PDO::PARAM_INT);
+            $sql->bindValue(':ID_Producto', $ID_Producto, PDO::PARAM_INT);
+            $sql->execute();
+
+            // Actualizar estado según cantidad resultante
+            $sqlEstado = $connection->prepare('UPDATE ' . self::TABLE . ' SET Estado = 
+        CASE 
+            WHEN Cantidad > Cantidad_Minima THEN "Disponible"
+            WHEN Cantidad > 0 AND Cantidad <= Cantidad_Minima THEN "Stock bajo"
+            ELSE "Sin stock"
+        END
+        WHERE ID_Producto = :ID_Producto');
+            $sqlEstado->bindValue(':ID_Producto', $ID_Producto, PDO::PARAM_INT);
+            $sqlEstado->execute();
+
+        } catch (PDOException $e) {
+            throw new Exception("Hubo un error: " . $e->getMessage());
+        }
+    }//-- Fin funcion descontar inventario
 
     /*
     public static function deleteProducto($ID_Producto) {

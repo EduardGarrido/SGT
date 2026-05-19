@@ -87,18 +87,16 @@ class Proveedor
 
 
     // Funcion para modificar un proveedor
-    public static function updateProveedor($ID_Proveedor, $Nombre_Proveedor, $Telefono, $Estado)
+    public static function updateProveedor($ID_Proveedor, $Nombre_Proveedor, $Telefono)
     {
         try {
 
             $connection = new Conexion();
             $sql = $connection->prepare('UPDATE ' . self::TABLE . ' SET Nombre_Proveedor = :Nombre_Proveedor,
-            Telefono = :Telefono,
-            Estado = :Estado
+            Telefono = :Telefono
             WHERE ID_Proveedor = :ID_Proveedor');
             $sql->bindValue(':Nombre_Proveedor', $Nombre_Proveedor);
             $sql->bindValue(':Telefono', $Telefono);
-            $sql->bindValue(':Estado', $Estado);
             $sql->bindValue(':ID_Proveedor', $ID_Proveedor, PDO::PARAM_INT);
 
             $sql->execute();
