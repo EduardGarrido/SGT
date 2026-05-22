@@ -55,8 +55,8 @@ export default function Dashboard() {
   }, [])
 
   return (
-    <div className="flex h-full w-full items-center justify-between gap-4 border border-gray-300">
-      <div className="flex flex-col rounded-lg h-full p-5 w-1/3 bg-gray-50 shadow-md justify-between">
+    <div className="flex h-full w-full items-center justify-between gap-4">
+      <div className="flex flex-col rounded-lg h-full p-5 w-1/3 bg-white shadow justify-between">
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl font-semibold text-gray-900 text-center">Mi información</h1>
           <hr className="rounded-full border-2 w-full border-gray-400 my-3" />
@@ -87,7 +87,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="flex flex-col rounded-lg h-full p-5 w-1/3 bg-gray-50 shadow-md">
+      <div className="flex flex-col rounded-lg h-full p-5 w-1/3 bg-white shadow">
         <div>
           <h1 className="text-2xl font-semibold text-gray-900 text-center">
             {userInfo
@@ -100,7 +100,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="rounded-lg h-full p-5 w-1/3 bg-gray-50 shadow-md">
+      <div className="rounded-lg h-full p-5 w-1/3 bg-white shadow">
         <h1 className="text-2xl font-semibold text-gray-900 text-center">Último corte</h1>
         <hr className="rounded-full border-2 w-full border-gray-400 my-5" />
         {loadingCaja ? (

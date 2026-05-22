@@ -5,7 +5,6 @@ import {
   Login,
   Dashboard,
   Users,
-  UserInfo,
   Sales,
   Caja,
   Inventory,
@@ -67,7 +66,6 @@ export default function App() {
         <Route element={<AppLayout />}>
           <Route path="/dashboard"  element={<Dashboard />} />
           <Route path="/sales"      element={<Sales />} />
-          <Route path="/user-info"  element={<UserInfo />} />
           <Route path="/caja"       element={<Caja />} />
           <Route path="/historial"  element={<PaginaEnConstruccion titulo="Historial" />} />
           <Route path="/report"     element={<PaginaEnConstruccion titulo="Report" />} />

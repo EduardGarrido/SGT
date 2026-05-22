@@ -40,7 +40,7 @@ function NavSection({ title, items, esAdmin }) {
 
   return (
     <div className="mb-6">
-      <p className="text-xs font-bold uppercase tracking-widest text-gray-400 px-3 mb-2">{title}</p>
+      <p className="text-xs font-bold uppercase tracking-widest text-gray-400 px-3 mb-3">{title}</p>
       <ul className="space-y-0.5">
         {visible.map((item) => (
           <NavItem key={item.to} to={item.to} label={item.label} />
@@ -60,7 +60,7 @@ export default function SideNav() {
         <NavSection title="Catálogo" items={CATALOGO} esAdmin={esAdmin} />
       </div>
       <div className="p-3 border-t border-gray-700">
-        <LogoutButton className="w-full bg-gray-700 hover:bg-gray-600 border-none font-normal text-sm py-2">
+        <LogoutButton className="w-full bg-gray-700 hover:bg-gray-600 border-none font-normal text-sm py-2 my-1">
           Cerrar sesión
         </LogoutButton>
       </div>

@@ -108,7 +108,7 @@ export default function Caja() {
   if (estado === 'cerrada') {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <div className="bg-white rounded-lg shadow border border-gray-300 p-8 w-full max-w-md">
+        <div className="bg-white rounded-lg shadow-md border border-gray-300 p-8 w-full max-w-md">
           <div className="flex items-center gap-2 mb-2">
             <LockClosedIcon className="w-5 h-5 text-gray-600" />
             <h2 className="text-lg font-semibold text-gray-800">Caja cerrada</h2>

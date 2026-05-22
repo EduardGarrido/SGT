@@ -348,7 +348,7 @@ export default function Sales() {
   if (!caja) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <div className="bg-white rounded-lg shadow border border-gray-300 p-8 w-full max-w-md text-center">
+        <div className="bg-white rounded-lg shadow-md border border-gray-300 p-8 w-full max-w-md text-center">
           <LockClosedIcon className="w-10 h-10 text-gray-400 mx-auto mb-3" />
           <h2 className="text-lg font-semibold text-gray-800 mb-1">No hay caja abierta</h2>
           <p className="text-sm text-gray-500">

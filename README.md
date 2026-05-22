@@ -62,6 +62,7 @@ mysql -u sgt_root -p sgtdb < backend/config/database.sql
 ```
 DB_HOST=127.0.0.1
 DB_PORT=3306
+DB_NAME=sgtdb
 DB_USER=sgt_root
 DB_PASS=tu_contraseña
 VITE_API_URL=http://localhost:8000/api

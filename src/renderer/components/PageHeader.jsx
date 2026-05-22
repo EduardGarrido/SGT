@@ -32,11 +32,11 @@ export default function PageHeader() {
   return (
     <header className="h-12 shrink-0 bg-gray-800 text-white px-6 flex items-center w-full justify-between shadow">
       <div className="flex w-fit flex-row items-center justify-center gap-4">
-        <span className="font-semibold tracking-wide">{titulo}</span>
+        <span className="font-semibold tracking-wide text-xl">{titulo}</span>
         {headerContent}
       </div>
 
-      <div className="flex items-center gap-6 text-sm">
+      <div className="flex items-center gap-6 text-normal">
         <span>
           Estado de caja:{' '}
           <span
@@ -47,7 +47,7 @@ export default function PageHeader() {
             {estadoCaja}
           </span>
         </span>
-        <span className="font-mono">{hora}</span>
+        <span className="font-sans">{hora}</span>
       </div>
     </header>
   )

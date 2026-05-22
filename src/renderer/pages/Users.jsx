@@ -403,7 +403,7 @@ export default function Users() {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="px-4 py-2 bg-gray-800 shrink-0">
-          <p className="text-xs font-semibold tracking-wide text-gray-300 uppercase">Información</p>
+          <p className="text-xs font-semibold tracking-wide text-gray-100 uppercase">Información</p>
           {selectedId ? (
             <p className="text-xs text-gray-400 truncate">{userInfo?.Nombre ?? '...'}</p>
           ) : (
