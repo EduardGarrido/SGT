@@ -18,13 +18,31 @@ Docker es la forma más sencilla de levantar el backend. También se puede usar 
 
 ## Ejecución en desarrollo
 
-### 1. Instalar dependencias del frontend
+### 1. Instalar y actualizar dependencias del frontend
 
 ```bash
 npm install
 ```
 
-### 2. Configurar el `.env`
+```bash
+npm update
+```
+
+### 2. Instalar dependencias del backend
+
+1. Entrar a la carpeta backend desde la terminal:
+
+```bash
+cd backend
+```
+
+2. Ejecutar el comando:
+
+```bash
+composer up
+```
+
+### 3. Configurar el `.env`
 
 ```bash
 cp .env.example .env
@@ -68,7 +86,7 @@ DB_PASS=tu_contraseña
 VITE_API_URL=http://localhost:8000/api
 ```
 
-### 3. Iniciar la aplicación Electron
+### 4. Iniciar la aplicación Electron
 
 ```bash
 npm run dev
@@ -81,7 +99,8 @@ Electron arranca el servidor PHP automáticamente (usando el PHP del sistema) y 
 | Campo | Valor |
 |-------|-------|
 | Usuario | `admin` |
-| Contraseña | `passadministrador` |
+| ID Usuario | `1` |
+| Contraseña | `passadmin` |
 
 El seeder crea esta cuenta automáticamente en el primer arranque si no existe.
 
