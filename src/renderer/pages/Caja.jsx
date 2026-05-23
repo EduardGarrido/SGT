@@ -108,12 +108,12 @@ export default function Caja() {
   if (estado === 'cerrada') {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <div className="bg-white rounded-lg shadow-md border border-gray-300 p-8 w-full max-w-md">
+        <div className="bg-white rounded-lg shadow-md border border-gray-300/70 p-8 w-full max-w-md">
           <div className="flex items-center gap-2 mb-2">
-            <LockClosedIcon className="w-5 h-5 text-gray-600" />
-            <h2 className="text-lg font-semibold text-gray-800">Caja cerrada</h2>
+            <LockClosedIcon className="w-5 h-5 text-gray-500" />
+            <h2 className="text-xl font-semibold text-gray-900">Caja cerrada</h2>
           </div>
-          <p className="text-sm text-gray-500 mb-6">
+          <p className="text-gray-500 mb-6">
             Ingresa el saldo inicial para abrir la caja del turno.
           </p>
 
@@ -121,20 +121,20 @@ export default function Caja() {
             <FormAlert response={response} />
           </div>
 
-          <label className="block text-xs font-semibold text-gray-700 mb-1">Saldo inicial</label>
+          <label className="block font-semibold text-gray-700 mb-1">Saldo inicial</label>
           <input
             type="text"
             inputMode="decimal"
             value={montoApertura}
             onChange={(e) => setMontoApertura(e.target.value)}
             placeholder="0.00"
-            className="w-full mb-4 px-3 py-2 rounded-lg border border-gray-300 text-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="w-full mb-4 px-3 py-2 rounded-lg border border-gray-600 text-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
 
           <ActionButton
             onClick={abrirCaja}
             disabled={!montoApertura}
-            className="w-full rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed font-semibold"
+            className="btn border-none w-full rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed font-semibold"
           >
             <span className="flex items-center gap-2 justify-center">
               <LockOpenIcon className="w-5 h-5" />
@@ -158,17 +158,17 @@ export default function Caja() {
       </div>
 
       <div className="flex justify-between items-center px-1">
-        <h3 className="text-sm font-semibold text-gray-700 uppercase">Ventas del turno</h3>
+        <h3 className="text-sm font-semibold text-gray-900 uppercase">Ventas del turno</h3>
         <button
           onClick={fetchVentas}
           disabled={loadingVentas}
-          className="text-xs text-gray-600 hover:text-gray-900 underline disabled:opacity-50"
+          className="text-sm text-gray-500 hover:text-gray-900 underline disabled:opacity-50"
         >
           {loadingVentas ? 'Cargando...' : 'Refrescar'}
         </button>
       </div>
 
-      <div className="flex flex-col w-full flex-1 border border-gray-300 bg-white shadow rounded-lg overflow-hidden">
+      <div className="flex flex-col w-full flex-1 border border-gray-300/70 bg-white shadow-md rounded-lg overflow-hidden">
         <div className={`w-full bg-gray-800 ${GRID_COLS}`}>
           {VENTA_COLUMNS.map(({ label }, i) => (
             <div
@@ -225,13 +225,13 @@ export default function Caja() {
 
         <div className="grid grid-cols-2 gap-3 mb-4 text-sm">
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-            <span className="block text-xs font-semibold text-gray-600 uppercase">
+            <span className="block text-xs font-semibold text-gray-700 uppercase">
               Saldo esperado
             </span>
             <span className="text-lg font-bold text-gray-900">{formatMoney(saldoActual)}</span>
           </div>
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-            <span className="block text-xs font-semibold text-gray-600 uppercase">Diferencia</span>
+            <span className="block text-xs font-semibold text-gray-700 uppercase">Diferencia</span>
             <span
               className={`text-lg font-bold ${
                 parseFloat(montoFinal) - saldoActual === 0
@@ -269,7 +269,7 @@ function StatCard({ label, value, tone, bold, isMoney = true }) {
   const toneCls =
     tone === 'emerald' ? 'text-emerald-600' : tone === 'red' ? 'text-red-600' : 'text-gray-900'
   return (
-    <div className="bg-white border border-gray-300 shadow rounded-lg p-4">
+    <div className="bg-white border border-gray-300/70 shadow-md rounded-lg p-4">
       <span className="text-xs font-semibold text-gray-600 uppercase">{label}</span>
       <p className={`text-2xl ${bold ? 'font-bold' : 'font-semibold'} ${toneCls} mt-1`}>
         {isMoney ? formatMoney(value) : value}

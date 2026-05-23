@@ -57,9 +57,9 @@ export default function Login() {
       <div className="h-dvh w-full flex flex-1 justify-center items-center">
         <div className="w-full max-w-xl">
           <div className="leading-loose">
-            <div className="w-full p-16 bg-gray-50 rounded-lg shadow-md flex flex-col gap-8 items-center justify-center">
+            <div className="w-full p-16 bg-white rounded-lg shadow-md flex flex-col gap-8 items-center justify-center border border-gray-300/70">
               <div className="w-full h-auto">
-                <p className="text-gray-800 text-center text-2xl font-bold w-inherit">
+                <p className="text-gray-900 text-center text-2xl font-bold w-inherit">
                   Inicio de sesión
                 </p>
               </div>
@@ -68,7 +68,7 @@ export default function Login() {
 
                 <div className="w-full justify-self-center-safe">
                   <label
-                    className="block text-medium font-semibold text-gray-800"
+                    className="block text-medium font-semibold text-gray-700"
                     htmlFor="id-usuario"
                   >
                     ID del usuario
@@ -86,7 +86,7 @@ export default function Login() {
                 </div>
                 <div className="w-full justify-self-center-safe">
                   <label
-                    className="block text-medium font-semibold text-gray-800"
+                    className="block text-medium font-semibold text-gray-700"
                     htmlFor="password"
                   >
                     Contraseña

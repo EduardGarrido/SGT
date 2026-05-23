@@ -30,7 +30,7 @@ export default function PageHeader() {
   }, [])
 
   return (
-    <header className="h-12 shrink-0 bg-gray-800 text-white px-6 flex items-center w-full justify-between shadow">
+    <header className="h-12 shrink-0 bg-gray-800 text-white px-6 flex items-center w-full justify-between shadow-md">
       <div className="flex w-fit flex-row items-center justify-center gap-4">
         <span className="font-semibold tracking-wide text-xl">{titulo}</span>
         {headerContent}
@@ -47,7 +47,7 @@ export default function PageHeader() {
             {estadoCaja}
           </span>
         </span>
-        <span className="font-sans">{hora}</span>
+        <span className="font-mono">{hora}</span>
       </div>
     </header>
   )

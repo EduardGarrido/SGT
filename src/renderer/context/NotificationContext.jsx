@@ -53,10 +53,10 @@ export function NotificationProvider({ children }) {
       >
         <div className="modal-box bg-white max-w-lg">
           <h3 className={`font-bold text-lg mb-3 ${tone}`}>{notification?.title}</h3>
-          <p className="text-sm text-gray-700 whitespace-pre-line">{notification?.message}</p>
+          <p className="text-gray-700 whitespace-pre-line">{notification?.message}</p>
           <div className="modal-action">
             <button
-              className={`btn text-white border-none ${btn}`}
+              className={`btn rounded-lg text-white border-none ${btn}`}
               onClick={close}
               autoFocus
             >

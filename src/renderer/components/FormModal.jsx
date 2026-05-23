@@ -26,7 +26,7 @@ const FormModal = forwardRef(function FormModal(
         {children}
         <div className="modal-action">
           <button
-            className="btn bg-gray-200 hover:bg-gray-300 text-gray-800 border-none"
+            className="rounded-lg btn border-none bg-gray-200 hover:bg-gray-300 text-gray-900"
             onClick={close}
             disabled={busy}
           >
@@ -34,7 +34,7 @@ const FormModal = forwardRef(function FormModal(
           </button>
           {onSubmit && (
             <ActionButton
-              className={`w-auto px-4 rounded-lg ${submitClass}`}
+              className={`btn border-none w-auto px-4 rounded-lg ${submitClass}`}
               onClick={onSubmit}
               disabled={busy || !canSubmit}
             >

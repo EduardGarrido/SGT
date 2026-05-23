@@ -151,7 +151,7 @@ export default function Categorias() {
           setCreateResponse(null)
           newModalRef.current.showModal()
         }}
-        className="w-auto text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 rounded-lg gap-1.5"
+        className="w-auto font-semibold bg-emerald-600 hover:bg-emerald-700 rounded-lg gap-1.5"
       >
         <PlusIcon className="w-4 h-4 shrink-0" />
         Nueva categoría
@@ -303,13 +303,13 @@ export default function Categorias() {
         )}
       </FormModal>
 
-      <div className="flex flex-col w-full h-full border border-gray-300 bg-white shadow rounded-lg overflow-hidden">
+      <div className="flex flex-col zw-full h-full border border-gray-300/70 bg-white shadow-md rounded-lg overflow-hidden">
         <CategoriaTableHeader />
         <div className="flex flex-col w-full overflow-y-auto flex-1">
           {loadingCategorias ? (
-            <p className="w-full text-center text-gray-600 py-4">Cargando categorías...</p>
+            <p className="w-full text-center text-gray-500 py-4">Cargando categorías...</p>
           ) : filtered.length === 0 ? (
-            <p className="w-full text-center text-gray-600 py-4">Sin categorías</p>
+            <p className="w-full text-center text-gray-500 py-4">Sin categorías</p>
           ) : (
             <ul>
               {filtered.map((c) => (
@@ -354,8 +354,8 @@ export default function Categorias() {
   )
 }
 
-const headerCell = 'py-2 text-xs text-center border-b-2 border-gray-300 text-white'
-const rowCell = 'py-2 text-xs text-center text-gray-700 truncate px-1'
+const headerCell = 'py-2 text-base text-center border-b-2 border-gray-300 text-white'
+const rowCell = 'py-2 text-base text-center text-gray-700 truncate px-1'
 
 function CategoriaTableHeader() {
   return (

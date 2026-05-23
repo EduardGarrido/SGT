@@ -56,24 +56,24 @@ export default function Dashboard() {
 
   return (
     <div className="flex h-full w-full items-center justify-between gap-4">
-      <div className="flex flex-col rounded-lg h-full p-5 w-1/3 bg-white shadow justify-between">
+      <div className="flex flex-col rounded-lg h-full p-5 w-1/3 bg-white shadow-md justify-between border border-gray-300/70">
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl font-semibold text-gray-900 text-center">Mi información</h1>
-          <hr className="rounded-full border-2 w-full border-gray-400 my-3" />
+          <hr className="rounded-full border-2 w-full border-gray-400 my-4" />
           {loading ? (
-            <p className="text-gray-400 text-sm">Cargando...</p>
+            <p className="text-gray-500 text-sm">Cargando...</p>
           ) : userInfo ? (
             <>
-              <p className="text-lg font-semibold text-gray-800">{userInfo.Nombre}</p>
+              <p className="text-lg font-semibold text-gray-700">{userInfo.Nombre}</p>
               <span className="text-sm text-gray-500 capitalize">{userInfo.Puesto}</span>
               <span
-                className={`text-xs w-fit px-2 py-0.5 rounded-full mt-1 ${userInfo.Estado === 'autorizado' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}
+                className={`text-xs w-fit px-2 py-0.5 rounded-full mt-1 ${userInfo.Estado === 'autorizado' ? 'bg-green-200 text-green-700' : 'bg-red-100 text-red-600'}`}
               >
                 {capitalize(userInfo.Estado)}
               </span>
               <hr className="border border-gray-200 my-3" />
               {USER_INFO_ROWS.map(({id, label, field})=>(
-            <p key={id} className="text-gray-800 text-md">
+            <p key={id} className="text-gray-700 text-md">
               {label}: {' '}
               <span className="text-inherit font-semibold ">
            {userInfo[field]}
@@ -82,12 +82,12 @@ export default function Dashboard() {
               ))}
             </>
           ) : (
-            <p className="text-gray-400 text-sm">Sin información</p>
+            <p className="text-gray-500 text-sm">Sin información</p>
           )}
         </div>
       </div>
 
-      <div className="flex flex-col rounded-lg h-full p-5 w-1/3 bg-white shadow">
+      <div className="flex flex-col rounded-lg h-full p-5 w-1/3 bg-white shadow-md border border-gray-300/70">
         <div>
           <h1 className="text-2xl font-semibold text-gray-900 text-center">
             {userInfo
@@ -100,16 +100,16 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="rounded-lg h-full p-5 w-1/3 bg-white shadow">
+      <div className="rounded-lg h-full p-5 w-1/3 bg-white shadow-md border border-gray-300/70">
         <h1 className="text-2xl font-semibold text-gray-900 text-center">Último corte</h1>
         <hr className="rounded-full border-2 w-full border-gray-400 my-5" />
         {loadingCaja ? (
-          <p className="text-gray-400 text-sm">Cargando...</p>
+          <p className="text-gray-500 text-sm">Cargando...</p>
         ) : ultimaCaja ? (
           <div className="flex flex-col gap-2 text-md">
             {REGISTER_INFO_ROWS.map(({label, field})=>(
                 <p className="text-gray-500">
-              {label}: <span className="text-gray-800 font-semibold">{ultimaCaja[field] ?? 'Invalido'}</span>
+              {label}: <span className="text-gray-700 font-semibold">{ultimaCaja[field] ?? 'Invalido'}</span>
             </p>
             ))}
 
@@ -119,7 +119,7 @@ export default function Dashboard() {
               field !== 'Estado_Final' ? (
                             <p className="text-gray-500">
              {label}: {' '}
-              <span className="text-gray-800 font-semibold">
+              <span className="text-gray-700 font-semibold">
                  {formatMoney(ultimaCaja[field])}
               </span>
             </p>
@@ -127,7 +127,7 @@ export default function Dashboard() {
                             <span
                 className={`text-xs w-fit px-2 py-0.5 rounded-full mt-1 ${
                   ultimaCaja.Estado_Final === 'cuadrada'
-                    ? 'bg-green-100 text-green-700'
+                    ? 'bg-green-200 text-green-700'
                     : 'bg-red-100 text-red-600'
                 }`}
               >
@@ -136,7 +136,7 @@ export default function Dashboard() {
             ))}
 </div>
         ): (
-          <p className="text-gray-400 text-sm">Sin cortes registrados</p>
+          <p className="text-gray-500 text-sm">Sin cortes registrados</p>
         )}
       </div>
     </div>

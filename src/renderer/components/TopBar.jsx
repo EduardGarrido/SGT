@@ -20,7 +20,7 @@ export default function TopBar() {
         <div className="text-center w-auto">
           <span className="font-extrabold text-3xl">Abarrotes "La bamba"</span>
         </div>
-        <div className="text-right font-bold w-fit">{dateTime}</div>
+        <div className="text-right font-sans w-fit">{dateTime}</div>
       </header>
       <div className="h-22 lg:h-12 shrink-0" />
     </>

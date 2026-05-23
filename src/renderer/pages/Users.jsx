@@ -120,7 +120,7 @@ const FORM_FIELDS = (mode) => [
   },
   {
     name: 'confirmar',
-    label: 'Confirmar contraseña',
+    label: mode == 'edit' ? 'Confirmar nueva contraseña' : 'Confirmar contraseña *',
     type: 'password',
     placeholder: 'Repite la contraseña',
     required: mode === 'create',
@@ -186,7 +186,7 @@ export default function Users() {
           setCreateResponse(null)
           createModalRef.current.showModal()
         }}
-        className="w-auto text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 rounded-lg gap-1.5"
+        className="w-auto font-semibold bg-emerald-600 hover:bg-emerald-700 rounded-lg gap-1.5"
       >
         <PlusIcon className="w-4 h-4 shrink-0" />
         Registrar usuario
@@ -375,13 +375,13 @@ export default function Users() {
       </ConfirmModal>
 
       {/* ── User table ───────────────────────────────────────────────────── */}
-      <div className="flex flex-col flex-1 min-w-0 h-full border border-gray-300 bg-white shadow rounded-lg overflow-hidden">
+      <div className="flex flex-col flex-1 min-w-0 h-full border border-gray-300/70 bg-white shadow-md rounded-lg overflow-hidden">
         <UserTableHeader />
         <div className="flex flex-col w-full overflow-y-auto flex-1">
           {loading ? (
-            <p className="w-full text-center text-gray-600 py-4">Cargando usuarios...</p>
+            <p className="w-full text-center text-gray-500 py-4">Cargando usuarios...</p>
           ) : filtered.length === 0 ? (
-            <p className="w-full text-center text-gray-600 py-4">Sin usuarios</p>
+            <p className="w-full text-center text-gray-500 py-4">Sin usuarios</p>
           ) : (
             <ul>
               {filtered.map((u) => (
@@ -399,15 +399,15 @@ export default function Users() {
 
       {/* ── Right info panel ─────────────────────────────────────────────── */}
       <div
-        className="flex flex-col flex-2 min-w-0 h-full border border-gray-300 bg-white shadow rounded-lg overflow-hidden"
+        className="flex flex-col flex-2 min-w-0 h-full border border-gray-300/70 bg-white shadow-md rounded-lg overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="px-4 py-2 bg-gray-800 shrink-0">
-          <p className="text-xs font-semibold tracking-wide text-gray-100 uppercase">Información</p>
+          <p className="text-base font-semibold tracking-wide text-gray-200 uppercase">Información</p>
           {selectedId ? (
-            <p className="text-xs text-gray-400 truncate">{userInfo?.Nombre ?? '...'}</p>
+            <p className="text-sm text-gray-400 truncate">{userInfo?.Nombre ?? '...'}</p>
           ) : (
-            <p className="text-xs text-gray-500 italic">Selecciona un usuario</p>
+            <p className="text-sm text-gray-400 italic">Selecciona un usuario</p>
           )}
         </div>
 
@@ -447,8 +447,8 @@ export default function Users() {
 
 // ─── Subcomponents ────────────────────────────────────────────────────────────
 
-const headerCell = 'py-2 text-xs text-center border-b-2 border-gray-300 text-white'
-const rowCell = 'py-2 text-xs text-center text-gray-700 truncate px-1'
+const headerCell = 'py-2 text-base text-center border-b-2 border-gray-300 text-white'
+const rowCell = 'py-2 text-base text-center text-gray-700 truncate px-1'
 
 function UserTableHeader() {
   return (
@@ -483,12 +483,12 @@ function UserTableRow({ user, selected, onSelect }) {
 function InfoPanelBody({ loading, selectedId, userInfo }) {
   if (!selectedId)
     return (
-      <p className="text-xs text-gray-400 italic text-center mt-8">Ningún usuario seleccionado</p>
+      <p className=" text-gray-500 italic text-center mt-8">Ningún usuario seleccionado</p>
     )
-  if (loading) return <p className="text-xs text-gray-400 text-center mt-8">Cargando...</p>
+  if (loading) return <p className="text-xs text-gray-500 text-center mt-8">Cargando...</p>
   if (!userInfo)
     return (
-      <p className="text-xs text-gray-400 italic text-center mt-8">
+      <p className="text-xs text-gray-500 italic text-center mt-8">
         No se pudo cargar la información
       </p>
     )
@@ -496,8 +496,8 @@ function InfoPanelBody({ loading, selectedId, userInfo }) {
     <dl className="flex flex-col gap-4">
       {INFO_ROWS.map(({ label, field, format }) => (
         <div key={field}>
-          <dt className="text-xs text-gray-400 mb-0.5">{label}</dt>
-          <dd className="text-sm font-medium text-gray-800 wrap-break-word">
+          <dt className="text-xs text-gray-500 mb-0.5">{label}</dt>
+          <dd className="text-sm font-medium text-gray-700 wrap-break-word">
             {format ? format(userInfo[field]) : userInfo[field] || '—'}
           </dd>
         </div>

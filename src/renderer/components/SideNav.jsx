@@ -59,8 +59,8 @@ export default function SideNav() {
         <NavSection title="Principal" items={PRINCIPAL} esAdmin={esAdmin} />
         <NavSection title="Catálogo" items={CATALOGO} esAdmin={esAdmin} />
       </div>
-      <div className="p-3 border-t border-gray-700">
-        <LogoutButton className="w-full bg-gray-700 hover:bg-gray-600 border-none font-normal text-sm py-2 my-1">
+      <div className="py-2 my-1 p-3 border-t border-gray-700">
+        <LogoutButton className="w-full bg-gray-700 hover:bg-gray-600 border-none font-normal text-sm py-2 my-1 mt-2">
           Cerrar sesión
         </LogoutButton>
       </div>

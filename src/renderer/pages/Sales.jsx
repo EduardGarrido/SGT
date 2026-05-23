@@ -348,10 +348,10 @@ export default function Sales() {
   if (!caja) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <div className="bg-white rounded-lg shadow-md border border-gray-300 p-8 w-full max-w-md text-center">
-          <LockClosedIcon className="w-10 h-10 text-gray-400 mx-auto mb-3" />
-          <h2 className="text-lg font-semibold text-gray-800 mb-1">No hay caja abierta</h2>
-          <p className="text-sm text-gray-500">
+        <div className="bg-white rounded-lg shadow-md border border-gray-300/70 p-8 w-full max-w-md text-center">
+          <LockClosedIcon className="w-10 h-10 text-gray-500 mx-auto mb-3" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-1">No hay caja abierta</h2>
+          <p className="text-gray-500">
             Debes abrir una caja desde el módulo Caja antes de registrar ventas.
           </p>
         </div>
@@ -367,7 +367,7 @@ export default function Sales() {
         setSelectedItem(null)
       }}
     >
-      <div className="flex flex-col w-full h-full border border-gray-300 bg-white shadow rounded-lg overflow-hidden">
+      <div className="flex flex-col w-full h-full border border-gray-300/70 bg-white shadow-md rounded-lg overflow-hidden">
         <CartTableHeader />
         <div className="flex flex-col w-full overflow-y-auto flex-1">
           {cart.length === 0 ? (
@@ -393,15 +393,15 @@ export default function Sales() {
 
       <div
         onClick={(e) => e.stopPropagation()}
-        className="grid grid-cols-5 gap-4 items-end bg-white border border-gray-300 shadow rounded-lg p-4"
+        className="grid grid-cols-5 gap-4 items-end bg-white border border-gray-300/70 shadow-md rounded-lg p-4"
       >
         <div className="flex flex-col">
-          <span className="text-xs font-semibold text-gray-600 uppercase">Total</span>
-          <span className="text-2xl font-bold text-gray-900">{formatMoney(total)}</span>
+          <span className="font-semibold text-gray-500 uppercase mb-1">Total</span>
+          <span className="text-5xl font-bold text-gray-900">{formatMoney(total)}</span>
         </div>
 
         <div className="flex flex-col">
-          <label className="text-xs font-semibold text-gray-600 uppercase mb-1 flex items-center gap-2">
+          <label className="font-semibold text-gray-500 uppercase mb-1 flex items-center gap-2">
             Pago <kbd className={KBD}>F2</kbd>
           </label>
           <input
@@ -412,14 +412,14 @@ export default function Sales() {
             onChange={(e) => setPago(e.target.value)}
             onKeyDown={handlePagoKeyDown}
             placeholder="0.00"
-            className="px-3 py-2 rounded-lg border border-gray-300 text-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="px-3 py-2 rounded-lg border border-gray-300 text-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
         </div>
 
         <div className="flex flex-col">
-          <span className="text-xs font-semibold text-gray-600 uppercase">Cambio</span>
+          <span className="font-semibold text-gray-500 uppercase mb-1">Cambio</span>
           <span
-            className={`text-2xl font-bold ${
+            className={`text-5xl font-bold ${
               cambio < 0 ? 'text-red-600' : 'text-emerald-600'
             }`}
           >
@@ -487,8 +487,8 @@ export default function Sales() {
   )
 }
 
-const headerCell = 'py-2 px-2 text-xs text-center border-b-2 border-gray-300 text-white'
-const rowCell = 'py-2 text-xs text-center text-gray-700 truncate px-2 flex items-center justify-center'
+const headerCell = 'py-2 px-2 text-base text-center border-b-2 border-gray-300 text-white'
+const rowCell = 'py-2 text-base text-center text-gray-700 truncate px-2 flex items-center justify-center'
 
 const GRID_COLS = 'grid grid-cols-[0.25fr_2fr_1fr_1fr_1fr_1fr]'
 
