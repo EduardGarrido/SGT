@@ -173,7 +173,7 @@ export default function Caja() {
           {VENTA_COLUMNS.map(({ label }, i) => (
             <div
               key={label}
-              className={`py-2 text-xs text-center border-b-2 border-gray-300 text-white ${i === 0 ? 'pl-4' : ''} ${i === VENTA_COLUMNS.length - 1 ? 'pr-4' : ''}`}
+              className={`py-2 text-sm text-center border-b-2 border-gray-300 text-white ${i === 0 ? 'pl-4' : ''} ${i === VENTA_COLUMNS.length - 1 ? 'pr-4' : ''}`}
             >
               {label}
             </div>
@@ -279,7 +279,7 @@ function StatCard({ label, value, tone, bold, isMoney = true }) {
 }
 
 const rowCell =
-  'py-2 text-xs text-center text-gray-700 truncate px-2 flex items-center justify-center'
+  'py-2 text-sm text-center text-gray-700 truncate px-2 flex items-center justify-center'
 
 function VentaRow({ venta }) {
   return (
