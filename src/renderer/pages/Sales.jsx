@@ -396,8 +396,8 @@ export default function Sales() {
         className="grid grid-cols-5 gap-4 items-end bg-white border border-gray-300/70 shadow-md rounded-lg p-4"
       >
         <div className="flex flex-col">
-          <span className="font-semibold text-gray-500 uppercase mb-0.5">Total</span>
-          <span className="text-5xl font-bold text-gray-900">{formatMoney(total)}</span>
+          <span className="font-semibold text-gray-500 uppercase mb-2.5">Total</span>
+          <span className="text-4xl font-bold text-gray-900">{formatMoney(total)}</span>
         </div>
 
         <div className="flex flex-col">
@@ -417,9 +417,9 @@ export default function Sales() {
         </div>
 
         <div className="flex flex-col">
-          <span className="font-semibold text-gray-500 uppercase mb-0.5">Cambio</span>
+          <span className="font-semibold text-gray-500 uppercase mb-2.5">Cambio</span>
           <span
-            className={`text-5xl font-bold ${
+            className={`text-4xl font-bold ${
               cambio < 0 ? 'text-red-600' : 'text-emerald-600'
             }`}
           >
